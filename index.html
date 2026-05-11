@@ -103,14 +103,13 @@
     }
     #gesture-guide.expanded .gg-chevron { transform: rotate(180deg); }
 
-    /* 접히는 본문 */
+    /* 접히는 본문 — display 방식이 max-height보다 안정적 */
     .gg-body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.42s cubic-bezier(0.16,1,0.3,1);
+      display: none;
     }
-    #gesture-guide.expanded .gg-body { max-height: 360px; }
-
+    #gesture-guide.expanded .gg-body {
+      display: block;
+    }
     .gg-body-inner {
       padding: 0 12px 14px;
       display: flex;
@@ -732,6 +731,13 @@
 <video id="hand-webcam" autoplay playsinline muted></video>
 <canvas id="tracking-canvas"></canvas>
 
+<!-- 토글: IIFE와 완전히 분리된 독립 스크립트 -->
+<script>
+  document.getElementById('gg-toggle').addEventListener('click', function () {
+    document.getElementById('gesture-guide').classList.toggle('expanded');
+  });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script>
@@ -1006,6 +1012,16 @@
     ctx.restore();
   }
 
+  /* ── 프로토콜 즉시 체크 (file:// 조기 감지) ──────────────────────────── */
+  (function checkProtocol() {
+    const sEl = document.getElementById('gg-status');
+    const dEl = document.querySelector('.gg-dot-live');
+    if (location.protocol === 'file:') {
+      if (sEl) { sEl.textContent = 'file:// → 로컬 서버 필요'; sEl.className = 'st-error'; }
+      if (dEl)   dEl.style.background = 'rgba(255,70,70,0.9)';
+    }
+  })();
+
   /* ── rAF 루프 ──────────────────────────────────────────────────────────── */
   function tick() {
     requestAnimationFrame(tick);
@@ -1028,11 +1044,6 @@
     if (vis>0.01&&sLMs) { drawSkeleton(vis); drawSpotlight(); }
   }
   tick();
-
-  /* ── 제스처 패널 토글 ──────────────────────────────────────────────────── */
-  document.getElementById('gg-toggle').addEventListener('click', () => {
-    document.getElementById('gesture-guide').classList.toggle('expanded');
-  });
 
   /* ── 상태 표시 헬퍼 ────────────────────────────────────────────────────── */
   const statusEl = document.getElementById('gg-status');
