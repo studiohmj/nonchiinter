@@ -739,7 +739,6 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script>
 (function () {
   'use strict';
@@ -795,18 +794,20 @@
   const ly = l => l.y * canvas.height;
 
   /* ── 상태 변수 ─────────────────────────────────────────────────────────── */
-  let vis        = 0;
-  let detected   = false;
-  let sLMs       = null;
-  let trail      = [];
-  let effects    = [];
-  let idlePts    = [];
-  let gesture    = 'none';
-  let rawGest    = 'none';
-  let gTick      = 0;
-  let hovCard    = null;
-  let mpReady    = false;   // MediaPipe 로드 완료 여부
-  let frameN     = 0;       // 프레임 카운터 (pulse 애니메이션용)
+  let vis          = 0;
+  let detected     = false;
+  let sLMs         = null;
+  let trail        = [];
+  let effects      = [];
+  let idlePts      = [];
+  let gesture      = 'none';
+  let rawGest      = 'none';
+  let gTick        = 0;
+  let hovCard      = null;
+  let mpReady      = false;
+  let frameN       = 0;
+  let handsInst    = null;   // MediaPipe Hands 인스턴스
+  let cameraActive = false;  // 감지 루프 실행 중 여부
 
   /* ── EMA 스무딩 ────────────────────────────────────────────────────────── */
   function applyEMA(raw) {
@@ -1063,9 +1064,9 @@
     }
   }
 
-  /* ── MediaPipe onResults ────────────────────────────────────────────────── */
+  /* ── MediaPipe 결과 콜백 ───────────────────────────────────────────────── */
   function onResults(res) {
-    if (res.multiHandLandmarks?.length) {
+    if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
       if (!detected) setStatus('ok', '손 감지됨 ✦');
       detected = true;
       applyEMA(res.multiHandLandmarks[0]);
@@ -1078,62 +1079,79 @@
     }
   }
 
-  /* ── 카메라 초기화 (명시적 권한 요청 포함) ─────────────────────────────── */
+  /* ── 감지 루프 (rAF 기반, camera_utils 불필요) ──────────────────────── */
+  async function detectLoop() {
+    while (cameraActive) {
+      if (video.readyState >= 2 && handsInst) {
+        try { await handsInst.send({ image: video }); } catch (_) {}
+      }
+      await new Promise(function(r) { requestAnimationFrame(r); });
+    }
+  }
+
+  /* ── 카메라 초기화 (getUserMedia 직접 호출) ────────────────────────────── */
   async function startCamera() {
 
-    /* CDN 스크립트 로드 확인 */
-    if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
-      setStatus('error', 'CDN 로드 실패 (인터넷 확인)');
+    /* MediaPipe Hands CDN 로드 확인 */
+    if (typeof Hands === 'undefined') {
+      setStatus('error', 'MediaPipe 로드 실패 — 인터넷 확인');
       return;
     }
 
-    /* 카메라 API 지원 여부 확인 */
+    /* 카메라 API 없으면 HTTPS/로컬 서버 필요 */
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus('error', 'file:// 불가 → 로컬 서버 필요');
+      setStatus('error', 'HTTPS 필요 (현재: ' + location.protocol + ')');
       return;
     }
 
-    /* 명시적으로 카메라 권한 요청 — 이 시점에 브라우저 팝업 발생 */
-    let testStream;
+    /* ① getUserMedia — 이 호출이 브라우저 권한 팝업을 직접 발생시킴 */
+    var stream;
     try {
       setStatus('', '카메라 권한 요청 중…');
-      testStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: 'user' },
+        audio: false
+      });
     } catch (err) {
-      const msg =
+      var msg =
         err.name === 'NotAllowedError'  ? '카메라 권한 거부됨' :
-        err.name === 'NotFoundError'    ? '카메라 없음' :
-        err.name === 'NotReadableError' ? '카메라 사용 중 (다른 앱)' :
-                                          'file:// → 로컬 서버 필요';
+        err.name === 'PermissionDeniedError' ? '카메라 권한 거부됨' :
+        err.name === 'NotFoundError'    ? '카메라를 찾을 수 없음' :
+        err.name === 'NotReadableError' ? '카메라가 다른 앱에서 사용 중' :
+                                          '카메라 오류: ' + err.name;
       setStatus('error', msg);
       return;
     }
-    /* 테스트 스트림 해제 — MediaPipe가 자체적으로 다시 열음 */
-    testStream.getTracks().forEach(t => t.stop());
 
-    /* MediaPipe Hands 초기화 */
+    /* ② 비디오 요소에 스트림 연결 */
+    video.srcObject = stream;
+    video.play().catch(function() {});
+
+    /* ③ MediaPipe Hands 초기화 */
     setStatus('', '모델 로딩 중…');
-    const hands = new Hands({
-      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`,
+    handsInst = new Hands({
+      locateFile: function(f) {
+        return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f;
+      }
     });
-    hands.setOptions({
+    handsInst.setOptions({
       maxNumHands:            1,
       modelComplexity:        1,
-      minDetectionConfidence: 0.72,
-      minTrackingConfidence:  0.62,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence:  0.5
     });
-    hands.onResults(onResults);
+    handsInst.onResults(onResults);
 
-    /* 카메라 루프 시작 */
+    /* ④ 첫 프레임 전송으로 WASM 모델 워밍업 */
+    await new Promise(function(r) { setTimeout(r, 300); });
     try {
-      await new Camera(video, {
-        onFrame: async () => { await hands.send({ image: video }); },
-        width: 640, height: 480,
-      }).start();
-      setStatus('', '손을 화면에 올려보세요');
-      mpReady = true;
-    } catch (e) {
-      setStatus('error', '카메라 시작 실패');
-    }
+      await handsInst.send({ image: video });
+    } catch (_) {}
+
+    setStatus('', '손을 화면에 올려보세요');
+    mpReady      = true;
+    cameraActive = true;
+    detectLoop();
   }
 
   startCamera();
