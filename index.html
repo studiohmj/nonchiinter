@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>눈치코치 — 눈치 있게, 코치 받자</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #hand-webcam {
+      position: fixed;
+      top: 0; left: 0;
+      width: 1px; height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #tracking-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Hand gesture interaction states ── */
+    [data-hand-hover] {
+      transform: translateY(-4px) scale(1.015) !important;
+      box-shadow:
+        0 12px 36px rgba(255, 108, 30, 0.18),
+        0 0 0 1px rgba(255, 108, 30, 0.22) !important;
+      transition:
+        transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.42s ease !important;
+    }
+    body[data-gesture="open"] .s-card {
+      box-shadow: 0 4px 24px rgba(255, 108, 30, 0.07);
+      transition: box-shadow 0.7s ease;
+    }
+    body[data-gesture="fist"] [data-hand-hover] {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ── 제스처 안내 패널 ── */
+    #gesture-guide {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(10, 8, 6, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 135, 50, 0.25);
+      border-radius: 16px;
+      z-index: 10001;           /* 캔버스(9999)보다 높음 */
+      pointer-events: auto;     /* 패널 전체 클릭 가능 */
+      width: 240px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(255,135,50,0.1);
+      overflow: hidden;
+    }
+
+    /* 토글 버튼 */
+    .gg-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      text-align: left;
+    }
+    .gg-toggle:hover .gg-title { color: rgba(255,165,80,1); }
+
+    .gg-dot-live {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,140,55,0.85);
+      flex-shrink: 0;
+      animation: gg-pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes gg-pulse {
+      0%,100% { opacity: 0.5;  transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.4); }
+    }
+    .gg-title {
+      flex: 1;
+      font-size: 11px;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: rgba(255,150,65,0.9);
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .gg-chevron {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+      transition: transform 0.38s cubic-bezier(0.16,1,0.3,1);
+      color: rgba(255,150,65,0.7);
+    }
+    #gesture-guide.expanded .gg-chevron { transform: rotate(180deg); }
+
+    /* 접히는 본문 */
+    .gg-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.42s cubic-bezier(0.16,1,0.3,1);
+    }
+    #gesture-guide.expanded .gg-body { max-height: 360px; }
+
+    .gg-body-inner {
+      padding: 0 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* 구분선 */
+    .gg-divider {
+      height: 1px;
+      background: rgba(255,135,50,0.12);
+      margin: 3px 0;
+    }
+
+    /* 제스처 항목 */
+    .gg-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 8px;
+      border-radius: 10px;
+      transition: background 0.3s ease, opacity 0.3s ease;
+      opacity: 0.55;
+    }
+    .gg-item.active {
+      background: rgba(255,135,50,0.13);
+      opacity: 1;
+    }
+    .gg-hand {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: filter 0.3s ease;
+      filter: grayscale(0.4) brightness(0.85);
+    }
+    .gg-item.active .gg-hand {
+      filter: none;
+    }
+    .gg-info { flex: 1; min-width: 0; }
+    .gg-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.95);
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      line-height: 1.3;
+      transition: color 0.3s ease;
+    }
+    .gg-desc {
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.52);
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      margin-top: 2px;
+      transition: color 0.3s ease;
+    }
+    .gg-item.active .gg-name { color: #ffb060; }
+    .gg-item.active .gg-desc { color: rgba(255,175,100,0.72); }
+    .gg-indicator {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(255,135,50,0.22);
+      flex-shrink: 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .gg-item.active .gg-indicator {
+      background: #ff8832;
+      box-shadow: 0 0 7px rgba(255,130,50,0.8);
+    }
+
+    /* 상태 메시지 줄 */
+    .gg-status-line {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+    #gg-status {
+      font-size: 10px;
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      font-weight: 400;
+      color: rgba(255,185,100,0.65);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.3s;
+    }
+    #gg-status.st-error { color: rgba(255,90,80,0.9); }
+    #gg-status.st-ok    { color: rgba(90,220,130,0.9); }
+    #gg-status.st-warn  { color: rgba(255,200,80,0.85); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ────────────────────────────── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo-lockup">
+      <img src="icon-app.png" alt="눈치코치" class="logo-img" />
+    </a>
+    <div class="nav-links">
+      <a href="#scenarios" class="nav-link">상황 유형</a>
+      <a href="#simulate"  class="nav-link">시뮬레이션</a>
+      <a href="#community" class="nav-link">후기</a>
+    </div>
+    <a href="#download" class="nav-cta">무료 시작</a>
+  </div>
+</nav>
+
+<!-- ── HERO ────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      당신을 위한 사회 예절 가이드
+    </div>
+    <h1 class="hero-title">
+      <span class="hero-emph">눈치</span><span class="hero-light"> 있게,</span><br />
+      <span class="hero-emph">코치</span><span class="hero-light"> 받자.</span>
+    </h1>
+    <p class="hero-sub">
+      다양한 사회적 상황들, 너무 어렵죠?<br />
+      장례식, 결혼식, 회식… 사소한 것들까지<br />
+      실제 데이터를 보면서 함께 익혀봐요!
+    </p>
+    <div class="hero-cta-row">
+      <a href="#simulate" class="btn-primary">시뮬레이션 보기</a>
+      <a href="#community" class="btn-ghost">사용 후기 보기</a>
+    </div>
+    <div class="hero-proof">
+      <div class="proof-faces">
+        <span class="face" style="background:#FFE8D6">🙋</span>
+        <span class="face" style="background:#D6E8FF">🤔</span>
+        <span class="face" style="background:#D6FFE8">😌</span>
+        <span class="face" style="background:#FFE8F6">🌙</span>
+      </div>
+      <p class="proof-label"><strong>4,173명</strong>이 이미 연습 중이에요</p>
+    </div>
+  </div>
+
+  <div class="hero-device">
+    <div class="device">
+      <div class="device-island"></div>
+      <div class="device-screen">
+        <div class="ds-appbar">
+          <div class="ds-logo">
+            <div class="ds-logo-mark"><span class="ds-logo-n">N</span></div>
+            <span class="ds-logo-name">눈치코치</span>
+          </div>
+        </div>
+        <div class="ds-label">오늘의 상황</div>
+        <div class="ds-card">
+          <span class="ds-tag">💬 직장</span>
+          <p class="ds-situation">팀장님이 단톡방에 '다들 수고했어요~'를 보냈다.</p>
+        </div>
+        <div class="ds-choice">😊 이모티콘으로 간단히 답장한다</div>
+        <div class="ds-choice active">✍️ 정중하게 텍스트로 감사 인사를 한다</div>
+        <div class="ds-stat">
+          <span class="ds-pct">68%</span>
+          <span class="ds-pct-label">가 같은 선택을 했어요</span>
+        </div>
+      </div>
+      <div class="device-bar"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCENARIOS ────────────────────────────── -->
+<section class="section-alt" id="scenarios">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">다루는 상황들</p>
+      <h2 class="sec-title">처음이라 어색한<br />그 순간들</h2>
+      <p class="sec-sub">사회생활에서 누구나 한 번쯤 맞닥뜨리는 상황들.<br />모르면 난처하고, 알면 자신감이 달라져요.</p>
+    </div>
+    <div class="card-grid col-3">
+      <div class="s-card">
+        <div class="s-icon">🕯️</div>
+        <span class="s-tag">장례식</span>
+        <p class="s-desc">처음 가는 장례식, 어디서 절을 하고<br />뭐라고 말해야 할까?</p>
+      </div>
+      <div class="s-card">
+        <div class="s-icon">💍</div>
+        <span class="s-tag">결혼식</span>
+        <p class="s-desc">친한 친구 결혼식 축의금,<br />얼마가 적당한지 모르겠어.</p>
+      </div>
+      <div class="s-card">
+        <div class="s-icon">🍻</div>
+        <span class="s-tag">회식</span>
+        <p class="s-desc">팀장이 첫 잔을 권할 때,<br />어떻게 받는 게 예의일까?</p>
+      </div>
+      <div class="s-card">
+        <div class="s-icon">🤝</div>
+        <span class="s-tag">직장</span>
+        <p class="s-desc">처음 만나는 거래처 담당자,<br />명함은 어떻게 주고받아야 하지?</p>
+      </div>
+      <div class="s-card">
+        <div class="s-icon">🎊</div>
+        <span class="s-tag">경조사</span>
+        <p class="s-desc">선배가 승진했을 때,<br />어떻게 축하 인사를 전해야 자연스럽지?</p>
+      </div>
+      <div class="s-card">
+        <div class="s-icon">🏥</div>
+        <span class="s-tag">병문안</span>
+        <p class="s-desc">처음 병문안을 가는데,<br />무엇을 들고 가고 뭐라고 해야 하나?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── APP PREVIEW ────────────────────────────── -->
+<section class="preview-section" id="preview">
+  <div class="container">
+    <div class="section-head center">
+      <p class="eyebrow">이렇게 작동해요</p>
+      <h2 class="sec-title">어플 하나로<br />이런 연습이 되네?</h2>
+    </div>
+
+    <div class="phones-stage">
+
+      <!-- Phone 1 — 홈 -->
+      <div class="phone-col side left">
+        <p class="phone-chip">🗂 상황 모아보기</p>
+        <div class="iphone">
+          <div class="iphone-top"><div class="iphone-island"></div></div>
+          <div class="iphone-screen">
+            <div class="app-bar">
+              <div class="app-bar-logo">
+                <div class="app-logo-mark"><span class="app-logo-n">N</span></div>
+                <span class="app-bar-title">눈치코치</span>
+              </div>
+            </div>
+            <div class="app-section-label">오늘의 상황 <span class="app-count">6</span></div>
+            <div class="app-list">
+              <div class="app-item active">
+                <span class="app-item-icon">🕯️</span>
+                <div class="app-item-body">
+                  <span class="app-item-tag">장례식</span>
+                  <span class="app-item-title">조문 순서를 모르겠다</span>
+                </div>
+                <span class="app-item-arr">›</span>
+              </div>
+              <div class="app-item">
+                <span class="app-item-icon">🍻</span>
+                <div class="app-item-body">
+                  <span class="app-item-tag">회식</span>
+                  <span class="app-item-title">술 권할 때 거절하는 법</span>
+                </div>
+                <span class="app-item-arr">›</span>
+              </div>
+              <div class="app-item">
+                <span class="app-item-icon">💍</span>
+                <div class="app-item-body">
+                  <span class="app-item-tag">결혼식</span>
+                  <span class="app-item-title">축의금 적정 금액</span>
+                </div>
+                <span class="app-item-arr">›</span>
+              </div>
+              <div class="app-item">
+                <span class="app-item-icon">🤝</span>
+                <div class="app-item-body">
+                  <span class="app-item-tag">직장</span>
+                  <span class="app-item-title">명함 주고받는 예절</span>
+                </div>
+                <span class="app-item-arr">›</span>
+              </div>
+            </div>
+          </div>
+          <div class="iphone-bar"></div>
+        </div>
+        <p class="phone-chip">📱 직관적인 홈 화면</p>
+      </div>
+
+      <!-- Phone 2 — 시뮬레이션 (center) -->
+      <div class="phone-col center">
+        <p class="phone-chip">⚡ 반응 선택</p>
+        <div class="iphone large">
+          <div class="iphone-top"><div class="iphone-island large"></div></div>
+          <div class="iphone-screen">
+            <div class="app-bar">
+              <span class="app-back">‹</span>
+              <span class="app-bar-title">상황 연습</span>
+              <span class="app-bar-right">2 / 6</span>
+            </div>
+            <div class="app-prog-wrap">
+              <div class="app-prog-fill" style="width:33%"></div>
+            </div>
+            <div class="app-situation">
+              <div class="app-sit-header">
+                <span class="app-sit-tag">🍻 회식 · 첫 회식 자리</span>
+                <span class="app-sit-participants">👥 1,247명 참여</span>
+              </div>
+              <p class="app-sit-text">팀장님이 첫 잔을 직접 따라주시겠다고 하셨다. 주변 동료들도 모두 지켜보고 있다.</p>
+              <p class="app-sit-hint">💡 이런 상황, 한 번쯤 겪어봤죠?</p>
+            </div>
+            <p class="app-q-label">나라면 어떻게 할 것 같아요?</p>
+            <div class="app-choices">
+              <div class="app-choice selected">
+                <span class="choice-dot"></span>
+                두 손으로 잔을 들고 "감사합니다" 하고 받는다
+              </div>
+              <div class="app-choice">
+                <span class="choice-dot"></span>
+                한 손으로 자연스럽게 잔을 받는다
+              </div>
+              <div class="app-choice">
+                <span class="choice-dot"></span>
+                처음엔 사양하고, 다시 권하실 때 받는다
+              </div>
+            </div>
+            <button class="app-submit">이걸로 골랐어요</button>
+          </div>
+          <div class="iphone-bar"></div>
+        </div>
+        <p class="phone-chip">🎯 세 가지 중에서 고르기</p>
+      </div>
+
+      <!-- Phone 3 — 결과 -->
+      <div class="phone-col side right">
+        <p class="phone-chip">📊 결과 확인</p>
+        <div class="iphone">
+          <div class="iphone-top"><div class="iphone-island"></div></div>
+          <div class="iphone-screen">
+            <div class="app-bar">
+              <span class="app-back">‹</span>
+              <span class="app-bar-title">결과 나왔어요</span>
+              <span></span>
+            </div>
+            <div class="app-ring-wrap">
+              <div class="app-ring">
+                <span class="app-ring-pct">78%</span>
+                <span class="app-ring-sub">가 선택</span>
+              </div>
+            </div>
+            <div class="app-bars">
+              <div class="app-bar-row">
+                <div class="app-bar-label"><span class="dot-win"></span>두 손으로 감사하게</div>
+                <div class="app-bar-track"><div class="app-bar-fill win" style="width:78%"></div></div>
+                <span class="app-bar-pct win">78%</span>
+              </div>
+              <div class="app-bar-row">
+                <div class="app-bar-label"><span class="dot-gray"></span>한 손으로 받기</div>
+                <div class="app-bar-track"><div class="app-bar-fill" style="width:15%"></div></div>
+                <span class="app-bar-pct">15%</span>
+              </div>
+              <div class="app-bar-row">
+                <div class="app-bar-label"><span class="dot-gray"></span>처음엔 사양하기</div>
+                <div class="app-bar-track"><div class="app-bar-fill" style="width:7%"></div></div>
+                <span class="app-bar-pct">7%</span>
+              </div>
+            </div>
+            <div class="app-insight">💡 어른이 따르실 때 두 손으로 받는 게 기본 예의예요</div>
+          </div>
+          <div class="iphone-bar"></div>
+        </div>
+        <p class="phone-chip">✨ 실제 사람들 평균</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SIMULATION ────────────────────────────── -->
+<section class="sim-section" id="simulate">
+  <div class="container">
+    <div class="section-head center">
+      <p class="eyebrow">직접 해보는 연습</p>
+      <h2 class="sec-title">선택하고, 결과 보고,<br />그렇게 감각이 쌓여요</h2>
+      <p class="sec-sub">정답을 알려주는 게 아니에요.<br />실제 사람들의 선택과 그 결과를 보면서 스스로 판단하게 돼요.</p>
+    </div>
+
+    <div class="sim-flow">
+
+      <div class="sim-step">
+        <div class="sim-step-meta">
+          <span class="step-badge">01</span>
+          <span class="step-name">이런 상황이에요</span>
+        </div>
+        <div class="sim-card">
+          <span class="sim-tag">🍻 회식 · 신입사원 첫 회식</span>
+          <p class="sim-text">팀장님이 "내가 첫 잔 따라줄게" 하시며 술병을 들었다. 주변 사람들이 모두 지켜보고 있다.</p>
+        </div>
+      </div>
+
+      <div class="sim-divider">
+        <div class="sim-divider-line"></div>
+        <div class="sim-divider-dot"></div>
+        <div class="sim-divider-line"></div>
+      </div>
+
+      <div class="sim-step">
+        <div class="sim-step-meta">
+          <span class="step-badge">02</span>
+          <span class="step-name">나라면 어떻게 할 것 같아요?</span>
+        </div>
+        <div class="sim-card">
+          <div class="sim-options">
+            <div class="sim-option selected">
+              <span class="opt-marker">A</span>
+              <span>두 손으로 잔을 들고 "감사합니다" 하며 공손히 받는다.</span>
+            </div>
+            <div class="sim-option">
+              <span class="opt-marker">B</span>
+              <span>한 손으로 자연스럽게 잔을 받는다.</span>
+            </div>
+            <div class="sim-option">
+              <span class="opt-marker">C</span>
+              <span>"괜찮습니다" 하고 처음엔 사양한 뒤, 다시 권하실 때 받는다.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sim-divider">
+        <div class="sim-divider-line"></div>
+        <div class="sim-divider-dot"></div>
+        <div class="sim-divider-line"></div>
+      </div>
+
+      <div class="sim-step">
+        <div class="sim-step-meta">
+          <span class="step-badge">03</span>
+          <span class="step-name">다른 사람들은 어떻게 했고, 어떻게 됐을까요?</span>
+        </div>
+        <div class="sim-card result">
+          <div class="sim-results">
+            <div class="sim-result-row winner">
+              <div class="sim-result-left">
+                <span class="opt-marker sm">A</span>
+                <span class="sim-result-name">두 손으로 공손히 받기</span>
+                <span class="result-crown">👑 제일 많이 골랐어요</span>
+              </div>
+              <div class="sim-result-right">
+                <span class="result-pct">78%</span>
+                <div class="result-track"><div class="result-fill win" style="width:78%"></div></div>
+              </div>
+            </div>
+            <div class="sim-result-row">
+              <div class="sim-result-left">
+                <span class="opt-marker sm">B</span>
+                <span class="sim-result-name">한 손으로 받기</span>
+              </div>
+              <div class="sim-result-right">
+                <span class="result-pct muted">15%</span>
+                <div class="result-track"><div class="result-fill" style="width:15%"></div></div>
+              </div>
+            </div>
+            <div class="sim-result-row">
+              <div class="sim-result-left">
+                <span class="opt-marker sm">C</span>
+                <span class="sim-result-name">처음엔 사양하기</span>
+              </div>
+              <div class="sim-result-right">
+                <span class="result-pct muted">7%</span>
+                <div class="result-track"><div class="result-fill" style="width:7%"></div></div>
+              </div>
+            </div>
+          </div>
+          <p class="sim-insight">💡 A를 고른 사람 대부분이 <strong>팀장님에게 좋은 첫인상</strong>을 남겼다고 답했어요. 두 손으로 받는 작은 행동이 생각보다 많은 걸 말해줘요.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── COMMUNITY ────────────────────────────── -->
+<section class="community-section" id="community">
+  <div class="container">
+    <div class="section-head center">
+      <p class="eyebrow">커뮤니티 후기</p>
+      <h2 class="sec-title sec-title-sm">실제로 써본 사람들 이야기</h2>
+      <p class="sec-sub sec-sub-sm">첫 댓글은 AI가 자동으로 달아드려요. 무플 걱정 없이 경험을 나눠보세요.</p>
+    </div>
+    <div class="testimonial-grid">
+
+      <div class="testimonial-card">
+        <div class="t-header">
+          <div class="t-avatar" style="background:#FFE8D6">🐻</div>
+          <div class="t-meta">
+            <span class="t-nick">봄비내리는날</span>
+            <span class="t-tag">🕯️ 장례식</span>
+          </div>
+        </div>
+        <p class="t-text">처음 조문을 가서 순서를 몰라 당황했는데, 미리 연습하고 가니까 훨씬 침착하게 행동할 수 있었어요. 유가족 분들께 실례 없이 조문을 마칠 수 있었습니다.</p>
+        <span class="t-empathy">312명 공감</span>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="t-header">
+          <div class="t-avatar" style="background:#D6E8FF">🌙</div>
+          <div class="t-meta">
+            <span class="t-nick">잠수함타는사람</span>
+            <span class="t-tag">🍻 회식</span>
+          </div>
+        </div>
+        <p class="t-text">첫 회식에서 어떻게 행동해야 할지 몰라 여기서 미리 연습했어요. 술 따르는 법, 자리 배치, 인사 방식까지 확인하고 갔더니 팀장님이 예의 바르다고 하셨어요.</p>
+        <span class="t-empathy">241명 공감</span>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="t-header">
+          <div class="t-avatar" style="background:#E8FFD6">🌿</div>
+          <div class="t-meta">
+            <span class="t-nick">민트초코싫음</span>
+            <span class="t-tag">💍 결혼식</span>
+          </div>
+        </div>
+        <p class="t-text">친한 친구 결혼식 축의금을 얼마 내야 할지 진짜 몰랐는데, 비슷한 상황 데이터 보고 결정했어요. 괜히 혼자 고민하지 말고 여기서 확인하는 게 훨씬 나아요.</p>
+        <span class="t-empathy">187명 공감</span>
+      </div>
+
+    </div>
+    <div class="community-note">
+      <span>지금 4,173개의 실제 경험이 쌓여 있어요</span>
+      <a href="#download" class="btn-ghost sm">앱에서 더 보기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────── -->
+<section class="cta" id="download">
+  <div class="cta-blob"></div>
+  <div class="container cta-inner">
+    <img src="icon-app.png" alt="눈치코치 앱 아이콘" class="cta-app-icon" />
+    <p class="cta-eyebrow">무료로 시작</p>
+    <h2 class="cta-title">한번 해보면<br />금방 느껴져요</h2>
+    <p class="cta-sub">첫 상황 하나만 골라보세요. 생각보다 재밌어요.</p>
+    <div class="store-btns">
+      <a href="#" class="store-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        App Store
+      </a>
+      <a href="#" class="store-btn outline">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.22.99.13l13.43-7.76-2.89-2.9-11.53 10.53zM.5 1.4C.19 1.74 0 2.27 0 2.96v18.08c0 .69.19 1.22.51 1.56l.08.08 10.12-10.12v-.24L.58 1.32.5 1.4zm18.95 9.25L16.6 9.24 13.7 6.35l2.91-2.9 2.83 1.63c.81.46.81 1.22 0 1.68l-2.84 1.63.85.85zM4.17.24L17.6 8l-2.89 2.9L3.18.24c.35-.2.74-.23.99.0z"/></svg>
+        Google Play
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────── -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-logo-lockup">
+      <img src="icon-app.png" alt="눈치코치" class="footer-logo-img" />
+    </div>
+    <p class="footer-copy">© 2026 눈치코치. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<!-- ── 제스처 안내 패널 ──────────────────────────── -->
+<div id="gesture-guide">
+
+  <!-- 항상 보이는 헤더 토글 -->
+  <button class="gg-toggle" id="gg-toggle" aria-label="제스처 가이드 열기/닫기">
+    <span class="gg-dot-live"></span>
+    <span class="gg-status-line">
+      <span class="gg-title">Hand Tracking</span>
+      <span id="gg-status">초기화 중…</span>
+    </span>
+    <svg class="gg-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 6 8 10 12 6"/>
+    </svg>
+  </button>
+
+  <!-- 접혀 있는 본문 (기본 hidden) -->
+  <div class="gg-body">
+    <div class="gg-body-inner">
+
+      <div class="gg-item" data-g="open">
+        <span class="gg-hand">🖐</span>
+        <div class="gg-info">
+          <div class="gg-name">Open Palm</div>
+          <div class="gg-desc">카드 활성화 · 확장</div>
+        </div>
+        <span class="gg-indicator"></span>
+      </div>
+
+      <div class="gg-divider"></div>
+
+      <div class="gg-item" data-g="fist">
+        <span class="gg-hand">✊</span>
+        <div class="gg-info">
+          <div class="gg-name">Closed Fist</div>
+          <div class="gg-desc">화면 정리 · 닫기</div>
+        </div>
+        <span class="gg-indicator"></span>
+      </div>
+
+      <div class="gg-divider"></div>
+
+      <div class="gg-item" data-g="pinch">
+        <span class="gg-hand">🤌</span>
+        <div class="gg-info">
+          <div class="gg-name">Pinch</div>
+          <div class="gg-desc">선택 확인 · 리플 효과</div>
+        </div>
+        <span class="gg-indicator"></span>
+      </div>
+
+      <div class="gg-divider"></div>
+
+      <div class="gg-item" data-g="pointing">
+        <span class="gg-hand">☝️</span>
+        <div class="gg-info">
+          <div class="gg-name">Pointing</div>
+          <div class="gg-desc">카드 미리보기 · 호버</div>
+        </div>
+        <span class="gg-indicator"></span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── HAND TRACKING LAYER ──────────────────────────── -->
+<video id="hand-webcam" autoplay playsinline muted></video>
+<canvas id="tracking-canvas"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script>
+(function () {
+  'use strict';
+
+  const video  = document.getElementById('hand-webcam');
+  const canvas = document.getElementById('tracking-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  /* ── canvas 크기를 뷰포트에 맞춤 ───────────────────────────────────────── */
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    buildIdlePts();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  /* ── 설정값 ────────────────────────────────────────────────────────────── */
+  const CFG = {
+    ema:         0.20,
+    trailFrames: 10,
+    fadeIn:      0.06,
+    fadeOut:     0.038,
+    lineW:       1.5,
+    skelGlow:    12,
+    tipGlow:     22,
+    idleN:       55,
+    debounce:    8,
+    pinchRatio:  0.30,
+  };
+
+  /* ── 색상 헬퍼 ─────────────────────────────────────────────────────────── */
+  const bone   = a => `rgba(255,110,40,${a})`;
+  const jnt    = a => `rgba(255,185,130,${a})`;
+  const tipC   = a => `rgba(255,245,230,${a})`;
+  const glw    = a => `rgba(255,135,55,${a})`;
+  const rpl    = a => `rgba(255,170,90,${a})`;
+  const dotC   = h => `hsl(${h},88%,67%)`;
+
+  /* ── 손 관절 연결선 정의 ──────────────────────────────────────────────── */
+  const EDGES = [
+    [0,1],[1,2],[2,3],[3,4],
+    [0,5],[5,6],[6,7],[7,8],
+    [0,9],[9,10],[10,11],[11,12],
+    [0,13],[13,14],[14,15],[15,16],
+    [0,17],[17,18],[18,19],[19,20],
+    [5,9],[9,13],[13,17],[0,17],
+  ];
+  const TIPS = new Set([4,8,12,16,20]);
+
+  /* ── 좌표 변환 (좌우 반전으로 거울 효과) ─────────────────────────────── */
+  const lx = l => (1 - l.x) * canvas.width;
+  const ly = l => l.y * canvas.height;
+
+  /* ── 상태 변수 ─────────────────────────────────────────────────────────── */
+  let vis        = 0;
+  let detected   = false;
+  let sLMs       = null;
+  let trail      = [];
+  let effects    = [];
+  let idlePts    = [];
+  let gesture    = 'none';
+  let rawGest    = 'none';
+  let gTick      = 0;
+  let hovCard    = null;
+  let mpReady    = false;   // MediaPipe 로드 완료 여부
+  let frameN     = 0;       // 프레임 카운터 (pulse 애니메이션용)
+
+  /* ── EMA 스무딩 ────────────────────────────────────────────────────────── */
+  function applyEMA(raw) {
+    if (!sLMs) { sLMs = raw.map(l => ({ x:l.x, y:l.y, z:l.z??0 })); return; }
+    const k = CFG.ema;
+    raw.forEach((l, i) => {
+      sLMs[i].x += k*(l.x-sLMs[i].x);
+      sLMs[i].y += k*(l.y-sLMs[i].y);
+      sLMs[i].z += k*((l.z??0)-sLMs[i].z);
+    });
+  }
+
+  /* ── 거리 계산 (정규화 좌표계) ────────────────────────────────────────── */
+  function dn(a, b) { return Math.hypot(a.x-b.x, a.y-b.y); }
+
+  /* ── 제스처 분류 ───────────────────────────────────────────────────────── */
+  const TIP_I = [8,12,16,20];
+  const MCP_I = [5, 9,13,17];
+  function extd(lm,t,m) { return dn(lm[t],lm[0]) > dn(lm[m],lm[0])*0.82; }
+  function classify(lm) {
+    const hs = dn(lm[0],lm[9]) + 1e-5;
+    if (dn(lm[4],lm[8])/hs < CFG.pinchRatio) return 'pinch';
+    const [i,m,r,p] = TIP_I.map((t,j) => extd(lm,t,MCP_I[j]));
+    if (!i&&!m&&!r&&!p) return 'fist';
+    if ( i&& m&& r&& p) return 'open';
+    if ( i&&!m&&!r&&!p) return 'pointing';
+    return 'none';
+  }
+
+  /* ── 손바닥 중심 (캔버스 px) ──────────────────────────────────────────── */
+  function palmPx(lm) {
+    const b=[0,5,9,13,17]; let sx=0,sy=0;
+    b.forEach(i=>{sx+=lm[i].x;sy+=lm[i].y;});
+    return { x:(1-sx/5)*canvas.width, y:(sy/5)*canvas.height };
+  }
+
+  /* ── 이펙트 생성 ───────────────────────────────────────────────────────── */
+  function emitBloom(cx,cy) {
+    for (let i=0;i<3;i++)
+      effects.push({type:'ring',x:cx,y:cy,r:6,spd:2.8+i*0.6,life:1,decay:0.02});
+    for (let i=0;i<12;i++) {
+      const a=Math.random()*Math.PI*2, s=Math.random()*2.5+0.5;
+      effects.push({type:'dot',x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,
+        life:1,decay:0.016+Math.random()*0.01,size:Math.random()*2.2+0.7,h:16+Math.random()*18});
+    }
+  }
+  function emitCollapse(cx,cy) {
+    for (let i=0;i<12;i++) {
+      const a=Math.random()*Math.PI*2,r=Math.random()*90+35;
+      effects.push({type:'dot',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,
+        vx:0,vy:0,tx:cx,ty:cy,pull:true,
+        life:1,decay:0.022+Math.random()*0.01,size:Math.random()*1.8+0.5,h:20+Math.random()*15});
+    }
+  }
+  function emitRipple(x,y) {
+    effects.push({type:'ring',x,y,r:5,spd:3.5,life:1,decay:0.018});
+    effects.push({type:'ring',x,y,r:5,spd:2.1,life:0.72,decay:0.016,delay:0.13});
+  }
+
+  /* ── idle 파티클 초기화 (충분히 눈에 보이는 밝기) ─────────────────────── */
+  function buildIdlePts() {
+    idlePts = Array.from({length:CFG.idleN}, () => ({
+      x:  Math.random()*canvas.width,
+      y:  Math.random()*canvas.height,
+      vx: (Math.random()-0.5)*0.35,
+      vy: -(Math.random()*0.25+0.05),
+      sz: Math.random()*1.6+0.5,
+      a:  Math.random()*0.22+0.10,   // 이전 0.02~0.09 → 0.10~0.32 로 증가
+      h:  22+Math.random()*20,
+    }));
+  }
+
+  /* ── DOM 카드 호버 ─────────────────────────────────────────────────────── */
+  function updateHover(fx,fy) {
+    let best=null, bestD=Infinity;
+    document.querySelectorAll('.s-card,.testimonial-card,.sim-option').forEach(el => {
+      const r=el.getBoundingClientRect();
+      if (fx>r.left&&fx<r.right&&fy>r.top&&fy<r.bottom) {
+        const d=Math.hypot(fx-(r.left+r.right)/2,fy-(r.top+r.bottom)/2);
+        if (d<bestD){bestD=d;best=el;}
+      }
+    });
+    if (best!==hovCard) {
+      if (hovCard) hovCard.removeAttribute('data-hand-hover');
+      hovCard=best;
+      if (hovCard) hovCard.setAttribute('data-hand-hover','');
+    }
+  }
+  function clearHover() {
+    if (hovCard){hovCard.removeAttribute('data-hand-hover');hovCard=null;}
+  }
+
+  /* ── 제스처 패널 업데이트 ──────────────────────────────────────────────── */
+  function updateGuide(g) {
+    document.querySelectorAll('#gesture-guide .gg-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.g === g);
+    });
+  }
+
+  /* ── 제스처 이벤트 처리 ────────────────────────────────────────────────── */
+  function onGesture(g) {
+    if (g===gesture) return;
+    gesture=g;
+    document.body.dataset.gesture=g;
+    updateGuide(g);
+    if (!sLMs) return;
+    const pc=palmPx(sLMs);
+    if      (g==='open')    emitBloom(pc.x,pc.y);
+    else if (g==='fist')    {emitCollapse(pc.x,pc.y);clearHover();}
+    else if (g==='pinch')   emitRipple((lx(sLMs[4])+lx(sLMs[8]))/2,(ly(sLMs[4])+ly(sLMs[8]))/2);
+    if (g!=='pointing') clearHover();
+  }
+
+  /* ── 렌더: idle 파티클 + 상태 표시 ────────────────────────────────────── */
+  function drawIdle() {
+    const fo = 1 - vis;
+    if (fo < 0.02) return;
+
+    ctx.save();
+    idlePts.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy;
+      if (p.y<-4){p.y=canvas.height+4;p.x=Math.random()*canvas.width;}
+      if (p.x<0||p.x>canvas.width) p.vx*=-1;
+      ctx.globalAlpha = p.a*fo;
+      ctx.shadowBlur  = 8;
+      ctx.shadowColor = `hsl(${p.h},72%,60%)`;
+      ctx.fillStyle   = `hsl(${p.h},68%,62%)`;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2); ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  /* ── 렌더: 스켈레톤 + 트레일 ──────────────────────────────────────────── */
+  function drawSkeleton(a) {
+    if (!sLMs) return;
+    const lm=sLMs;
+    ctx.save(); ctx.lineCap='round';
+
+    for (let t=0;t<trail.length;t++) {
+      const tA=(t/trail.length)*a*0.28;
+      if (tA<0.012) continue;
+      const fr=trail[t];
+      ctx.lineWidth=1.1; ctx.shadowBlur=4;
+      ctx.shadowColor=glw(tA); ctx.strokeStyle=bone(tA);
+      EDGES.forEach(([x,y])=>{
+        ctx.beginPath(); ctx.moveTo(lx(fr[x]),ly(fr[x]));
+        ctx.lineTo(lx(fr[y]),ly(fr[y])); ctx.stroke();
+      });
+    }
+
+    ctx.lineWidth=CFG.lineW; ctx.shadowBlur=CFG.skelGlow;
+    ctx.shadowColor=glw(a*0.65); ctx.strokeStyle=bone(a*0.9);
+    EDGES.forEach(([x,y])=>{
+      ctx.beginPath(); ctx.moveTo(lx(lm[x]),ly(lm[x]));
+      ctx.lineTo(lx(lm[y]),ly(lm[y])); ctx.stroke();
+    });
+
+    lm.forEach((l,i)=>{
+      const iT=TIPS.has(i);
+      ctx.shadowBlur  = iT?CFG.tipGlow:7;
+      ctx.shadowColor = iT?tipC(a):jnt(a*0.5);
+      ctx.fillStyle   = iT?tipC(a):jnt(a*0.48);
+      ctx.beginPath(); ctx.arc(lx(l),ly(l),iT?4:2.2,0,Math.PI*2); ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  /* ── 렌더: 포인팅 스포트라이트 ────────────────────────────────────────── */
+  function drawSpotlight() {
+    if (!sLMs||gesture!=='pointing') return;
+    const x=lx(sLMs[8]),y=ly(sLMs[8]);
+    ctx.save();
+    const g=ctx.createRadialGradient(x,y,0,x,y,40);
+    g.addColorStop(0,  `rgba(255,245,215,${vis*0.45})`);
+    g.addColorStop(0.4,`rgba(255,185,90,${vis*0.22})`);
+    g.addColorStop(1,  'rgba(255,140,60,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,40,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  /* ── 렌더: 이펙트 (링 + 도트) ─────────────────────────────────────────── */
+  function drawEffects() {
+    effects=effects.filter(e=>e.life>0);
+    ctx.save();
+    effects.forEach(e=>{
+      if ((e.delay??0)>0){e.delay-=0.016;return;}
+      if (e.type==='ring') {
+        e.r+=e.spd; e.spd*=0.968; e.life-=e.decay;
+        const a=Math.max(0,e.life);
+        ctx.globalAlpha=a*0.55; ctx.strokeStyle=rpl(1);
+        ctx.lineWidth=1.5; ctx.shadowBlur=12; ctx.shadowColor=rpl(0.75);
+        ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.stroke();
+      } else {
+        if (e.pull){e.vx+=(e.tx-e.x)*0.062;e.vy+=(e.ty-e.y)*0.062;e.vx*=0.82;e.vy*=0.82;}
+        else {e.vx*=0.93;e.vy*=0.93;}
+        e.x+=e.vx; e.y+=e.vy; e.life-=e.decay;
+        const a=Math.max(0,e.life);
+        ctx.globalAlpha=a*0.82; ctx.shadowBlur=10;
+        ctx.shadowColor=dotC(e.h); ctx.fillStyle=dotC(e.h);
+        ctx.beginPath(); ctx.arc(e.x,e.y,e.size*(0.3+0.7*a),0,Math.PI*2); ctx.fill();
+      }
+    });
+    ctx.restore();
+  }
+
+  /* ── rAF 루프 ──────────────────────────────────────────────────────────── */
+  function tick() {
+    requestAnimationFrame(tick);
+    frameN++;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    vis=Math.max(0,Math.min(1,vis+(detected?CFG.fadeIn:-CFG.fadeOut)));
+
+    if (detected&&sLMs&&vis>0.05) {
+      trail.push(sLMs.map(l=>({...l})));
+      if (trail.length>CFG.trailFrames) trail.shift();
+    } else if (!detected&&trail.length>0) {
+      trail.shift();
+    }
+
+    if (gesture==='pointing'&&sLMs) updateHover(lx(sLMs[8]),ly(sLMs[8]));
+
+    drawIdle();
+    drawEffects();
+    if (vis>0.01&&sLMs) { drawSkeleton(vis); drawSpotlight(); }
+  }
+  tick();
+
+  /* ── 제스처 패널 토글 ──────────────────────────────────────────────────── */
+  document.getElementById('gg-toggle').addEventListener('click', () => {
+    document.getElementById('gesture-guide').classList.toggle('expanded');
+  });
+
+  /* ── 상태 표시 헬퍼 ────────────────────────────────────────────────────── */
+  const statusEl = document.getElementById('gg-status');
+  const dotEl    = document.querySelector('.gg-dot-live');
+
+  function setStatus(type, msg) {
+    if (statusEl) {
+      statusEl.textContent  = msg;
+      statusEl.className    = 'st-' + type;
+    }
+    if (dotEl) {
+      dotEl.style.background =
+        type === 'error' ? 'rgba(255,70,70,0.9)'  :
+        type === 'ok'    ? 'rgba(80,220,130,0.9)'  :
+                           'rgba(255,140,55,0.85)';
+      dotEl.style.animationPlayState = type === 'ok' ? 'paused' : 'running';
+    }
+  }
+
+  /* ── MediaPipe onResults ────────────────────────────────────────────────── */
+  function onResults(res) {
+    if (res.multiHandLandmarks?.length) {
+      if (!detected) setStatus('ok', '손 감지됨 ✦');
+      detected = true;
+      applyEMA(res.multiHandLandmarks[0]);
+      const raw = classify(sLMs);
+      if (raw !== rawGest) { gTick = 0; rawGest = raw; }
+      else if (++gTick >= CFG.debounce) onGesture(raw);
+    } else {
+      if (detected) setStatus('', '손을 화면에 올려보세요');
+      detected = false;
+    }
+  }
+
+  /* ── 카메라 초기화 (명시적 권한 요청 포함) ─────────────────────────────── */
+  async function startCamera() {
+
+    /* CDN 스크립트 로드 확인 */
+    if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
+      setStatus('error', 'CDN 로드 실패 (인터넷 확인)');
+      return;
+    }
+
+    /* 카메라 API 지원 여부 확인 */
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setStatus('error', 'file:// 불가 → 로컬 서버 필요');
+      return;
+    }
+
+    /* 명시적으로 카메라 권한 요청 — 이 시점에 브라우저 팝업 발생 */
+    let testStream;
+    try {
+      setStatus('', '카메라 권한 요청 중…');
+      testStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    } catch (err) {
+      const msg =
+        err.name === 'NotAllowedError'  ? '카메라 권한 거부됨' :
+        err.name === 'NotFoundError'    ? '카메라 없음' :
+        err.name === 'NotReadableError' ? '카메라 사용 중 (다른 앱)' :
+                                          'file:// → 로컬 서버 필요';
+      setStatus('error', msg);
+      return;
+    }
+    /* 테스트 스트림 해제 — MediaPipe가 자체적으로 다시 열음 */
+    testStream.getTracks().forEach(t => t.stop());
+
+    /* MediaPipe Hands 초기화 */
+    setStatus('', '모델 로딩 중…');
+    const hands = new Hands({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`,
+    });
+    hands.setOptions({
+      maxNumHands:            1,
+      modelComplexity:        1,
+      minDetectionConfidence: 0.72,
+      minTrackingConfidence:  0.62,
+    });
+    hands.onResults(onResults);
+
+    /* 카메라 루프 시작 */
+    try {
+      await new Camera(video, {
+        onFrame: async () => { await hands.send({ image: video }); },
+        width: 640, height: 480,
+      }).start();
+      setStatus('', '손을 화면에 올려보세요');
+      mpReady = true;
+    } catch (e) {
+      setStatus('error', '카메라 시작 실패');
+    }
+  }
+
+  startCamera();
+
+}());
+</script>
+
+</body>
+</html>
