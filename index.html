@@ -234,16 +234,22 @@
       #scroll-mode-label.bot-pos { bottom: calc(12vh + 14px); }
       #scroll-ind { right: 12px; }
     }
-    /* 480px 이하 — HUD 숨겨 공간 확보 */
+    /* 480px 이하 — 소형 스마트폰 대응 */
     @media (max-width: 480px) {
-      #cam-box       { display: none !important; }
-      #gesture-guide { display: none !important; }
-      #scroll-ind    { right: 8px; font-size: 12px; padding: 6px 8px; }
+      /* cam-box: 더 작게, 좌하단 */
+      #cam-box { width: 130px; height: 98px; left: 8px; bottom: 8px; border-radius: 8px; }
+      /* gesture-guide: 우하단 유지, 폭만 줄이기 */
+      #gesture-guide { right: 8px; bottom: 8px; width: 186px; }
+      .gg-toggle { padding: 10px 12px; }
+      .gg-title  { font-size: 10px; }
+      #gg-cam-btn { font-size: 11px; padding: 8px 0; }
+      /* 스크롤 zone 높이 줄이기 */
       #gaze-zone-top, #gaze-zone-bot { height: 10vh; }
       #dwell-bar.top-pos  { top:    calc(10vh + 5px); }
       #dwell-bar.bot-pos  { bottom: calc(10vh + 5px); }
       #scroll-mode-label.top-pos { top:    calc(10vh + 12px); }
       #scroll-mode-label.bot-pos { bottom: calc(10vh + 12px); }
+      #scroll-ind { right: 8px; font-size: 12px; padding: 6px 8px; }
     }
 
     /* ── 스크롤 방향 인디케이터 ── */
@@ -967,8 +973,8 @@
   let _snapTargets = null;
   /* 기준점 자동 보정 */
   let baseOffX = 0, baseOffY = 0, calibFrames = 0;
-  /* 드웰 타이밍 */
-  const DWELL_MS = 650;
+  /* 드웰 타이밍 — 모바일은 짧게 */
+  const DWELL_MS = _isMobile ? 480 : 650;
   let _dwellStart = 0, _dwellZone = '';
   /* 스크롤 */
   let scrollVel = 0, scrollTarget = 0, _scrollAccel = 1.0;
@@ -979,6 +985,12 @@
   /* 시선 스크롤 상태 */
   let _eyeScrollState = 'neutral';
   let gesture = '';
+  /* DOM 상태 캐시 — 불필요한 재쓰기 방지 (60fps rAF 부하 절감) */
+  let _lastHudMode = '', _lastGuide = '';
+  let _scrollIndVis = false, _scrollIndText = '';
+  let _scrollModeLabelVis = false, _scrollModeLabelText = '', _scrollModeLabelPos = '';
+  let _lastCursorX = -999, _lastCursorY = -999;
+  let _gazeZoneTopEl = null, _gazeZoneBotEl = null;
 
   function dn(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
@@ -1102,6 +1114,8 @@
   }
 
   function updateGuide(g) {
+    if (g === _lastGuide) return;
+    _lastGuide = g;
     document.querySelectorAll('#gesture-guide .gg-item').forEach(el => {
       el.classList.toggle('active', el.dataset.g === g);
     });
@@ -1169,16 +1183,21 @@
 
   function updateGazeCursor(x, y) {
     if (!gazeCursorEl) return;
+    if (Math.abs(x - _lastCursorX) < 0.6 && Math.abs(y - _lastCursorY) < 0.6) return;
+    _lastCursorX = x; _lastCursorY = y;
     gazeCursorEl.style.display = 'block';
     gazeCursorEl.style.left = x + 'px';
     gazeCursorEl.style.top  = y + 'px';
   }
   function hideGazeCursor() {
     if (gazeCursorEl) gazeCursorEl.style.display = 'none';
+    _lastCursorX = -999; _lastCursorY = -999;
   }
 
   function drawEffects() {
+    if (!effects.length) return;
     effects = effects.filter(e => e.life > 0);
+    if (!effects.length) return;
     ctx.save();
     effects.forEach(e => {
       if ((e.delay ?? 0) > 0) { e.delay -= 0.016; return; }
@@ -1200,30 +1219,39 @@
   }
 
   /* ── 드웰 / 존 / HUD 헬퍼 ── */
+  let _dwellBarEl = null, _dwellFillEl = null;
+  function _ensureDwellEls() {
+    if (!_dwellBarEl)  _dwellBarEl  = document.getElementById('dwell-bar');
+    if (!_dwellFillEl) _dwellFillEl = document.getElementById('dwell-bar-fill');
+  }
   function updateDwellBar(progress, zone) {
-    const bar = document.getElementById('dwell-bar');
-    const fill = document.getElementById('dwell-bar-fill');
-    if (!bar || !fill) return;
-    bar.className = 'vis ' + (zone === 'up' ? 'top-pos' : 'bot-pos');
-    fill.style.width = (progress * 100).toFixed(1) + '%';
+    _ensureDwellEls();
+    if (!_dwellBarEl || !_dwellFillEl) return;
+    _dwellBarEl.className = 'vis ' + (zone === 'up' ? 'top-pos' : 'bot-pos');
+    _dwellFillEl.style.width = (progress * 100).toFixed(1) + '%';
   }
   function hideDwellBar() {
-    const bar = document.getElementById('dwell-bar');
-    const fill = document.getElementById('dwell-bar-fill');
-    if (bar)  bar.className = (_dwellZone === 'down' ? 'bot-pos' : 'top-pos');
-    if (fill) fill.style.width = '0%';
+    _ensureDwellEls();
+    if (_dwellBarEl)  _dwellBarEl.className = (_dwellZone === 'down' ? 'bot-pos' : 'top-pos');
+    if (_dwellFillEl) _dwellFillEl.style.width = '0%';
   }
   function showScrollModeLabel(text, pos) {
+    if (_scrollModeLabelVis && _scrollModeLabelText === text && _scrollModeLabelPos === pos) return;
+    _scrollModeLabelVis = true; _scrollModeLabelText = text; _scrollModeLabelPos = pos;
     const el = document.getElementById('scroll-mode-label');
     if (!el) return;
     el.textContent = text;
     el.className = 'vis ' + (pos === 'top' ? 'top-pos' : 'bot-pos');
   }
   function hideScrollModeLabel() {
+    if (!_scrollModeLabelVis) return;
+    _scrollModeLabelVis = false; _scrollModeLabelText = ''; _scrollModeLabelPos = '';
     const el = document.getElementById('scroll-mode-label');
     if (el) el.classList.remove('vis');
   }
   function setHUDMode(mode) {
+    if (mode === _lastHudMode) return;
+    _lastHudMode = mode;
     const el = document.getElementById('cam-mode');
     if (!el) return;
     const map = {
@@ -1242,18 +1270,23 @@
   function tick() {
     requestAnimationFrame(tick);
     frameN++;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    vis = Math.max(0, Math.min(1, vis + (detected ? CFG.fadeIn : -CFG.fadeOut)));
-    drawIdle();
-    drawEffects();
+
+    /* ── 캔버스 드로잉: 모바일 30fps 제한, 데스크탑 60fps ── */
+    if (!_isMobile || frameN % 2 === 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!_isMobile) {
+        vis = Math.max(0, Math.min(1, vis + (detected ? CFG.fadeIn : -CFG.fadeOut)));
+        drawIdle();
+      }
+      drawEffects();
+    }
 
     /* ── 시선 스프링 물리 ── */
     if (gazeTargetX !== null && gazeDispX !== null) {
-      /* 스프링: 목표까지 */
       gazeVX += (gazeTargetX - gazeDispX) * CFG.gazeSpring;
       gazeVY += (gazeTargetY - gazeDispY) * CFG.gazeSpring;
-      /* 자석: 스크롤 중 아닐 때만 — 레이아웃 안건드림 (캐시된 좌표 사용) */
-      if (_snapTargets && scrollVel < 1) {
+      /* 자석: 데스크탑만, 스크롤 중 제외 */
+      if (!_isMobile && _snapTargets && scrollVel < 1) {
         let bDist = CFG.gazeSnapDist;
         let bx = 0, by = 0, found = false;
         _snapTargets.forEach(t => {
@@ -1265,14 +1298,14 @@
           gazeVY += (by - gazeDispY) * CFG.gazeSnapStr;
         }
       }
-      /* 댐핑 + 이동 */
       gazeVX *= CFG.gazeDamping;
       gazeVY *= CFG.gazeDamping;
       gazeDispX += gazeVX;
       gazeDispY += gazeVY;
 
       updateGazeCursor(gazeDispX, gazeDispY);
-      if (frameN % 9 === 0) updateHover(gazeDispX, gazeDispY);
+      /* 호버 감지: 데스크탑만 */
+      if (!_isMobile && frameN % 9 === 0) updateHover(gazeDispX, gazeDispY);
 
       if (gazeCursorEl) gazeCursorEl.classList.toggle('calibrating', calibFrames < 90);
     }
@@ -1284,8 +1317,8 @@
     }
 
     /* ── 시선 스크롤 (드웰 타이밍 기반, 핸드 없을 때만) ── */
-    const _zT = document.getElementById('gaze-zone-top');
-    const _zB = document.getElementById('gaze-zone-bot');
+    const _zT = _gazeZoneTopEl;
+    const _zB = _gazeZoneBotEl;
     if (cameraActive && gazeY !== null && !handScrollActive) {
       const h     = window.innerHeight;
       const zoneH = h * 0.16;
@@ -1373,7 +1406,9 @@
   window.addEventListener('resize', _refreshAll);
   setTimeout(_refreshAll, 600);
 
-  gazeCursorEl = document.getElementById('hand-cursor');
+  gazeCursorEl    = document.getElementById('hand-cursor');
+  _gazeZoneTopEl  = document.getElementById('gaze-zone-top');
+  _gazeZoneBotEl  = document.getElementById('gaze-zone-bot');
 
   const statusEl = document.getElementById('gg-status');
   const dotEl    = document.querySelector('.gg-dot-live');
@@ -1449,14 +1484,21 @@
 
   /* FaceMesh + Hands 교차 실행 — GPU 경합 완전 제거 */
   function detectLoop() {
-    var _busy = false, _frame = 0, DET_MS = _isMobile ? 100 : 48;
+    var _busy = false, _frame = 0;
+    /* 모바일: FaceMesh 전용 70ms — 눈 추적 14fps
+       데스크탑: Face+Hands 교대 62ms — rAF 여유 확보 (48→62) */
+    var DET_MS = _isMobile ? 70 : 62;
     (async function loop() {
       if (!cameraActive) return;
       if (!_busy && video.readyState >= 2) {
         _busy = true;
         try {
-          if (_frame % 2 === 0 && faceInst)  await faceInst.send({ image: video });
-          else if (handsInst)                 await handsInst.send({ image: video });
+          if (_isMobile) {
+            if (faceInst) await faceInst.send({ image: video });
+          } else {
+            if (_frame % 2 === 0 && faceInst) await faceInst.send({ image: video });
+            else if (handsInst)               await handsInst.send({ image: video });
+          }
         } catch (_) {}
         _busy = false;
         _frame++;
@@ -1524,7 +1566,8 @@
       });
       faceInst.setOptions({
         maxNumFaces: 1, refineLandmarks: true,
-        minDetectionConfidence: 0.45, minTrackingConfidence: 0.40,
+        minDetectionConfidence: _isMobile ? 0.40 : 0.45,
+        minTrackingConfidence:  _isMobile ? 0.35 : 0.40,
       });
       faceInst.onResults(onResults);
       if (typeof faceInst.initialize === 'function') {
@@ -1551,11 +1594,15 @@
   const scrollIndEl = document.getElementById('scroll-ind');
   function showScrollInd(text) {
     if (!scrollIndEl) return;
+    if (_scrollIndVis && _scrollIndText === text) return;
+    _scrollIndVis = true; _scrollIndText = text;
     scrollIndEl.textContent = text;
     scrollIndEl.classList.add('vis');
   }
   function hideScrollInd() {
-    if (scrollIndEl) scrollIndEl.classList.remove('vis');
+    if (!scrollIndEl || !_scrollIndVis) return;
+    _scrollIndVis = false; _scrollIndText = '';
+    scrollIndEl.classList.remove('vis');
   }
 
   function onHandResults(res) {
@@ -1595,6 +1642,7 @@
   }
 
   async function startHands() {
+    if (_isMobile) return; /* 모바일: 손 추적 비활성화 — 눈 추적에 집중 */
     if (typeof Hands === 'undefined') return;
     try {
       handsInst = new Hands({
@@ -1630,21 +1678,21 @@
     startCamera();
   };
 
-  /* ── 자동 카메라 시작 (데스크탑 전용) ── */
+  /* ── 자동 카메라 시작 ── */
   window.addEventListener('load', function () {
     var ggEl = document.getElementById('gesture-guide');
-    if (!_isMobile) {
-      /* 데스크탑: 패널 열고 자동 시작 */
-      if (ggEl) ggEl.classList.add('expanded');
-      setTimeout(window.__startCamera, 600);
-    } else {
-      /* 모바일: HTTPS 아니면 카메라 버튼만 표시, 자동 시작 안 함 */
-      var statusEl2 = document.getElementById('gg-status');
-      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-        if (statusEl2) { statusEl2.textContent = 'HTTPS 필요 (모바일)'; statusEl2.className = 'st-warn'; }
-        var btn2 = document.getElementById('gg-cam-btn');
-        if (btn2) btn2.disabled = true;
+    if (ggEl) ggEl.classList.add('expanded');
+
+    if (_isMobile) {
+      /* 모바일: 자동 시작 안 함 — 버튼 탭으로 직접 시작
+         file:// 프로토콜이면 안내 메시지만 표시 */
+      if (location.protocol === 'file:') {
+        var s = document.getElementById('gg-status');
+        if (s) { s.textContent = '로컬 서버 필요 (HTTPS)'; s.className = 'st-warn'; }
       }
+    } else {
+      /* 데스크탑: 0.6초 후 자동 시작 */
+      setTimeout(window.__startCamera, 600);
     }
   });
 
