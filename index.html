@@ -1104,14 +1104,21 @@
     }
   }
 
-  /* ── 감지 루프 (rAF 기반, camera_utils 불필요) ──────────────────────── */
-  async function detectLoop() {
-    while (cameraActive) {
-      if (video.readyState >= 2 && handsInst) {
+  /* ── 감지 루프 (시간 기반 스로틀, ~15fps → MediaPipe 과부하 방지) ─── */
+  function detectLoop() {
+    var _lastT = 0, _busy = false;
+    var MP_MS  = 66;   /* ~15fps */
+    (async function loop() {
+      if (!cameraActive) return;
+      var now = performance.now();
+      if (!_busy && video.readyState >= 2 && handsInst && now - _lastT >= MP_MS) {
+        _lastT = now;
+        _busy  = true;
         try { await handsInst.send({ image: video }); } catch (_) {}
+        _busy  = false;
       }
-      await new Promise(function(r) { requestAnimationFrame(r); });
-    }
+      requestAnimationFrame(loop);
+    })();
   }
 
   /* ── 카메라 초기화 (getUserMedia 직접 호출) ────────────────────────────── */
