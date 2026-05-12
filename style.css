@@ -1070,11 +1070,11 @@ body {
   display: flex; align-items: center; gap: 8px;
 }
 .footer-logo-img {
-  height: 22px;
+  height: 32px;
   width: auto;
   display: block;
-  filter: brightness(0) invert(1);
-  opacity: 0.35;
+  border-radius: 8px;
+  opacity: 0.80;
 }
 .footer-logo-name {
   font-size: 15px; font-weight: 800;
@@ -1114,14 +1114,46 @@ body {
   .hero-device { order: -1; }
   .device { width: 228px; }
   .nav-links { display: none; }
+  /* 모바일 nav: CTA 버튼도 크기 줄이기 */
+  .nav-cta { font-size: 13px; padding: 8px 14px; }
   .sim-flow { max-width: 100%; }
   .community-note {
     flex-direction: column; gap: 14px; text-align: center;
   }
+  /* 섹션 헤더 좌우 패딩 보정 */
+  .section-head { padding: 0 4px; }
+  /* 시뮬레이션 카드 내부 여백 축소 */
+  .sim-card { padding: 18px; }
+  .sim-option { padding: 11px 14px; font-size: 14px; }
+  /* 결과 바 레이아웃 */
+  .sim-result-row { flex-wrap: wrap; gap: 6px; }
+  /* CTA 섹션 */
+  .cta-title { font-size: 36px; }
+  .store-btns { gap: 10px; }
 }
 
 @media (max-width: 540px) {
+  :root { --container-pad: 16px; }
   .card-grid.col-3 { grid-template-columns: 1fr; }
+  /* 카드 내부 여백 최적화 */
+  .s-card { padding: 20px 18px; }
+  /* Hero */
+  .hero-title { font-size: 40px; letter-spacing: -1.5px; }
+  .hero-proof { flex-wrap: wrap; }
+  /* 스토어 버튼 */
   .store-btns { flex-direction: column; align-items: center; }
+  .store-btn  { width: 200px; justify-content: center; }
+  /* 푸터 */
   .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
+  /* 후기 카드: 모두 표시 */
+  .testimonial-grid .testimonial-card:nth-child(3) { display: block; }
+  .testimonial-card { padding: 18px; }
+}
+
+@media (max-width: 380px) {
+  :root { --container-pad: 14px; }
+  .hero-title { font-size: 34px; }
+  .sec-title  { font-size: 22px; }
+  .nav-cta    { display: none; }          /* 극소형: CTA 버튼 숨김 */
+  .btn-primary, .btn-ghost { font-size: 14px; padding: 12px 18px; }
 }

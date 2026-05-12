@@ -105,31 +105,145 @@
       background: rgba(255, 215, 100, 0.70);
     }
 
-    /* ── 카메라 프리뷰 박스 ── */
+    /* ── 카메라 HUD ── */
     #cam-box {
       position: fixed; bottom: 24px; left: 24px;
       width: 220px; height: 165px;
       border-radius: 14px; overflow: hidden;
       z-index: 10000; display: none;
-      background: #0a0806;
-      border: 1px solid rgba(80, 160, 255, 0.28);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(80,150,255,0.08);
+      background: #080705;
+      border: 1px solid rgba(255, 122, 47, 0.22);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.60), 0 0 0 0.5px rgba(255,122,47,0.08);
     }
     #cam-display {
       width: 100%; height: 100%;
       object-fit: cover; display: block; transform: scaleX(-1);
+      filter: brightness(0.88) contrast(1.05);
     }
     #cam-skel-canvas {
       position: absolute; inset: 0;
       width: 100%; height: 100%; pointer-events: none;
     }
+    /* HUD 상단 바 */
+    #cam-hud-bar {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 26px; padding: 0 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(8,7,5,0.75), transparent);
+      pointer-events: none;
+    }
     #cam-label {
-      position: absolute; bottom: 7px; left: 10px;
-      font-size: 9px; letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(120,180,255,0.65);
+      font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(255,122,47,0.75);
       font-family: -apple-system, 'Pretendard', sans-serif;
-      font-weight: 600; pointer-events: none;
+      font-weight: 700;
+    }
+    #cam-mode {
+      font-size: 8px; letter-spacing: 0.10em; text-transform: uppercase;
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      font-weight: 700; color: rgba(120,220,130,0.85);
+      transition: color 0.3s ease;
+    }
+    /* HUD 하단 상태 바 */
+    #cam-status-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 22px; padding: 0 10px;
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(to top, rgba(8,7,5,0.80), transparent);
+      pointer-events: none;
+    }
+    #cam-status-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,122,47,0.8);
+      animation: gg-pulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    #cam-status-text {
+      font-size: 8px; letter-spacing: 0.08em;
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      font-weight: 500; color: rgba(255,200,140,0.65);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── 시선 스크롤 존 오버레이 ── */
+    #gaze-zone-top, #gaze-zone-bot {
+      position: fixed; left: 0; right: 0;
+      height: 15vh; pointer-events: none;
+      z-index: 9990; opacity: 0;
+      transition: opacity 0.4s ease, border-color 0.4s ease;
+    }
+    #gaze-zone-top {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(255,122,47,0.09) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(255,122,47,0);
+    }
+    #gaze-zone-bot {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(255,122,47,0.09) 0%, transparent 100%);
+      border-top: 1px solid rgba(255,122,47,0);
+    }
+    #gaze-zone-top.active { opacity: 1; border-bottom-color: rgba(255,122,47,0.20); }
+    #gaze-zone-bot.active { opacity: 1; border-top-color: rgba(255,122,47,0.20); }
+
+    /* ── 드웰 진행 바 ── */
+    #dwell-bar {
+      position: fixed; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 2px;
+      background: rgba(255,255,255,0.07); border-radius: 2px;
+      pointer-events: none; z-index: 9992;
+      opacity: 0; transition: opacity 0.2s ease;
+    }
+    #dwell-bar.top-pos { top: calc(15vh + 8px); }
+    #dwell-bar.bot-pos { bottom: calc(15vh + 8px); }
+    #dwell-bar.vis { opacity: 1; }
+    #dwell-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(to right, rgba(255,122,47,0.5), rgba(255,190,80,0.95));
+      border-radius: 2px; transition: width 0.08s linear;
+    }
+
+    /* ── 스크롤 모드 텍스트 ── */
+    #scroll-mode-label {
+      position: fixed; left: 50%; transform: translateX(-50%);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,150,70,0.90);
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      pointer-events: none; z-index: 9993;
+      opacity: 0; transition: opacity 0.2s ease;
+      white-space: nowrap;
+      text-shadow: 0 0 16px rgba(255,120,50,0.35);
+    }
+    #scroll-mode-label.top-pos { top: calc(15vh + 16px); }
+    #scroll-mode-label.bot-pos { bottom: calc(15vh + 16px); }
+    #scroll-mode-label.vis { opacity: 1; }
+
+    /* ── 모바일 HUD / 오버레이 ── */
+    @media (max-width: 768px) {
+      #cam-box {
+        width: 160px; height: 120px;
+        left: 12px; bottom: 12px;
+        border-radius: 10px;
+      }
+      #gesture-guide { bottom: 12px; right: 12px; width: 204px; }
+      #gaze-zone-top, #gaze-zone-bot { height: 12vh; }
+      #dwell-bar.top-pos  { top:    calc(12vh + 6px); }
+      #dwell-bar.bot-pos  { bottom: calc(12vh + 6px); }
+      #scroll-mode-label  { font-size: 9px; }
+      #scroll-mode-label.top-pos { top:    calc(12vh + 14px); }
+      #scroll-mode-label.bot-pos { bottom: calc(12vh + 14px); }
+      #scroll-ind { right: 12px; }
+    }
+    /* 480px 이하 — HUD 숨겨 공간 확보 */
+    @media (max-width: 480px) {
+      #cam-box       { display: none !important; }
+      #gesture-guide { display: none !important; }
+      #scroll-ind    { right: 8px; font-size: 12px; padding: 6px 8px; }
+      #gaze-zone-top, #gaze-zone-bot { height: 10vh; }
+      #dwell-bar.top-pos  { top:    calc(10vh + 5px); }
+      #dwell-bar.bot-pos  { bottom: calc(10vh + 5px); }
+      #scroll-mode-label.top-pos { top:    calc(10vh + 12px); }
+      #scroll-mode-label.bot-pos { bottom: calc(10vh + 12px); }
     }
 
     /* ── 스크롤 방향 인디케이터 ── */
@@ -754,12 +868,27 @@
 <!-- ── 시선 커서 ── -->
 <div id="hand-cursor"></div>
 
-<!-- ── 카메라 프리뷰 박스 ── -->
+<!-- ── 카메라 HUD ── -->
 <div id="cam-box">
   <video id="cam-display" autoplay playsinline muted></video>
   <canvas id="cam-skel-canvas"></canvas>
-  <div id="cam-label">● Eye Tracking</div>
+  <div id="cam-hud-bar">
+    <span id="cam-label">● Eye Track</span>
+    <span id="cam-mode">Idle</span>
+  </div>
+  <div id="cam-status-bar">
+    <span id="cam-status-dot"></span>
+    <span id="cam-status-text">카메라 연결 중…</span>
+  </div>
 </div>
+
+<!-- ── 시선 존 오버레이 ── -->
+<div id="gaze-zone-top"></div>
+<div id="gaze-zone-bot"></div>
+<!-- ── 드웰 진행 바 ── -->
+<div id="dwell-bar" class="top-pos"><div id="dwell-bar-fill"></div></div>
+<!-- ── 스크롤 모드 텍스트 ── -->
+<div id="scroll-mode-label" class="top-pos"></div>
 
 <!-- ── 히든 웹캠 ── -->
 <video id="hand-webcam" autoplay playsinline muted></video>
@@ -778,6 +907,10 @@
 (function () {
   'use strict';
 
+  /* ── 모바일 감지 ── */
+  const _isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                    (navigator.maxTouchPoints > 1 && !/Windows/.test(navigator.userAgent));
+
   const video  = document.getElementById('hand-webcam');
   const canvas = document.getElementById('tracking-canvas');
   const ctx    = canvas.getContext('2d');
@@ -793,17 +926,17 @@
   const CFG = {
     fadeIn:       0.06,
     fadeOut:      0.038,
-    idleN:        20,
+    idleN:        10,
     gazeAmpX:     4.2,
     gazeAmpY:     4.8,
-    scrollZone:   0.20,
+    scrollZone:   0.22,
     scrollSpd:    28,
     /* ── 시선 스무딩 파이프라인 ── */
-    gazeDeadband: 90,    /* px: 미세 노이즈 완전 차단 (AmplX=4.2에서 2px iris 노이즈≈50px) */
-    gazeSpring:   0.032, /* 스프링 강도: 느릴수록 부드러운 궤적 */
-    gazeDamping:  0.84,  /* 댐핑: 높을수록 정지 빠름 */
-    gazeSnapDist: 80,    /* 요소 자석 감지 범위 (px) */
-    gazeSnapStr:  0.038, /* 자석 강도 (미묘한 끌림) */
+    gazeDeadband: 42,    /* px: 노이즈 차단 (90→42 — 스크롤 존 진입 가능하도록) */
+    gazeSpring:   0.038,
+    gazeDamping:  0.82,
+    gazeSnapDist: 80,
+    gazeSnapStr:  0.038,
   };
 
   /* ── FaceMesh 랜드마크 인덱스 ── */
@@ -825,21 +958,26 @@
   let camSkelCtx = null, camSkelW = 220, camSkelH = 165;
   let gazeCursorEl = null;
   /* 시선 스무딩 파이프라인 */
+  let _gazeEWA_X = null, _gazeEWA_Y = null;  /* EWA 사전 스무딩 */
   let gazeRawBuf  = [];
-  let gazeTargetX = null, gazeTargetY = null; /* 데드밴드 통과 후 목표 */
-  let gazeDispX   = null, gazeDispY   = null; /* 스프링 적용 후 표시 위치 */
-  let gazeVX = 0, gazeVY = 0;                /* 스프링 속도 */
-  let gazeX = null, gazeY = null;            /* 스크롤 판단용 */
+  let gazeTargetX = null, gazeTargetY = null;
+  let gazeDispX   = null, gazeDispY   = null;
+  let gazeVX = 0, gazeVY = 0;
+  let gazeX = null, gazeY = null;
   let _snapTargets = null;
   /* 기준점 자동 보정 */
   let baseOffX = 0, baseOffY = 0, calibFrames = 0;
-  /* 부드러운 스크롤 */
-  let scrollVel = 0, scrollTarget = 0;
+  /* 드웰 타이밍 */
+  const DWELL_MS = 650;
+  let _dwellStart = 0, _dwellZone = '';
+  /* 스크롤 */
+  let scrollVel = 0, scrollTarget = 0, _scrollAccel = 1.0;
   let handScrollDir = 0, handScrollActive = false;
   let _lastHandUpdate = 0;
-  let _handScrollState = 'neutral'; /* 히스테리시스 상태 */
-  /* 시선 스크롤 히스테리시스 */
-  let _eyeScrollState = 'neutral', _eyeScrollHold = 0;
+  let _handScrollState = 'neutral';
+  let _handDY_EWA = 0;
+  /* 시선 스크롤 상태 */
+  let _eyeScrollState = 'neutral';
   let gesture = '';
 
   function dn(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
@@ -859,14 +997,18 @@
     const lCY = (lm[L_OUTER].y + lm[L_INNER].y) / 2;
     const rCX = (lm[R_OUTER].x + lm[R_INNER].x) / 2;
     const rCY = (lm[R_OUTER].y + lm[R_INNER].y) / 2;
-    const offX = ((lm[L_IRIS].x - lCX) / lW + (lm[R_IRIS].x - rCX) / rW) / 2;
-    const offY = ((lm[L_IRIS].y - lCY) / lW + (lm[R_IRIS].y - rCY) / rW) / 2;
-    /* 자동 캘리브레이션: 초기 90프레임 빠른 수렴 → 이후 느린 드리프트 보정 */
+    const rawOffX = ((lm[L_IRIS].x - lCX) / lW + (lm[R_IRIS].x - rCX) / rW) / 2;
+    const rawOffY = ((lm[L_IRIS].y - lCY) / lW + (lm[R_IRIS].y - rCY) / rW) / 2;
+    /* EWA 사전 스무딩 — 고주파 노이즈 제거 (캘리브레이션 전에 적용) */
+    if (_gazeEWA_X === null) { _gazeEWA_X = rawOffX; _gazeEWA_Y = rawOffY; }
+    _gazeEWA_X += (rawOffX - _gazeEWA_X) * 0.36;
+    _gazeEWA_Y += (rawOffY - _gazeEWA_Y) * 0.36;
+    const offX = _gazeEWA_X, offY = _gazeEWA_Y;
+    /* 자동 캘리브레이션 */
     const alpha = calibFrames < 90 ? 0.12 : 0.0015;
     calibFrames++;
     baseOffX += (offX - baseOffX) * alpha;
     baseOffY += (offY - baseOffY) * alpha;
-    /* 보정된 순수 홍채 오프셋 */
     const dX = offX - baseOffX;
     const dY = offY - baseOffY;
     const gx = 0.5 - dX * CFG.gazeAmpX;
@@ -928,15 +1070,25 @@
     }));
   }
 
-  function updateHover(fx, fy) {
-    let best = null, bestD = Infinity;
-    document.querySelectorAll('.s-card,.testimonial-card,.sim-option').forEach(el => {
+  /* rAF 루프 밖에서 캐시 — getBoundingClientRect reflow 방지 */
+  let _hoverTargets = null;
+  function refreshHoverTargets() {
+    _hoverTargets = [...document.querySelectorAll('.s-card,.testimonial-card,.sim-option')].map(el => {
       const r = el.getBoundingClientRect();
-      if (fx > r.left && fx < r.right && fy > r.top && fy < r.bottom) {
-        const d = Math.hypot(fx-(r.left+r.right)/2, fy-(r.top+r.bottom)/2);
-        if (d < bestD) { bestD = d; best = el; }
-      }
+      return { el, l: r.left, r: r.right, t: r.top, b: r.bottom,
+               cx: (r.left + r.right) * 0.5, cy: (r.top + r.bottom) * 0.5 };
     });
+  }
+
+  function updateHover(fx, fy) {
+    if (!_hoverTargets) return;
+    let best = null, bestD = Infinity;
+    for (const t of _hoverTargets) {
+      if (fx > t.l && fx < t.r && fy > t.t && fy < t.b) {
+        const d = Math.hypot(fx - t.cx, fy - t.cy);
+        if (d < bestD) { bestD = d; best = t.el; }
+      }
+    }
     if (best !== hovCard) {
       if (hovCard) hovCard.removeAttribute('data-hand-hover');
       hovCard = best;
@@ -1047,6 +1199,45 @@
     ctx.restore();
   }
 
+  /* ── 드웰 / 존 / HUD 헬퍼 ── */
+  function updateDwellBar(progress, zone) {
+    const bar = document.getElementById('dwell-bar');
+    const fill = document.getElementById('dwell-bar-fill');
+    if (!bar || !fill) return;
+    bar.className = 'vis ' + (zone === 'up' ? 'top-pos' : 'bot-pos');
+    fill.style.width = (progress * 100).toFixed(1) + '%';
+  }
+  function hideDwellBar() {
+    const bar = document.getElementById('dwell-bar');
+    const fill = document.getElementById('dwell-bar-fill');
+    if (bar)  bar.className = (_dwellZone === 'down' ? 'bot-pos' : 'top-pos');
+    if (fill) fill.style.width = '0%';
+  }
+  function showScrollModeLabel(text, pos) {
+    const el = document.getElementById('scroll-mode-label');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'vis ' + (pos === 'top' ? 'top-pos' : 'bot-pos');
+  }
+  function hideScrollModeLabel() {
+    const el = document.getElementById('scroll-mode-label');
+    if (el) el.classList.remove('vis');
+  }
+  function setHUDMode(mode) {
+    const el = document.getElementById('cam-mode');
+    if (!el) return;
+    const map = {
+      idle:     { text: 'IDLE',   color: 'rgba(140,150,170,0.55)' },
+      gaze:     { text: 'EYE ON', color: 'rgba(120,220,130,0.85)' },
+      'eye-up': { text: 'EYE ↑',  color: 'rgba(255,180,80,0.95)'  },
+      'eye-dn': { text: 'EYE ↓',  color: 'rgba(255,180,80,0.95)'  },
+      hand:     { text: 'HAND',   color: 'rgba(100,200,255,0.90)'  },
+    };
+    const m = map[mode] || map.idle;
+    el.textContent = m.text;
+    el.style.color = m.color;
+  }
+
   /* ── rAF 루프 ── */
   function tick() {
     requestAnimationFrame(tick);
@@ -1081,68 +1272,87 @@
       gazeDispY += gazeVY;
 
       updateGazeCursor(gazeDispX, gazeDispY);
-      if (frameN % 4 === 0) updateHover(gazeDispX, gazeDispY);
+      if (frameN % 9 === 0) updateHover(gazeDispX, gazeDispY);
 
       if (gazeCursorEl) gazeCursorEl.classList.toggle('calibrating', calibFrames < 90);
     }
 
-    /* ── 핸드 스크롤 (200ms 경과 시 자동 해제) ── */
-    if (handScrollActive && Date.now() - _lastHandUpdate > 200) {
+    /* ── 핸드 스크롤 (250ms 미수신 시 자동 해제) ── */
+    if (handScrollActive && Date.now() - _lastHandUpdate > 250) {
       handScrollActive = false; handScrollDir = 0;
       _handScrollState = 'neutral';
     }
 
-    /* ── 시선 스크롤 히스테리시스 (핸드 스크롤 없을 때만) ── */
+    /* ── 시선 스크롤 (드웰 타이밍 기반, 핸드 없을 때만) ── */
+    const _zT = document.getElementById('gaze-zone-top');
+    const _zB = document.getElementById('gaze-zone-bot');
     if (cameraActive && gazeY !== null && !handScrollActive) {
-      const h        = window.innerHeight;
-      const enterTop = h * 0.18;   /* 위 18% 이내 → 진입 */
-      const enterBot = h * 0.82;   /* 아래 82% 이상 → 진입 */
-      const exitTop  = h * 0.30;   /* 30% 벗어나면 해제 (히스테리시스 갭) */
-      const exitBot  = h * 0.70;
+      const h     = window.innerHeight;
+      const zoneH = h * 0.16;
+      const inTop = gazeY < zoneH;
+      const inBot = gazeY > h - zoneH;
+      const curZone = inTop ? 'up' : inBot ? 'down' : '';
+
+      if (_zT) _zT.classList.toggle('active', inTop || _eyeScrollState === 'up');
+      if (_zB) _zB.classList.toggle('active', inBot || _eyeScrollState === 'down');
 
       if (_eyeScrollState === 'neutral') {
-        if (gazeY < enterTop || gazeY > enterBot) {
-          _eyeScrollHold++;
-          if (_eyeScrollHold >= 8) {
-            _eyeScrollState = gazeY < enterTop ? 'up' : 'down';
-            _eyeScrollHold = 0;
-          }
+        if (curZone) {
+          if (_dwellZone !== curZone) { _dwellStart = Date.now(); _dwellZone = curZone; }
+          const prog = Math.min(1, (Date.now() - _dwellStart) / DWELL_MS);
+          updateDwellBar(prog, curZone);
+          if (prog >= 1) { _eyeScrollState = curZone; _scrollAccel = 1.0; hideDwellBar(); }
         } else {
-          _eyeScrollHold = 0;
+          _dwellStart = 0; _dwellZone = ''; hideDwellBar();
         }
-      } else if (_eyeScrollState === 'up') {
-        if (gazeY > exitTop) { /* 시선이 위쪽 영역 벗어남 */
-          _eyeScrollHold++;
-          if (_eyeScrollHold >= 6) { _eyeScrollState = 'neutral'; _eyeScrollHold = 0; }
-        } else { _eyeScrollHold = 0; }
-      } else if (_eyeScrollState === 'down') {
-        if (gazeY < exitBot) { /* 시선이 아래쪽 영역 벗어남 */
-          _eyeScrollHold++;
-          if (_eyeScrollHold >= 6) { _eyeScrollState = 'neutral'; _eyeScrollHold = 0; }
-        } else { _eyeScrollHold = 0; }
+      } else {
+        const exitH = h * 0.30;
+        const stillIn = (_eyeScrollState === 'up'   && gazeY < exitH) ||
+                        (_eyeScrollState === 'down'  && gazeY > h - exitH);
+        if (!stillIn) {
+          _eyeScrollState = 'neutral'; _scrollAccel = 1.0;
+          _dwellStart = 0; _dwellZone = ''; hideDwellBar();
+        } else {
+          _scrollAccel = Math.min(2.2, _scrollAccel + 0.005);
+        }
       }
     } else if (!cameraActive || gazeY === null) {
-      _eyeScrollState = 'neutral'; _eyeScrollHold = 0;
+      if (_eyeScrollState !== 'neutral') {
+        _eyeScrollState = 'neutral'; _scrollAccel = 1.0;
+        _dwellStart = 0; _dwellZone = ''; hideDwellBar();
+      }
+      if (_zT) _zT.classList.remove('active');
+      if (_zB) _zB.classList.remove('active');
     }
 
-    /* ── 스크롤 인디케이터 & 가이드 업데이트 ── */
+    /* ── 스크롤 인디케이터 & HUD 모드 ── */
+    let _hudMode = detected ? 'gaze' : 'idle';
     if (handScrollActive) {
       showScrollInd(handScrollDir < 0 ? '↑' : '↓');
+      showScrollModeLabel(handScrollDir < 0 ? 'Hand Scroll Up' : 'Hand Scroll Down',
+                          handScrollDir < 0 ? 'top' : 'bot');
+      updateGuide(handScrollDir < 0 ? 'scroll-up' : 'scroll-down');
+      _hudMode = 'hand';
     } else if (_eyeScrollState !== 'neutral') {
       showScrollInd(_eyeScrollState === 'up' ? '↑' : '↓');
+      showScrollModeLabel(_eyeScrollState === 'up' ? 'Gaze Scroll Up' : 'Gaze Scroll Down',
+                          _eyeScrollState === 'up' ? 'top' : 'bot');
       updateGuide(_eyeScrollState === 'up' ? 'scroll-up' : 'scroll-down');
+      _hudMode = _eyeScrollState === 'up' ? 'eye-up' : 'eye-dn';
     } else {
-      hideScrollInd();
-      if (!handScrollActive) updateGuide('gaze');
+      hideScrollInd(); hideScrollModeLabel();
+      updateGuide('gaze');
     }
+    setHUDMode(_hudMode);
 
-    /* ── 최종 스크롤 방향 결정 (핸드 우선) ── */
+    /* ── 최종 스크롤 (핸드 우선, 가속도 적용) ── */
     const eyeDir = _eyeScrollState === 'up' ? -1 : _eyeScrollState === 'down' ? 1 : 0;
     const activeDir = handScrollActive ? handScrollDir : eyeDir;
-    scrollTarget = activeDir * CFG.scrollSpd;
-    scrollVel += (scrollTarget - scrollVel) * 0.28;
-    if (Math.abs(scrollVel) > 0.5) window.scrollBy(0, scrollVel);
-    else if (scrollTarget === 0) scrollVel = 0;
+    const activeSpd = handScrollActive ? CFG.scrollSpd : CFG.scrollSpd * _scrollAccel;
+    scrollTarget = activeDir * activeSpd;
+    scrollVel += (scrollTarget - scrollVel) * 0.20;
+    if (Math.abs(scrollVel) > 0.4) window.scrollBy(0, scrollVel);
+    else if (scrollTarget === 0) { scrollVel *= 0.80; if (Math.abs(scrollVel) < 0.1) scrollVel = 0; }
   }
   resize();
   tick();
@@ -1155,12 +1365,13 @@
     });
   }
   var _snapTimer = null;
+  function _refreshAll() { refreshSnapTargets(); refreshHoverTargets(); }
   window.addEventListener('scroll', function() {
     clearTimeout(_snapTimer);
-    _snapTimer = setTimeout(refreshSnapTargets, 120);
+    _snapTimer = setTimeout(_refreshAll, 150);
   }, { passive: true });
-  window.addEventListener('resize', refreshSnapTargets);
-  setTimeout(refreshSnapTargets, 600); /* 페이지 렌더 후 초기화 */
+  window.addEventListener('resize', _refreshAll);
+  setTimeout(_refreshAll, 600);
 
   gazeCursorEl = document.getElementById('hand-cursor');
 
@@ -1169,13 +1380,17 @@
 
   function setStatus(type, msg) {
     if (statusEl) { statusEl.textContent = msg; statusEl.className = 'st-' + type; }
+    const camStatusText = document.getElementById('cam-status-text');
+    const camStatusDot  = document.getElementById('cam-status-dot');
+    if (camStatusText) camStatusText.textContent = msg;
+    const col = type === 'error' ? 'rgba(255,70,70,0.9)' :
+                type === 'ok'    ? 'rgba(80,220,130,0.9)' :
+                                   'rgba(255,140,55,0.85)';
     if (dotEl) {
-      dotEl.style.background =
-        type === 'error' ? 'rgba(255,70,70,0.9)' :
-        type === 'ok'    ? 'rgba(80,220,130,0.9)' :
-                           'rgba(255,140,55,0.85)';
+      dotEl.style.background = col;
       dotEl.style.animationPlayState = type === 'ok' ? 'paused' : 'running';
     }
+    if (camStatusDot) camStatusDot.style.background = col;
   }
 
   function onResults(res) {
@@ -1187,10 +1402,10 @@
       if (lm[L_IRIS] && lm[R_IRIS]) {
         const raw = calcGaze(lm);
 
-        /* 1. 미디언 필터 (5샘플) — 노이즈 스파이크 제거 */
+        /* 1. 미디언 필터 (7샘플) — 스파이크 제거 */
         gazeRawBuf.push([raw.x, raw.y]);
-        if (gazeRawBuf.length > 5) gazeRawBuf.shift();
-        if (gazeRawBuf.length < 3) { drawCamEye(lm); return; }
+        if (gazeRawBuf.length > 7) gazeRawBuf.shift();
+        if (gazeRawBuf.length < 4) { drawCamEye(lm); return; }
         const xs = gazeRawBuf.map(p => p[0]).sort((a, b) => a - b);
         const ys = gazeRawBuf.map(p => p[1]).sort((a, b) => a - b);
         const mi = Math.floor(gazeRawBuf.length / 2);
@@ -1202,9 +1417,13 @@
           gazeTargetX = filtX; gazeTargetY = filtY;
         }
 
-        /* 3. 데드밴드 — 미세 움직임 차단 */
-        if (Math.hypot(filtX - gazeTargetX, filtY - gazeTargetY) > CFG.gazeDeadband) {
+        /* 3. 적응형 데드밴드 — 큰 움직임은 즉시, 작은 움직임도 부드럽게 수렴 */
+        const dist = Math.hypot(filtX - gazeTargetX, filtY - gazeTargetY);
+        if (dist > CFG.gazeDeadband) {
           gazeTargetX = filtX; gazeTargetY = filtY;
+        } else if (dist > 10) {
+          gazeTargetX += (filtX - gazeTargetX) * 0.10;
+          gazeTargetY += (filtY - gazeTargetY) * 0.10;
         }
 
         gazeX = gazeTargetX; gazeY = gazeTargetY;
@@ -1216,19 +1435,21 @@
       if (detected) setStatus('', '얼굴을 화면에 보여주세요');
       detected = false;
       calibFrames = 0;
+      _gazeEWA_X = null; _gazeEWA_Y = null;
       clearCamSkeleton(); hideGazeCursor(); clearHover();
       gazeRawBuf = [];
       gazeTargetX = null; gazeTargetY = null;
       gazeDispX   = null; gazeDispY   = null;
       gazeVX = 0; gazeVY = 0;
       gazeX = null; gazeY = null;
-      _eyeScrollState = 'neutral'; _eyeScrollHold = 0;
+      _eyeScrollState = 'neutral'; _dwellStart = 0; _dwellZone = '';
+      hideDwellBar();
     }
   }
 
   /* FaceMesh + Hands 교차 실행 — GPU 경합 완전 제거 */
   function detectLoop() {
-    var _busy = false, _frame = 0, DET_MS = 35;
+    var _busy = false, _frame = 0, DET_MS = _isMobile ? 100 : 48;
     (async function loop() {
       if (!cameraActive) return;
       if (!_busy && video.readyState >= 2) {
@@ -1262,7 +1483,10 @@
     try {
       setStatus('', '카메라 권한 요청 중…');
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 320, height: 240, facingMode: 'user' }, audio: false
+        video: _isMobile
+          ? { width: 240, height: 180, facingMode: 'user' }
+          : { width: 320, height: 240, facingMode: 'user' },
+        audio: false
       });
     } catch (err) {
       var msg =
@@ -1339,19 +1563,23 @@
     if (!res.multiHandLandmarks || !res.multiHandLandmarks.length) {
       _handScrollState = 'neutral';
       handScrollActive = false; handScrollDir = 0;
+      _handDY_EWA = 0;
       return;
     }
     const lm = res.multiHandLandmarks[0];
-    const dy = lm[8].y - lm[5].y; /* 검지 끝 vs MCP */
+    const rawDY = lm[8].y - lm[5].y; /* 검지 끝 vs MCP */
+    /* EWA 스무딩으로 손 제스처 노이즈 완화 */
+    _handDY_EWA += (rawDY - _handDY_EWA) * 0.42;
+    const dy = _handDY_EWA;
 
-    /* 히스테리시스: 진입 ±0.20, 해제 ±0.10 — 임계값 근처 진동 완전 차단 */
+    /* 히스테리시스: 진입 ±0.18, 해제 ±0.09 */
     if (_handScrollState === 'neutral') {
-      if      (dy < -0.20) { _handScrollState = 'up'; }
-      else if (dy >  0.20) { _handScrollState = 'down'; }
+      if      (dy < -0.18) { _handScrollState = 'up'; }
+      else if (dy >  0.18) { _handScrollState = 'down'; }
     } else if (_handScrollState === 'up') {
-      if (dy > -0.10)      { _handScrollState = 'neutral'; }
+      if (dy > -0.09)      { _handScrollState = 'neutral'; }
     } else if (_handScrollState === 'down') {
-      if (dy <  0.10)      { _handScrollState = 'neutral'; }
+      if (dy <  0.09)      { _handScrollState = 'neutral'; }
     }
 
     if (_handScrollState === 'up') {
@@ -1401,6 +1629,24 @@
     if (btn) { btn.disabled = true; btn.textContent = '카메라 연결 중…'; }
     startCamera();
   };
+
+  /* ── 자동 카메라 시작 (데스크탑 전용) ── */
+  window.addEventListener('load', function () {
+    var ggEl = document.getElementById('gesture-guide');
+    if (!_isMobile) {
+      /* 데스크탑: 패널 열고 자동 시작 */
+      if (ggEl) ggEl.classList.add('expanded');
+      setTimeout(window.__startCamera, 600);
+    } else {
+      /* 모바일: HTTPS 아니면 카메라 버튼만 표시, 자동 시작 안 함 */
+      var statusEl2 = document.getElementById('gg-status');
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        if (statusEl2) { statusEl2.textContent = 'HTTPS 필요 (모바일)'; statusEl2.className = 'st-warn'; }
+        var btn2 = document.getElementById('gg-cam-btn');
+        if (btn2) btn2.disabled = true;
+      }
+    }
+  });
 
 }());
 </script>
