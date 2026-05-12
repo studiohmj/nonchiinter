@@ -7,228 +7,256 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <style>
+    /* ── 히든 웹캠 / 트래킹 캔버스 ── */
     #hand-webcam {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 1px; height: 1px;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none;
     }
     #tracking-canvas {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 9999;
+      pointer-events: none; z-index: 9999;
+    }
+
+    /* ── Three.js 배경 캔버스 ── */
+    #three-bg {
+      position: fixed; inset: 0;
+      z-index: 0; pointer-events: none;
     }
 
     /* ── Hand gesture interaction states ── */
     [data-hand-hover] {
-      transform: translateY(-4px) scale(1.015) !important;
+      transform: translateY(-10px) scale(1.04) !important;
       box-shadow:
-        0 12px 36px rgba(255, 108, 30, 0.18),
-        0 0 0 1px rgba(255, 108, 30, 0.22) !important;
+        0 24px 56px rgba(255, 90, 20, 0.30),
+        0 0 0 2px rgba(255, 108, 30, 0.55) !important;
+      background: rgba(255, 90, 20, 0.05) !important;
       transition:
-        transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.42s ease !important;
+        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.35s ease,
+        background 0.35s ease !important;
+      z-index: 10; position: relative;
     }
     body[data-gesture="open"] .s-card {
-      box-shadow: 0 4px 24px rgba(255, 108, 30, 0.07);
-      transition: box-shadow 0.7s ease;
+      transform: translateY(-4px) scale(1.015);
+      box-shadow: 0 12px 40px rgba(255, 108, 30, 0.14), 0 0 0 1px rgba(255,90,20,0.18);
+      border-color: rgba(255, 90, 20, 0.22);
+      transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    body[data-gesture="fist"] [data-hand-hover] {
-      transform: none !important;
-      box-shadow: none !important;
+    body[data-gesture="open"] .s-icon {
+      transform: scale(1.25) rotate(-6deg);
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    body[data-gesture="open"] .s-desc {
+      color: var(--body); max-height: 200px; transition: all 0.4s ease;
+    }
+    body[data-gesture="fist"] .s-card {
+      transform: scale(0.95) !important; opacity: 0.55 !important;
+      box-shadow: none !important; transition: all 0.35s ease !important;
+    }
+    body[data-gesture="fist"] .s-icon {
+      transform: scale(0.8) !important; transition: transform 0.35s ease !important;
+    }
+
+    /* ── 시선 커서 ── */
+    #hand-cursor {
+      position: fixed;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(180, 215, 255, 0.80);
+      background: rgba(120, 170, 255, 0.10);
+      pointer-events: none; z-index: 9998;
+      display: none;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px rgba(120, 180, 255, 0.30);
+      transition:
+        width  0.40s cubic-bezier(0.34, 1.56, 0.64, 1),
+        height 0.40s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.25s ease,
+        background   0.25s ease,
+        opacity      0.25s ease,
+        box-shadow   0.25s ease;
+    }
+    #hand-cursor::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: rgba(180, 220, 255, 0.90);
+    }
+    #hand-cursor.on-element {
+      width: 18px; height: 18px;
+      border-color: rgba(140, 200, 255, 1);
+      background: rgba(130, 185, 255, 0.18);
+      box-shadow: 0 0 14px rgba(100, 170, 255, 0.55);
+    }
+    #hand-cursor.calibrating {
+      opacity: 0.35;
+      border-style: dashed;
+      border-color: rgba(255, 215, 100, 0.65);
+      box-shadow: none;
+    }
+    #hand-cursor.calibrating::after {
+      background: rgba(255, 215, 100, 0.70);
+    }
+
+    /* ── 카메라 프리뷰 박스 ── */
+    #cam-box {
+      position: fixed; bottom: 24px; left: 24px;
+      width: 220px; height: 165px;
+      border-radius: 14px; overflow: hidden;
+      z-index: 10000; display: none;
+      background: #0a0806;
+      border: 1px solid rgba(80, 160, 255, 0.28);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(80,150,255,0.08);
+    }
+    #cam-display {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block; transform: scaleX(-1);
+    }
+    #cam-skel-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; pointer-events: none;
+    }
+    #cam-label {
+      position: absolute; bottom: 7px; left: 10px;
+      font-size: 9px; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(120,180,255,0.65);
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      font-weight: 600; pointer-events: none;
+    }
+
+    /* ── 스크롤 방향 인디케이터 ── */
+    #scroll-ind {
+      position: fixed; top: 50%; right: 18px;
+      transform: translateY(-50%);
+      z-index: 10002; pointer-events: none;
+      background: rgba(10, 8, 6, 0.82);
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      border-radius: 10px; padding: 8px 10px;
+      font-size: 13px; font-weight: 700;
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      color: rgba(140, 200, 255, 0.95);
+      opacity: 0; transition: opacity 0.15s; letter-spacing: 0.04em;
+    }
+    #scroll-ind.vis { opacity: 1; }
 
     /* ── 제스처 안내 패널 ── */
     #gesture-guide {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
+      position: fixed; bottom: 24px; right: 24px;
       background: rgba(10, 8, 6, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 135, 50, 0.25);
       border-radius: 16px;
-      z-index: 10001;           /* 캔버스(9999)보다 높음 */
-      pointer-events: auto;     /* 패널 전체 클릭 가능 */
+      z-index: 10001; pointer-events: auto;
       width: 240px;
       box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(255,135,50,0.1);
       overflow: hidden;
     }
-
-    /* 토글 버튼 */
     .gg-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      padding: 13px 14px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      user-select: none;
-      text-align: left;
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 13px 14px;
+      background: none; border: none; cursor: pointer;
+      user-select: none; text-align: left;
     }
     .gg-toggle:hover .gg-title { color: rgba(255,165,80,1); }
-
     .gg-dot-live {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: rgba(255,140,55,0.85);
-      flex-shrink: 0;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,140,55,0.85); flex-shrink: 0;
       animation: gg-pulse 2.2s ease-in-out infinite;
     }
     @keyframes gg-pulse {
-      0%,100% { opacity: 0.5;  transform: scale(1); }
+      0%,100% { opacity: 0.5; transform: scale(1); }
       50%      { opacity: 1;   transform: scale(1.4); }
     }
     .gg-title {
-      flex: 1;
-      font-size: 11px;
-      letter-spacing: 0.11em;
-      text-transform: uppercase;
-      color: rgba(255,150,65,0.9);
+      flex: 1; font-size: 11px; letter-spacing: 0.11em;
+      text-transform: uppercase; color: rgba(255,150,65,0.9);
       font-family: -apple-system, 'Pretendard', sans-serif;
-      font-weight: 600;
-      transition: color 0.2s;
+      font-weight: 600; transition: color 0.2s;
     }
     .gg-chevron {
-      width: 14px; height: 14px;
-      flex-shrink: 0;
+      width: 14px; height: 14px; flex-shrink: 0;
       transition: transform 0.38s cubic-bezier(0.16,1,0.3,1);
       color: rgba(255,150,65,0.7);
     }
     #gesture-guide.expanded .gg-chevron { transform: rotate(180deg); }
-
-    /* 접히는 본문 — display 방식이 max-height보다 안정적 */
-    .gg-body {
-      display: none;
-    }
-    #gesture-guide.expanded .gg-body {
-      display: block;
-    }
+    .gg-body { display: none; }
+    #gesture-guide.expanded .gg-body { display: block; }
     .gg-body-inner {
       padding: 0 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      display: flex; flex-direction: column; gap: 2px;
     }
-
-    /* 구분선 */
-    .gg-divider {
-      height: 1px;
-      background: rgba(255,135,50,0.12);
-      margin: 3px 0;
-    }
-
-    /* 제스처 항목 */
+    .gg-divider { height: 1px; background: rgba(255,135,50,0.12); margin: 3px 0; }
     .gg-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 9px 8px;
-      border-radius: 10px;
-      transition: background 0.3s ease, opacity 0.3s ease;
-      opacity: 0.55;
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 8px; border-radius: 10px;
+      transition: background 0.3s ease, opacity 0.3s ease; opacity: 0.55;
     }
-    .gg-item.active {
-      background: rgba(255,135,50,0.13);
-      opacity: 1;
-    }
+    .gg-item.active { background: rgba(255,135,50,0.13); opacity: 1; }
     .gg-hand {
-      font-size: 22px;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: filter 0.3s ease;
-      filter: grayscale(0.4) brightness(0.85);
+      font-size: 22px; line-height: 1; flex-shrink: 0;
+      transition: filter 0.3s ease; filter: grayscale(0.4) brightness(0.85);
     }
-    .gg-item.active .gg-hand {
-      filter: none;
-    }
+    .gg-item.active .gg-hand { filter: none; }
     .gg-info { flex: 1; min-width: 0; }
     .gg-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.95);
+      font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.95);
       font-family: -apple-system, 'Pretendard', sans-serif;
-      line-height: 1.3;
-      transition: color 0.3s ease;
+      line-height: 1.3; transition: color 0.3s ease;
     }
     .gg-desc {
-      font-size: 11px;
-      font-weight: 400;
-      color: rgba(255,255,255,0.52);
+      font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.52);
       font-family: -apple-system, 'Pretendard', sans-serif;
-      margin-top: 2px;
-      transition: color 0.3s ease;
+      margin-top: 2px; transition: color 0.3s ease;
     }
     .gg-item.active .gg-name { color: #ffb060; }
     .gg-item.active .gg-desc { color: rgba(255,175,100,0.72); }
     .gg-indicator {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: rgba(255,135,50,0.22);
-      flex-shrink: 0;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,135,50,0.22); flex-shrink: 0;
       transition: background 0.3s ease, box-shadow 0.3s ease;
     }
     .gg-item.active .gg-indicator {
-      background: #ff8832;
-      box-shadow: 0 0 7px rgba(255,130,50,0.8);
+      background: #ff8832; box-shadow: 0 0 7px rgba(255,130,50,0.8);
     }
-
-    /* 상태 메시지 줄 */
-    .gg-status-line {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-width: 0;
-    }
+    .gg-status-line { display: flex; flex-direction: column; flex: 1; min-width: 0; }
     #gg-status {
-      font-size: 10px;
-      font-family: -apple-system, 'Pretendard', sans-serif;
-      font-weight: 400;
-      color: rgba(255,185,100,0.65);
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 10px; font-family: -apple-system, 'Pretendard', sans-serif;
+      font-weight: 400; color: rgba(255,185,100,0.65); margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       transition: color 0.3s;
     }
     #gg-status.st-error { color: rgba(255,90,80,0.9); }
     #gg-status.st-ok    { color: rgba(90,220,130,0.9); }
     #gg-status.st-warn  { color: rgba(255,200,80,0.85); }
-
-    /* 카메라 시작 버튼 */
     #gg-cam-btn {
-      display: block;
-      width: calc(100% - 24px);
-      margin: 0 12px 12px;
-      padding: 9px 0;
+      display: block; width: calc(100% - 24px);
+      margin: 0 12px 12px; padding: 9px 0;
       background: rgba(255,120,40,0.18);
       border: 1px solid rgba(255,120,40,0.40);
-      border-radius: 10px;
-      color: rgba(255,180,100,0.95);
-      font-size: 12px;
-      font-weight: 700;
+      border-radius: 10px; color: rgba(255,180,100,0.95);
+      font-size: 12px; font-weight: 700;
       font-family: -apple-system, 'Pretendard', sans-serif;
-      letter-spacing: 0.04em;
-      cursor: pointer;
+      letter-spacing: 0.04em; cursor: pointer;
       transition: background 0.2s, border-color 0.2s;
     }
-    #gg-cam-btn:hover {
-      background: rgba(255,120,40,0.30);
-      border-color: rgba(255,140,60,0.65);
-    }
-    #gg-cam-btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
+    #gg-cam-btn:hover { background: rgba(255,120,40,0.30); border-color: rgba(255,140,60,0.65); }
+    #gg-cam-btn:disabled { opacity: 0.4; cursor: default; }
+
   </style>
 </head>
 <body>
+
+<!-- Three.js 배경 -->
+<canvas id="three-bg"></canvas>
 
 <!-- ── NAV ────────────────────────────── -->
 <nav class="nav">
@@ -355,7 +383,6 @@
     </div>
 
     <div class="phones-stage">
-
       <!-- Phone 1 — 홈 -->
       <div class="phone-col side left">
         <p class="phone-chip">🗂 상황 모아보기</p>
@@ -493,7 +520,6 @@
         </div>
         <p class="phone-chip">✨ 실제 사람들 평균</p>
       </div>
-
     </div>
   </div>
 </section>
@@ -508,7 +534,6 @@
     </div>
 
     <div class="sim-flow">
-
       <div class="sim-step">
         <div class="sim-step-meta">
           <span class="step-badge">01</span>
@@ -519,13 +544,11 @@
           <p class="sim-text">팀장님이 "내가 첫 잔 따라줄게" 하시며 술병을 들었다. 주변 사람들이 모두 지켜보고 있다.</p>
         </div>
       </div>
-
       <div class="sim-divider">
         <div class="sim-divider-line"></div>
         <div class="sim-divider-dot"></div>
         <div class="sim-divider-line"></div>
       </div>
-
       <div class="sim-step">
         <div class="sim-step-meta">
           <span class="step-badge">02</span>
@@ -548,13 +571,11 @@
           </div>
         </div>
       </div>
-
       <div class="sim-divider">
         <div class="sim-divider-line"></div>
         <div class="sim-divider-dot"></div>
         <div class="sim-divider-line"></div>
       </div>
-
       <div class="sim-step">
         <div class="sim-step-meta">
           <span class="step-badge">03</span>
@@ -597,7 +618,6 @@
           <p class="sim-insight">💡 A를 고른 사람 대부분이 <strong>팀장님에게 좋은 첫인상</strong>을 남겼다고 답했어요. 두 손으로 받는 작은 행동이 생각보다 많은 걸 말해줘요.</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -611,7 +631,6 @@
       <p class="sec-sub sec-sub-sm">첫 댓글은 AI가 자동으로 달아드려요. 무플 걱정 없이 경험을 나눠보세요.</p>
     </div>
     <div class="testimonial-grid">
-
       <div class="testimonial-card">
         <div class="t-header">
           <div class="t-avatar" style="background:#FFE8D6">🐻</div>
@@ -620,10 +639,9 @@
             <span class="t-tag">🕯️ 장례식</span>
           </div>
         </div>
-        <p class="t-text">처음 조문을 가서 순서를 몰라 당황했는데, 미리 연습하고 가니까 훨씬 침착하게 행동할 수 있었어요. 유가족 분들께 실례 없이 조문을 마칠 수 있었습니다.</p>
+        <p class="t-text">처음 조문을 가서 순서를 몰라 당황했는데, 미리 연습하고 가니까 훨씬 침착하게 행동할 수 있었어요.</p>
         <span class="t-empathy">312명 공감</span>
       </div>
-
       <div class="testimonial-card">
         <div class="t-header">
           <div class="t-avatar" style="background:#D6E8FF">🌙</div>
@@ -632,10 +650,9 @@
             <span class="t-tag">🍻 회식</span>
           </div>
         </div>
-        <p class="t-text">첫 회식에서 어떻게 행동해야 할지 몰라 여기서 미리 연습했어요. 술 따르는 법, 자리 배치, 인사 방식까지 확인하고 갔더니 팀장님이 예의 바르다고 하셨어요.</p>
+        <p class="t-text">첫 회식에서 어떻게 행동해야 할지 몰라 여기서 미리 연습했어요. 팀장님이 예의 바르다고 하셨어요.</p>
         <span class="t-empathy">241명 공감</span>
       </div>
-
       <div class="testimonial-card">
         <div class="t-header">
           <div class="t-avatar" style="background:#E8FFD6">🌿</div>
@@ -644,10 +661,9 @@
             <span class="t-tag">💍 결혼식</span>
           </div>
         </div>
-        <p class="t-text">친한 친구 결혼식 축의금을 얼마 내야 할지 진짜 몰랐는데, 비슷한 상황 데이터 보고 결정했어요. 괜히 혼자 고민하지 말고 여기서 확인하는 게 훨씬 나아요.</p>
+        <p class="t-text">친한 친구 결혼식 축의금을 얼마 내야 할지 진짜 몰랐는데, 비슷한 상황 데이터 보고 결정했어요.</p>
         <span class="t-empathy">187명 공감</span>
       </div>
-
     </div>
     <div class="community-note">
       <span>지금 4,173개의 실제 경험이 쌓여 있어요</span>
@@ -687,84 +703,76 @@
   </div>
 </footer>
 
-
-<!-- ── 제스처 안내 패널 ──────────────────────────── -->
+<!-- ── 제스처 안내 패널 ── -->
 <div id="gesture-guide">
-
-  <!-- 항상 보이는 헤더 토글 -->
   <button class="gg-toggle" id="gg-toggle" aria-label="제스처 가이드 열기/닫기">
     <span class="gg-dot-live"></span>
     <span class="gg-status-line">
-      <span class="gg-title">Hand Tracking</span>
-      <span id="gg-status">▼ 펼쳐서 카메라 시작</span>
+      <span class="gg-title">Eye Tracking</span>
+      <span id="gg-status">▼ 펼쳐서 시작</span>
     </span>
     <svg class="gg-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="4 6 8 10 12 6"/>
     </svg>
   </button>
-
-  <!-- 접혀 있는 본문 (기본 hidden) -->
   <div class="gg-body">
     <div class="gg-body-inner">
-
-      <div class="gg-item" data-g="open">
-        <span class="gg-hand">🖐</span>
+      <div class="gg-item active" data-g="gaze">
+        <span class="gg-hand">👁️</span>
         <div class="gg-info">
-          <div class="gg-name">Open Palm</div>
-          <div class="gg-desc">카드 활성화 · 확장</div>
+          <div class="gg-name">Gaze</div>
+          <div class="gg-desc">시선으로 카드 호버</div>
         </div>
         <span class="gg-indicator"></span>
       </div>
-
       <div class="gg-divider"></div>
-
-      <div class="gg-item" data-g="fist">
-        <span class="gg-hand">✊</span>
-        <div class="gg-info">
-          <div class="gg-name">Closed Fist</div>
-          <div class="gg-desc">화면 정리 · 닫기</div>
-        </div>
-        <span class="gg-indicator"></span>
-      </div>
-
-      <div class="gg-divider"></div>
-
-      <div class="gg-item" data-g="pinch">
-        <span class="gg-hand">🤌</span>
-        <div class="gg-info">
-          <div class="gg-name">Pinch</div>
-          <div class="gg-desc">선택 확인 · 리플 효과</div>
-        </div>
-        <span class="gg-indicator"></span>
-      </div>
-
-      <div class="gg-divider"></div>
-
-      <div class="gg-item" data-g="pointing">
+      <div class="gg-item" data-g="scroll-up">
         <span class="gg-hand">☝️</span>
         <div class="gg-info">
-          <div class="gg-name">Pointing</div>
-          <div class="gg-desc">카드 미리보기 · 호버</div>
+          <div class="gg-name">Index Up</div>
+          <div class="gg-desc">검지 위 → 위로 스크롤</div>
         </div>
         <span class="gg-indicator"></span>
       </div>
-
+      <div class="gg-divider"></div>
+      <div class="gg-item" data-g="scroll-down">
+        <span class="gg-hand">👇</span>
+        <div class="gg-info">
+          <div class="gg-name">Index Down</div>
+          <div class="gg-desc">검지 아래 → 아래로 스크롤</div>
+        </div>
+        <span class="gg-indicator"></span>
+      </div>
     </div>
     <button id="gg-cam-btn" onclick="window.__startCamera && window.__startCamera()">📷 카메라 시작</button>
   </div>
 </div>
 
-<!-- ── HAND TRACKING LAYER ──────────────────────────── -->
+<!-- ── 스크롤 인디케이터 ── -->
+<div id="scroll-ind">↑</div>
+
+<!-- ── 시선 커서 ── -->
+<div id="hand-cursor"></div>
+
+<!-- ── 카메라 프리뷰 박스 ── -->
+<div id="cam-box">
+  <video id="cam-display" autoplay playsinline muted></video>
+  <canvas id="cam-skel-canvas"></canvas>
+  <div id="cam-label">● Eye Tracking</div>
+</div>
+
+<!-- ── 히든 웹캠 ── -->
 <video id="hand-webcam" autoplay playsinline muted></video>
 <canvas id="tracking-canvas"></canvas>
 
-<!-- 토글: IIFE와 완전히 분리된 독립 스크립트 -->
+<!-- 토글 스크립트 -->
 <script>
   document.getElementById('gg-toggle').addEventListener('click', function () {
     document.getElementById('gesture-guide').classList.toggle('expanded');
   });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <script>
 (function () {
@@ -774,435 +782,629 @@
   const canvas = document.getElementById('tracking-canvas');
   const ctx    = canvas.getContext('2d');
 
-  /* ── canvas 크기를 뷰포트에 맞춤 ───────────────────────────────────────── */
   function resize() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     buildIdlePts();
   }
   window.addEventListener('resize', resize);
-  resize();
 
-  /* ── 설정값 ────────────────────────────────────────────────────────────── */
+  /* ── 설정값 ── */
   const CFG = {
-    ema:         0.20,
-    trailFrames: 10,
-    fadeIn:      0.06,
-    fadeOut:     0.038,
-    lineW:       1.5,
-    skelGlow:    12,
-    tipGlow:     22,
-    idleN:       55,
-    debounce:    8,
-    pinchRatio:  0.30,
+    fadeIn:       0.06,
+    fadeOut:      0.038,
+    idleN:        20,
+    gazeAmpX:     4.2,
+    gazeAmpY:     4.8,
+    scrollZone:   0.20,
+    scrollSpd:    28,
+    /* ── 시선 스무딩 파이프라인 ── */
+    gazeDeadband: 90,    /* px: 미세 노이즈 완전 차단 (AmplX=4.2에서 2px iris 노이즈≈50px) */
+    gazeSpring:   0.032, /* 스프링 강도: 느릴수록 부드러운 궤적 */
+    gazeDamping:  0.84,  /* 댐핑: 높을수록 정지 빠름 */
+    gazeSnapDist: 80,    /* 요소 자석 감지 범위 (px) */
+    gazeSnapStr:  0.038, /* 자석 강도 (미묘한 끌림) */
   };
 
-  /* ── 색상 헬퍼 ─────────────────────────────────────────────────────────── */
-  const bone   = a => `rgba(255,110,40,${a})`;
-  const jnt    = a => `rgba(255,185,130,${a})`;
-  const tipC   = a => `rgba(255,245,230,${a})`;
-  const glw    = a => `rgba(255,135,55,${a})`;
-  const rpl    = a => `rgba(255,170,90,${a})`;
-  const dotC   = h => `hsl(${h},88%,67%)`;
+  /* ── FaceMesh 랜드마크 인덱스 ── */
+  const L_IRIS  = 468, R_IRIS  = 473;
+  const L_OUTER = 33,  L_INNER = 133;
+  const L_TOP1  = 159, L_TOP2  = 160;
+  const L_BOT1  = 145, L_BOT2  = 144;
+  const R_OUTER = 263, R_INNER = 362;
+  const R_TOP1  = 386, R_TOP2  = 387;
+  const R_BOT1  = 374, R_BOT2  = 373;
+  const L_EYE_PTS = [33,160,159,158,157,173,133,155,154,153,145,144,163,7];
+  const R_EYE_PTS = [263,387,386,385,384,398,362,382,381,380,374,373,390,249];
 
-  /* ── 손 관절 연결선 정의 ──────────────────────────────────────────────── */
-  const EDGES = [
-    [0,1],[1,2],[2,3],[3,4],
-    [0,5],[5,6],[6,7],[7,8],
-    [0,9],[9,10],[10,11],[11,12],
-    [0,13],[13,14],[14,15],[15,16],
-    [0,17],[17,18],[18,19],[19,20],
-    [5,9],[9,13],[13,17],[0,17],
-  ];
-  const TIPS = new Set([4,8,12,16,20]);
+  /* ── 상태 ── */
+  let vis = 0, detected = false;
+  let effects = [], idlePts = [];
+  let hovCard = null, mpReady = false, frameN = 0;
+  let faceInst = null, cameraActive = false;
+  let camSkelCtx = null, camSkelW = 220, camSkelH = 165;
+  let gazeCursorEl = null;
+  /* 시선 스무딩 파이프라인 */
+  let gazeRawBuf  = [];
+  let gazeTargetX = null, gazeTargetY = null; /* 데드밴드 통과 후 목표 */
+  let gazeDispX   = null, gazeDispY   = null; /* 스프링 적용 후 표시 위치 */
+  let gazeVX = 0, gazeVY = 0;                /* 스프링 속도 */
+  let gazeX = null, gazeY = null;            /* 스크롤 판단용 */
+  let _snapTargets = null;
+  /* 기준점 자동 보정 */
+  let baseOffX = 0, baseOffY = 0, calibFrames = 0;
+  /* 부드러운 스크롤 */
+  let scrollVel = 0, scrollTarget = 0;
+  let handScrollDir = 0, handScrollActive = false;
+  let _lastHandUpdate = 0;
+  let _handScrollState = 'neutral'; /* 히스테리시스 상태 */
+  /* 시선 스크롤 히스테리시스 */
+  let _eyeScrollState = 'neutral', _eyeScrollHold = 0;
+  let gesture = '';
 
-  /* ── 좌표 변환 (좌우 반전으로 거울 효과) ─────────────────────────────── */
-  const lx = l => (1 - l.x) * canvas.width;
-  const ly = l => l.y * canvas.height;
+  function dn(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
-  /* ── 상태 변수 ─────────────────────────────────────────────────────────── */
-  let vis          = 0;
-  let detected     = false;
-  let sLMs         = null;
-  let trail        = [];
-  let effects      = [];
-  let idlePts      = [];
-  let gesture      = 'none';
-  let rawGest      = 'none';
-  let gTick        = 0;
-  let hovCard      = null;
-  let mpReady      = false;
-  let frameN       = 0;
-  let handsInst    = null;   // MediaPipe Hands 인스턴스
-  let cameraActive = false;  // 감지 루프 실행 중 여부
-
-  /* ── EMA 스무딩 ────────────────────────────────────────────────────────── */
-  function applyEMA(raw) {
-    if (!sLMs) { sLMs = raw.map(l => ({ x:l.x, y:l.y, z:l.z??0 })); return; }
-    const k = CFG.ema;
-    raw.forEach((l, i) => {
-      sLMs[i].x += k*(l.x-sLMs[i].x);
-      sLMs[i].y += k*(l.y-sLMs[i].y);
-      sLMs[i].z += k*((l.z??0)-sLMs[i].z);
-    });
+  function calcEAR(lm) {
+    const lEAR = (dn(lm[L_TOP1], lm[L_BOT1]) + dn(lm[L_TOP2], lm[L_BOT2])) /
+                 (2 * dn(lm[L_OUTER], lm[L_INNER]) + 1e-6);
+    const rEAR = (dn(lm[R_TOP1], lm[R_BOT1]) + dn(lm[R_TOP2], lm[R_BOT2])) /
+                 (2 * dn(lm[R_OUTER], lm[R_INNER]) + 1e-6);
+    return (lEAR + rEAR) / 2;
   }
 
-  /* ── 거리 계산 (정규화 좌표계) ────────────────────────────────────────── */
-  function dn(a, b) { return Math.hypot(a.x-b.x, a.y-b.y); }
-
-  /* ── 제스처 분류 ───────────────────────────────────────────────────────── */
-  const TIP_I = [8,12,16,20];
-  const MCP_I = [5, 9,13,17];
-  function extd(lm,t,m) { return dn(lm[t],lm[0]) > dn(lm[m],lm[0])*0.82; }
-  function classify(lm) {
-    const hs = dn(lm[0],lm[9]) + 1e-5;
-    if (dn(lm[4],lm[8])/hs < CFG.pinchRatio) return 'pinch';
-    const [i,m,r,p] = TIP_I.map((t,j) => extd(lm,t,MCP_I[j]));
-    if (!i&&!m&&!r&&!p) return 'fist';
-    if ( i&& m&& r&& p) return 'open';
-    if ( i&&!m&&!r&&!p) return 'pointing';
-    return 'none';
+  function calcGaze(lm) {
+    const lW  = dn(lm[L_OUTER], lm[L_INNER]) + 1e-6;
+    const rW  = dn(lm[R_OUTER], lm[R_INNER]) + 1e-6;
+    const lCX = (lm[L_OUTER].x + lm[L_INNER].x) / 2;
+    const lCY = (lm[L_OUTER].y + lm[L_INNER].y) / 2;
+    const rCX = (lm[R_OUTER].x + lm[R_INNER].x) / 2;
+    const rCY = (lm[R_OUTER].y + lm[R_INNER].y) / 2;
+    const offX = ((lm[L_IRIS].x - lCX) / lW + (lm[R_IRIS].x - rCX) / rW) / 2;
+    const offY = ((lm[L_IRIS].y - lCY) / lW + (lm[R_IRIS].y - rCY) / rW) / 2;
+    /* 자동 캘리브레이션: 초기 90프레임 빠른 수렴 → 이후 느린 드리프트 보정 */
+    const alpha = calibFrames < 90 ? 0.12 : 0.0015;
+    calibFrames++;
+    baseOffX += (offX - baseOffX) * alpha;
+    baseOffY += (offY - baseOffY) * alpha;
+    /* 보정된 순수 홍채 오프셋 */
+    const dX = offX - baseOffX;
+    const dY = offY - baseOffY;
+    const gx = 0.5 - dX * CFG.gazeAmpX;
+    const gy = 0.5 + dY * CFG.gazeAmpY;
+    return {
+      x: Math.max(0, Math.min(1, gx)) * window.innerWidth,
+      y: Math.max(0, Math.min(1, gy)) * window.innerHeight
+    };
   }
 
-  /* ── 손바닥 중심 (캔버스 px) ──────────────────────────────────────────── */
-  function palmPx(lm) {
-    const b=[0,5,9,13,17]; let sx=0,sy=0;
-    b.forEach(i=>{sx+=lm[i].x;sy+=lm[i].y;});
-    return { x:(1-sx/5)*canvas.width, y:(sy/5)*canvas.height };
-  }
-
-  /* ── 이펙트 생성 ───────────────────────────────────────────────────────── */
-  function emitBloom(cx,cy) {
-    for (let i=0;i<3;i++)
-      effects.push({type:'ring',x:cx,y:cy,r:6,spd:2.8+i*0.6,life:1,decay:0.02});
-    for (let i=0;i<12;i++) {
-      const a=Math.random()*Math.PI*2, s=Math.random()*2.5+0.5;
-      effects.push({type:'dot',x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,
-        life:1,decay:0.016+Math.random()*0.01,size:Math.random()*2.2+0.7,h:16+Math.random()*18});
+  /* ── 시선 스크롤: 위쪽 응시 → 아래로 스크롤, 아래쪽 응시 → 위로 스크롤 ── */
+  function applyGazeScroll() {
+    if (!cameraActive || gazeY === null) return;
+    const h   = window.innerHeight;
+    const top = h * CFG.scrollZone;
+    const bot = h * (1 - CFG.scrollZone);
+    if (gazeY < top) {
+      window.scrollBy(0, ((top - gazeY) / top) * CFG.scrollSpd);
+    } else if (gazeY > bot) {
+      window.scrollBy(0, -((gazeY - bot) / (h - bot)) * CFG.scrollSpd);
     }
   }
-  function emitCollapse(cx,cy) {
-    for (let i=0;i<12;i++) {
-      const a=Math.random()*Math.PI*2,r=Math.random()*90+35;
-      effects.push({type:'dot',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,
-        vx:0,vy:0,tx:cx,ty:cy,pull:true,
-        life:1,decay:0.022+Math.random()*0.01,size:Math.random()*1.8+0.5,h:20+Math.random()*15});
+
+  /* ── 이펙트 ── */
+  const rpl  = a => `rgba(255,170,90,${a})`;
+  const dotC = h => `hsl(${h},88%,67%)`;
+
+  function emitBloom(cx, cy) {
+    for (let i = 0; i < 3; i++)
+      effects.push({type:'ring', x:cx, y:cy, r:6, spd:2.8+i*0.6, life:1, decay:0.02});
+    for (let i = 0; i < 12; i++) {
+      const a = Math.random()*Math.PI*2, s = Math.random()*2.5+0.5;
+      effects.push({type:'dot', x:cx, y:cy, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+        life:1, decay:0.016+Math.random()*0.01, size:Math.random()*2.2+0.7, h:16+Math.random()*18});
     }
   }
-  function emitRipple(x,y) {
-    effects.push({type:'ring',x,y,r:5,spd:3.5,life:1,decay:0.018});
-    effects.push({type:'ring',x,y,r:5,spd:2.1,life:0.72,decay:0.016,delay:0.13});
+  function emitCollapse(cx, cy) {
+    for (let i = 0; i < 12; i++) {
+      const a = Math.random()*Math.PI*2, r = Math.random()*90+35;
+      effects.push({type:'dot', x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r,
+        vx:0, vy:0, tx:cx, ty:cy, pull:true,
+        life:1, decay:0.022+Math.random()*0.01, size:Math.random()*1.8+0.5, h:20+Math.random()*15});
+    }
+  }
+  function emitRipple(x, y) {
+    effects.push({type:'ring', x, y, r:5, spd:3.5, life:1, decay:0.018});
+    effects.push({type:'ring', x, y, r:5, spd:2.1, life:0.72, decay:0.016, delay:0.13});
   }
 
-  /* ── idle 파티클 초기화 (충분히 눈에 보이는 밝기) ─────────────────────── */
   function buildIdlePts() {
-    idlePts = Array.from({length:CFG.idleN}, () => ({
+    idlePts = Array.from({length: CFG.idleN}, () => ({
       x:  Math.random()*canvas.width,
       y:  Math.random()*canvas.height,
       vx: (Math.random()-0.5)*0.35,
       vy: -(Math.random()*0.25+0.05),
       sz: Math.random()*1.6+0.5,
-      a:  Math.random()*0.22+0.10,   // 이전 0.02~0.09 → 0.10~0.32 로 증가
+      a:  Math.random()*0.22+0.10,
       h:  22+Math.random()*20,
     }));
   }
 
-  /* ── DOM 카드 호버 ─────────────────────────────────────────────────────── */
-  function updateHover(fx,fy) {
-    let best=null, bestD=Infinity;
+  function updateHover(fx, fy) {
+    let best = null, bestD = Infinity;
     document.querySelectorAll('.s-card,.testimonial-card,.sim-option').forEach(el => {
-      const r=el.getBoundingClientRect();
-      if (fx>r.left&&fx<r.right&&fy>r.top&&fy<r.bottom) {
-        const d=Math.hypot(fx-(r.left+r.right)/2,fy-(r.top+r.bottom)/2);
-        if (d<bestD){bestD=d;best=el;}
+      const r = el.getBoundingClientRect();
+      if (fx > r.left && fx < r.right && fy > r.top && fy < r.bottom) {
+        const d = Math.hypot(fx-(r.left+r.right)/2, fy-(r.top+r.bottom)/2);
+        if (d < bestD) { bestD = d; best = el; }
       }
     });
-    if (best!==hovCard) {
+    if (best !== hovCard) {
       if (hovCard) hovCard.removeAttribute('data-hand-hover');
-      hovCard=best;
-      if (hovCard) hovCard.setAttribute('data-hand-hover','');
+      hovCard = best;
+      if (hovCard) hovCard.setAttribute('data-hand-hover', '');
     }
+    if (gazeCursorEl) gazeCursorEl.classList.toggle('on-element', best !== null);
   }
   function clearHover() {
-    if (hovCard){hovCard.removeAttribute('data-hand-hover');hovCard=null;}
+    if (hovCard) { hovCard.removeAttribute('data-hand-hover'); hovCard = null; }
+    if (gazeCursorEl) gazeCursorEl.classList.remove('on-element');
   }
 
-  /* ── 제스처 패널 업데이트 ──────────────────────────────────────────────── */
   function updateGuide(g) {
     document.querySelectorAll('#gesture-guide .gg-item').forEach(el => {
       el.classList.toggle('active', el.dataset.g === g);
     });
   }
 
-  /* ── 제스처 이벤트 처리 ────────────────────────────────────────────────── */
   function onGesture(g) {
-    if (g===gesture) return;
-    gesture=g;
-    document.body.dataset.gesture=g;
+    if (g === gesture) return;
+    gesture = g;
+    document.body.dataset.gesture = g;
     updateGuide(g);
-    if (!sLMs) return;
-    const pc=palmPx(sLMs);
-    if      (g==='open')    emitBloom(pc.x,pc.y);
-    else if (g==='fist')    {emitCollapse(pc.x,pc.y);clearHover();}
-    else if (g==='pinch')   emitRipple((lx(sLMs[4])+lx(sLMs[8]))/2,(ly(sLMs[4])+ly(sLMs[8]))/2);
-    if (g!=='pointing') clearHover();
+    const cx = gazeX !== null ? gazeX : canvas.width  / 2;
+    const cy = gazeY !== null ? gazeY : canvas.height / 2;
+    if      (g === 'open') emitBloom(cx, cy);
+    else if (g === 'fist') { emitCollapse(cx, cy); clearHover(); }
+    if (g !== 'gaze') clearHover();
   }
 
-  /* ── 렌더: idle 파티클 + 상태 표시 ────────────────────────────────────── */
   function drawIdle() {
     const fo = 1 - vis;
     if (fo < 0.02) return;
-
     ctx.save();
     idlePts.forEach(p => {
-      p.x+=p.vx; p.y+=p.vy;
-      if (p.y<-4){p.y=canvas.height+4;p.x=Math.random()*canvas.width;}
-      if (p.x<0||p.x>canvas.width) p.vx*=-1;
-      ctx.globalAlpha = p.a*fo;
-      ctx.shadowBlur  = 8;
-      ctx.shadowColor = `hsl(${p.h},72%,60%)`;
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -4) { p.y = canvas.height + 4; p.x = Math.random()*canvas.width; }
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      ctx.globalAlpha = p.a * fo;
       ctx.fillStyle   = `hsl(${p.h},68%,62%)`;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI*2); ctx.fill();
     });
     ctx.restore();
   }
 
-  /* ── 렌더: 스켈레톤 + 트레일 ──────────────────────────────────────────── */
-  function drawSkeleton(a) {
-    if (!sLMs) return;
-    const lm=sLMs;
-    ctx.save(); ctx.lineCap='round';
-
-    for (let t=0;t<trail.length;t++) {
-      const tA=(t/trail.length)*a*0.28;
-      if (tA<0.012) continue;
-      const fr=trail[t];
-      ctx.lineWidth=1.1; ctx.shadowBlur=4;
-      ctx.shadowColor=glw(tA); ctx.strokeStyle=bone(tA);
-      EDGES.forEach(([x,y])=>{
-        ctx.beginPath(); ctx.moveTo(lx(fr[x]),ly(fr[x]));
-        ctx.lineTo(lx(fr[y]),ly(fr[y])); ctx.stroke();
-      });
-    }
-
-    ctx.lineWidth=CFG.lineW; ctx.shadowBlur=CFG.skelGlow;
-    ctx.shadowColor=glw(a*0.65); ctx.strokeStyle=bone(a*0.9);
-    EDGES.forEach(([x,y])=>{
-      ctx.beginPath(); ctx.moveTo(lx(lm[x]),ly(lm[x]));
-      ctx.lineTo(lx(lm[y]),ly(lm[y])); ctx.stroke();
+  function drawCamEye(lm) {
+    if (!camSkelCtx) return;
+    camSkelCtx.clearRect(0, 0, camSkelW, camSkelH);
+    const px = i => (1 - lm[i].x) * camSkelW;
+    const py = i => lm[i].y * camSkelH;
+    camSkelCtx.save();
+    camSkelCtx.lineCap = 'round';
+    [L_EYE_PTS, R_EYE_PTS].forEach(pts => {
+      camSkelCtx.beginPath();
+      pts.forEach((i, j) => j === 0 ? camSkelCtx.moveTo(px(i), py(i)) : camSkelCtx.lineTo(px(i), py(i)));
+      camSkelCtx.closePath();
+      camSkelCtx.strokeStyle = 'rgba(100,190,255,0.55)';
+      camSkelCtx.lineWidth = 0.9; camSkelCtx.stroke();
     });
-
-    lm.forEach((l,i)=>{
-      const iT=TIPS.has(i);
-      ctx.shadowBlur  = iT?CFG.tipGlow:7;
-      ctx.shadowColor = iT?tipC(a):jnt(a*0.5);
-      ctx.fillStyle   = iT?tipC(a):jnt(a*0.48);
-      ctx.beginPath(); ctx.arc(lx(l),ly(l),iT?4:2.2,0,Math.PI*2); ctx.fill();
+    [[L_IRIS, L_OUTER, L_INNER], [R_IRIS, R_OUTER, R_INNER]].forEach(([ci, co, ci2]) => {
+      const irisR = Math.max(3, dn(lm[co], lm[ci2]) * camSkelW * 0.16);
+      const ix = px(ci), iy = py(ci);
+      camSkelCtx.beginPath();
+      camSkelCtx.arc(ix, iy, irisR, 0, Math.PI * 2);
+      camSkelCtx.strokeStyle = 'rgba(100,180,255,0.90)';
+      camSkelCtx.lineWidth = 1.8; camSkelCtx.stroke();
+      camSkelCtx.beginPath();
+      camSkelCtx.arc(ix, iy, 2, 0, Math.PI * 2);
+      camSkelCtx.fillStyle = 'rgba(200,230,255,1)';
+      camSkelCtx.fill();
     });
-    ctx.restore();
+    camSkelCtx.restore();
   }
 
-  /* ── 렌더: 포인팅 스포트라이트 ────────────────────────────────────────── */
-  function drawSpotlight() {
-    if (!sLMs||gesture!=='pointing') return;
-    const x=lx(sLMs[8]),y=ly(sLMs[8]);
-    ctx.save();
-    const g=ctx.createRadialGradient(x,y,0,x,y,40);
-    g.addColorStop(0,  `rgba(255,245,215,${vis*0.45})`);
-    g.addColorStop(0.4,`rgba(255,185,90,${vis*0.22})`);
-    g.addColorStop(1,  'rgba(255,140,60,0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,40,0,Math.PI*2); ctx.fill();
-    ctx.restore();
+  function clearCamSkeleton() {
+    if (camSkelCtx) camSkelCtx.clearRect(0, 0, camSkelW, camSkelH);
   }
 
-  /* ── 렌더: 이펙트 (링 + 도트) ─────────────────────────────────────────── */
+  function updateGazeCursor(x, y) {
+    if (!gazeCursorEl) return;
+    gazeCursorEl.style.display = 'block';
+    gazeCursorEl.style.left = x + 'px';
+    gazeCursorEl.style.top  = y + 'px';
+  }
+  function hideGazeCursor() {
+    if (gazeCursorEl) gazeCursorEl.style.display = 'none';
+  }
+
   function drawEffects() {
-    effects=effects.filter(e=>e.life>0);
+    effects = effects.filter(e => e.life > 0);
     ctx.save();
-    effects.forEach(e=>{
-      if ((e.delay??0)>0){e.delay-=0.016;return;}
-      if (e.type==='ring') {
-        e.r+=e.spd; e.spd*=0.968; e.life-=e.decay;
-        const a=Math.max(0,e.life);
-        ctx.globalAlpha=a*0.55; ctx.strokeStyle=rpl(1);
-        ctx.lineWidth=1.5; ctx.shadowBlur=12; ctx.shadowColor=rpl(0.75);
-        ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.stroke();
+    effects.forEach(e => {
+      if ((e.delay ?? 0) > 0) { e.delay -= 0.016; return; }
+      if (e.type === 'ring') {
+        e.r += e.spd; e.spd *= 0.968; e.life -= e.decay;
+        const a = Math.max(0, e.life);
+        ctx.globalAlpha = a * 0.55; ctx.strokeStyle = rpl(1); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.stroke();
       } else {
-        if (e.pull){e.vx+=(e.tx-e.x)*0.062;e.vy+=(e.ty-e.y)*0.062;e.vx*=0.82;e.vy*=0.82;}
-        else {e.vx*=0.93;e.vy*=0.93;}
-        e.x+=e.vx; e.y+=e.vy; e.life-=e.decay;
-        const a=Math.max(0,e.life);
-        ctx.globalAlpha=a*0.82; ctx.shadowBlur=10;
-        ctx.shadowColor=dotC(e.h); ctx.fillStyle=dotC(e.h);
-        ctx.beginPath(); ctx.arc(e.x,e.y,e.size*(0.3+0.7*a),0,Math.PI*2); ctx.fill();
+        if (e.pull) { e.vx += (e.tx-e.x)*0.062; e.vy += (e.ty-e.y)*0.062; e.vx *= 0.82; e.vy *= 0.82; }
+        else { e.vx *= 0.93; e.vy *= 0.93; }
+        e.x += e.vx; e.y += e.vy; e.life -= e.decay;
+        const a = Math.max(0, e.life);
+        ctx.globalAlpha = a * 0.82; ctx.fillStyle = dotC(e.h);
+        ctx.beginPath(); ctx.arc(e.x, e.y, e.size*(0.3+0.7*a), 0, Math.PI*2); ctx.fill();
       }
     });
     ctx.restore();
   }
 
-  /* ── 프로토콜 즉시 체크 ──────────────────────────────────────────────── */
-  (function checkProtocol() {
-    if (location.protocol === 'file:') {
-      const dEl = document.querySelector('.gg-dot-live');
-      if (dEl) dEl.style.background = 'rgba(255,200,80,0.9)';
-    }
-  })();
-
-  /* ── rAF 루프 ──────────────────────────────────────────────────────────── */
+  /* ── rAF 루프 ── */
   function tick() {
     requestAnimationFrame(tick);
     frameN++;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    vis=Math.max(0,Math.min(1,vis+(detected?CFG.fadeIn:-CFG.fadeOut)));
-
-    if (detected&&sLMs&&vis>0.05) {
-      trail.push(sLMs.map(l=>({...l})));
-      if (trail.length>CFG.trailFrames) trail.shift();
-    } else if (!detected&&trail.length>0) {
-      trail.shift();
-    }
-
-    if (gesture==='pointing'&&sLMs) updateHover(lx(sLMs[8]),ly(sLMs[8]));
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    vis = Math.max(0, Math.min(1, vis + (detected ? CFG.fadeIn : -CFG.fadeOut)));
     drawIdle();
     drawEffects();
-    if (vis>0.01&&sLMs) { drawSkeleton(vis); drawSpotlight(); }
+
+    /* ── 시선 스프링 물리 ── */
+    if (gazeTargetX !== null && gazeDispX !== null) {
+      /* 스프링: 목표까지 */
+      gazeVX += (gazeTargetX - gazeDispX) * CFG.gazeSpring;
+      gazeVY += (gazeTargetY - gazeDispY) * CFG.gazeSpring;
+      /* 자석: 스크롤 중 아닐 때만 — 레이아웃 안건드림 (캐시된 좌표 사용) */
+      if (_snapTargets && scrollVel < 1) {
+        let bDist = CFG.gazeSnapDist;
+        let bx = 0, by = 0, found = false;
+        _snapTargets.forEach(t => {
+          const d = Math.hypot(gazeDispX - t.cx, gazeDispY - t.cy);
+          if (d < bDist) { bDist = d; bx = t.cx; by = t.cy; found = true; }
+        });
+        if (found) {
+          gazeVX += (bx - gazeDispX) * CFG.gazeSnapStr;
+          gazeVY += (by - gazeDispY) * CFG.gazeSnapStr;
+        }
+      }
+      /* 댐핑 + 이동 */
+      gazeVX *= CFG.gazeDamping;
+      gazeVY *= CFG.gazeDamping;
+      gazeDispX += gazeVX;
+      gazeDispY += gazeVY;
+
+      updateGazeCursor(gazeDispX, gazeDispY);
+      if (frameN % 4 === 0) updateHover(gazeDispX, gazeDispY);
+
+      if (gazeCursorEl) gazeCursorEl.classList.toggle('calibrating', calibFrames < 90);
+    }
+
+    /* ── 핸드 스크롤 (200ms 경과 시 자동 해제) ── */
+    if (handScrollActive && Date.now() - _lastHandUpdate > 200) {
+      handScrollActive = false; handScrollDir = 0;
+      _handScrollState = 'neutral';
+    }
+
+    /* ── 시선 스크롤 히스테리시스 (핸드 스크롤 없을 때만) ── */
+    if (cameraActive && gazeY !== null && !handScrollActive) {
+      const h        = window.innerHeight;
+      const enterTop = h * 0.18;   /* 위 18% 이내 → 진입 */
+      const enterBot = h * 0.82;   /* 아래 82% 이상 → 진입 */
+      const exitTop  = h * 0.30;   /* 30% 벗어나면 해제 (히스테리시스 갭) */
+      const exitBot  = h * 0.70;
+
+      if (_eyeScrollState === 'neutral') {
+        if (gazeY < enterTop || gazeY > enterBot) {
+          _eyeScrollHold++;
+          if (_eyeScrollHold >= 8) {
+            _eyeScrollState = gazeY < enterTop ? 'up' : 'down';
+            _eyeScrollHold = 0;
+          }
+        } else {
+          _eyeScrollHold = 0;
+        }
+      } else if (_eyeScrollState === 'up') {
+        if (gazeY > exitTop) { /* 시선이 위쪽 영역 벗어남 */
+          _eyeScrollHold++;
+          if (_eyeScrollHold >= 6) { _eyeScrollState = 'neutral'; _eyeScrollHold = 0; }
+        } else { _eyeScrollHold = 0; }
+      } else if (_eyeScrollState === 'down') {
+        if (gazeY < exitBot) { /* 시선이 아래쪽 영역 벗어남 */
+          _eyeScrollHold++;
+          if (_eyeScrollHold >= 6) { _eyeScrollState = 'neutral'; _eyeScrollHold = 0; }
+        } else { _eyeScrollHold = 0; }
+      }
+    } else if (!cameraActive || gazeY === null) {
+      _eyeScrollState = 'neutral'; _eyeScrollHold = 0;
+    }
+
+    /* ── 스크롤 인디케이터 & 가이드 업데이트 ── */
+    if (handScrollActive) {
+      showScrollInd(handScrollDir < 0 ? '↑' : '↓');
+    } else if (_eyeScrollState !== 'neutral') {
+      showScrollInd(_eyeScrollState === 'up' ? '↑' : '↓');
+      updateGuide(_eyeScrollState === 'up' ? 'scroll-up' : 'scroll-down');
+    } else {
+      hideScrollInd();
+      if (!handScrollActive) updateGuide('gaze');
+    }
+
+    /* ── 최종 스크롤 방향 결정 (핸드 우선) ── */
+    const eyeDir = _eyeScrollState === 'up' ? -1 : _eyeScrollState === 'down' ? 1 : 0;
+    const activeDir = handScrollActive ? handScrollDir : eyeDir;
+    scrollTarget = activeDir * CFG.scrollSpd;
+    scrollVel += (scrollTarget - scrollVel) * 0.28;
+    if (Math.abs(scrollVel) > 0.5) window.scrollBy(0, scrollVel);
+    else if (scrollTarget === 0) scrollVel = 0;
   }
+  resize();
   tick();
 
-  /* ── 상태 표시 헬퍼 ────────────────────────────────────────────────────── */
+  /* 요소 자석 캐시: 스크롤/리사이즈 후 업데이트 (레이아웃 reflow를 이벤트 기반으로 제한) */
+  function refreshSnapTargets() {
+    _snapTargets = [...document.querySelectorAll('.s-card,.testimonial-card')].map(el => {
+      const r = el.getBoundingClientRect();
+      return { cx: (r.left + r.right) * 0.5, cy: (r.top + r.bottom) * 0.5 };
+    });
+  }
+  var _snapTimer = null;
+  window.addEventListener('scroll', function() {
+    clearTimeout(_snapTimer);
+    _snapTimer = setTimeout(refreshSnapTargets, 120);
+  }, { passive: true });
+  window.addEventListener('resize', refreshSnapTargets);
+  setTimeout(refreshSnapTargets, 600); /* 페이지 렌더 후 초기화 */
+
+  gazeCursorEl = document.getElementById('hand-cursor');
+
   const statusEl = document.getElementById('gg-status');
   const dotEl    = document.querySelector('.gg-dot-live');
 
   function setStatus(type, msg) {
-    if (statusEl) {
-      statusEl.textContent  = msg;
-      statusEl.className    = 'st-' + type;
-    }
+    if (statusEl) { statusEl.textContent = msg; statusEl.className = 'st-' + type; }
     if (dotEl) {
       dotEl.style.background =
-        type === 'error' ? 'rgba(255,70,70,0.9)'  :
-        type === 'ok'    ? 'rgba(80,220,130,0.9)'  :
+        type === 'error' ? 'rgba(255,70,70,0.9)' :
+        type === 'ok'    ? 'rgba(80,220,130,0.9)' :
                            'rgba(255,140,55,0.85)';
       dotEl.style.animationPlayState = type === 'ok' ? 'paused' : 'running';
     }
   }
 
-  /* ── MediaPipe 결과 콜백 ───────────────────────────────────────────────── */
   function onResults(res) {
-    if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
-      if (!detected) setStatus('ok', '손 감지됨 ✦');
+    if (res.multiFaceLandmarks && res.multiFaceLandmarks.length > 0) {
       detected = true;
-      applyEMA(res.multiHandLandmarks[0]);
-      const raw = classify(sLMs);
-      if (raw !== rawGest) { gTick = 0; rawGest = raw; }
-      else if (++gTick >= CFG.debounce) onGesture(raw);
+      setStatus('ok', calibFrames < 90 ? '보정 중… 정면을 바라봐 주세요' : '눈 감지됨 ✦');
+      const lm = res.multiFaceLandmarks[0];
+
+      if (lm[L_IRIS] && lm[R_IRIS]) {
+        const raw = calcGaze(lm);
+
+        /* 1. 미디언 필터 (5샘플) — 노이즈 스파이크 제거 */
+        gazeRawBuf.push([raw.x, raw.y]);
+        if (gazeRawBuf.length > 5) gazeRawBuf.shift();
+        if (gazeRawBuf.length < 3) { drawCamEye(lm); return; }
+        const xs = gazeRawBuf.map(p => p[0]).sort((a, b) => a - b);
+        const ys = gazeRawBuf.map(p => p[1]).sort((a, b) => a - b);
+        const mi = Math.floor(gazeRawBuf.length / 2);
+        const filtX = xs[mi], filtY = ys[mi];
+
+        /* 2. 초기화 */
+        if (gazeDispX === null) {
+          gazeDispX = filtX; gazeDispY = filtY;
+          gazeTargetX = filtX; gazeTargetY = filtY;
+        }
+
+        /* 3. 데드밴드 — 미세 움직임 차단 */
+        if (Math.hypot(filtX - gazeTargetX, filtY - gazeTargetY) > CFG.gazeDeadband) {
+          gazeTargetX = filtX; gazeTargetY = filtY;
+        }
+
+        gazeX = gazeTargetX; gazeY = gazeTargetY;
+      }
+
+      drawCamEye(lm);
+
     } else {
-      if (detected) setStatus('', '손을 화면에 올려보세요');
+      if (detected) setStatus('', '얼굴을 화면에 보여주세요');
       detected = false;
+      calibFrames = 0;
+      clearCamSkeleton(); hideGazeCursor(); clearHover();
+      gazeRawBuf = [];
+      gazeTargetX = null; gazeTargetY = null;
+      gazeDispX   = null; gazeDispY   = null;
+      gazeVX = 0; gazeVY = 0;
+      gazeX = null; gazeY = null;
+      _eyeScrollState = 'neutral'; _eyeScrollHold = 0;
     }
   }
 
-  /* ── 감지 루프 (시간 기반 스로틀, ~15fps → MediaPipe 과부하 방지) ─── */
+  /* FaceMesh + Hands 교차 실행 — GPU 경합 완전 제거 */
   function detectLoop() {
-    var _lastT = 0, _busy = false;
-    var MP_MS  = 66;   /* ~15fps */
+    var _busy = false, _frame = 0, DET_MS = 35;
     (async function loop() {
       if (!cameraActive) return;
-      var now = performance.now();
-      if (!_busy && video.readyState >= 2 && handsInst && now - _lastT >= MP_MS) {
-        _lastT = now;
-        _busy  = true;
-        try { await handsInst.send({ image: video }); } catch (_) {}
-        _busy  = false;
+      if (!_busy && video.readyState >= 2) {
+        _busy = true;
+        try {
+          if (_frame % 2 === 0 && faceInst)  await faceInst.send({ image: video });
+          else if (handsInst)                 await handsInst.send({ image: video });
+        } catch (_) {}
+        _busy = false;
+        _frame++;
       }
-      requestAnimationFrame(loop);
+      setTimeout(loop, DET_MS);
     })();
   }
 
-  /* ── 카메라 초기화 (getUserMedia 직접 호출) ────────────────────────────── */
+  function resetCamBtn() {
+    var b = document.getElementById('gg-cam-btn');
+    if (b) { b.disabled = false; b.textContent = '📷 다시 시도'; b.style.display = ''; }
+  }
+
   async function startCamera() {
-
-    /* MediaPipe Hands CDN 로드 확인 */
-    if (typeof Hands === 'undefined') {
+    if (typeof FaceMesh === 'undefined') {
       setStatus('error', 'MediaPipe 로드 실패 — 인터넷 확인');
-      return;
+      cameraStarted = false; resetCamBtn(); return;
     }
-
-    /* 카메라 API 없으면 HTTPS/로컬 서버 필요 */
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus('error', 'HTTPS 필요 (현재: ' + location.protocol + ')');
-      return;
+      setStatus('error', 'HTTPS 필요 (' + location.protocol + ')');
+      cameraStarted = false; resetCamBtn(); return;
     }
-
-    /* ① getUserMedia — 이 호출이 브라우저 권한 팝업을 직접 발생시킴 */
     var stream;
     try {
       setStatus('', '카메라 권한 요청 중…');
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
-        audio: false
+        video: { width: 320, height: 240, facingMode: 'user' }, audio: false
       });
     } catch (err) {
       var msg =
-        err.name === 'NotAllowedError'  ? '권한 거부 — 브라우저 설정에서 허용 필요' :
-        err.name === 'PermissionDeniedError' ? '권한 거부 — 브라우저 설정에서 허용 필요' :
+        (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') ? '권한 거부됨 — 브라우저 설정에서 허용' :
         err.name === 'NotFoundError'    ? '카메라를 찾을 수 없음' :
         err.name === 'NotReadableError' ? '카메라가 다른 앱에서 사용 중' :
                                           '카메라 오류: ' + err.name;
       setStatus('error', msg);
-      cameraStarted = false;
-      var btn2 = document.getElementById('gg-cam-btn');
-      if (btn2) { btn2.disabled = false; btn2.textContent = '📷 다시 시도'; btn2.style.display = ''; }
-      return;
+      cameraStarted = false; resetCamBtn(); return;
     }
-
-    /* ② 비디오 요소에 스트림 연결 */
     video.srcObject = stream;
     video.play().catch(function() {});
-
-    /* ③ MediaPipe Hands 초기화 */
-    const btn = document.getElementById('gg-cam-btn');
+    var camDisplay = document.getElementById('cam-display');
+    var camBox     = document.getElementById('cam-box');
+    if (camDisplay) { camDisplay.srcObject = stream; camDisplay.play().catch(function(){}); }
+    if (camBox)     { camBox.style.display = 'block'; }
+    var camSkelEl = document.getElementById('cam-skel-canvas');
+    if (camSkelEl && camBox) {
+      camSkelW = camBox.offsetWidth  || 220;
+      camSkelH = camBox.offsetHeight || 165;
+      camSkelEl.width  = camSkelW;
+      camSkelEl.height = camSkelH;
+      camSkelCtx = camSkelEl.getContext('2d');
+    }
+    await new Promise(function(r) {
+      if (video.readyState >= 2) { r(); return; }
+      video.addEventListener('loadeddata', r, { once: true });
+    });
+    var btn = document.getElementById('gg-cam-btn');
     if (btn) btn.style.display = 'none';
-    setStatus('', '모델 로딩 중…');
-    handsInst = new Hands({
-      locateFile: function(f) {
-        return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f;
-      }
-    });
-    handsInst.setOptions({
-      maxNumHands:            1,
-      modelComplexity:        1,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence:  0.5
-    });
-    handsInst.onResults(onResults);
-
-    /* ④ 첫 프레임 전송으로 WASM 모델 워밍업 */
-    await new Promise(function(r) { setTimeout(r, 300); });
+    setStatus('', 'AI 모델 로딩 중…');
     try {
-      await handsInst.send({ image: video });
-    } catch (_) {}
-
-    setStatus('', '손을 화면에 올려보세요');
-    mpReady      = true;
-    cameraActive = true;
-    detectLoop();
+      faceInst = new FaceMesh({
+        locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/' + f; }
+      });
+      faceInst.setOptions({
+        maxNumFaces: 1, refineLandmarks: true,
+        minDetectionConfidence: 0.45, minTrackingConfidence: 0.40,
+      });
+      faceInst.onResults(onResults);
+      if (typeof faceInst.initialize === 'function') {
+        await faceInst.initialize();
+      } else {
+        await new Promise(function(r) { setTimeout(r, 800); });
+        try { await faceInst.send({ image: video }); } catch (_) {}
+      }
+    } catch (e) {
+      setStatus('error', 'AI 모델 초기화 실패 — 인터넷 확인');
+      cameraStarted = false; resetCamBtn(); return;
+    }
+    setStatus('', '얼굴을 화면에 보여주세요');
+    mpReady = true; cameraActive = true;
+    calibFrames = 0; baseOffX = 0; baseOffY = 0;
+    await startHands();
+    detectLoop(); /* FaceMesh + Hands 교차 단일 루프 */
   }
 
-  /* ── 카메라 시작을 버튼 클릭으로 트리거 (user-gesture 보장) ──────────── */
+  /* ── MediaPipe Hands (검지 스크롤) ── */
+  let handsInst = null;
+  var _hBusy = false, HAND_MS = 66; /* ~15fps for scroll */
+
+  const scrollIndEl = document.getElementById('scroll-ind');
+  function showScrollInd(text) {
+    if (!scrollIndEl) return;
+    scrollIndEl.textContent = text;
+    scrollIndEl.classList.add('vis');
+  }
+  function hideScrollInd() {
+    if (scrollIndEl) scrollIndEl.classList.remove('vis');
+  }
+
+  function onHandResults(res) {
+    _lastHandUpdate = Date.now();
+    if (!res.multiHandLandmarks || !res.multiHandLandmarks.length) {
+      _handScrollState = 'neutral';
+      handScrollActive = false; handScrollDir = 0;
+      return;
+    }
+    const lm = res.multiHandLandmarks[0];
+    const dy = lm[8].y - lm[5].y; /* 검지 끝 vs MCP */
+
+    /* 히스테리시스: 진입 ±0.20, 해제 ±0.10 — 임계값 근처 진동 완전 차단 */
+    if (_handScrollState === 'neutral') {
+      if      (dy < -0.20) { _handScrollState = 'up'; }
+      else if (dy >  0.20) { _handScrollState = 'down'; }
+    } else if (_handScrollState === 'up') {
+      if (dy > -0.10)      { _handScrollState = 'neutral'; }
+    } else if (_handScrollState === 'down') {
+      if (dy <  0.10)      { _handScrollState = 'neutral'; }
+    }
+
+    if (_handScrollState === 'up') {
+      handScrollDir = -1; handScrollActive = true;
+      updateGuide('scroll-up');
+    } else if (_handScrollState === 'down') {
+      handScrollDir =  1; handScrollActive = true;
+      updateGuide('scroll-down');
+    } else {
+      handScrollActive = false; handScrollDir = 0;
+      updateGuide('gaze');
+    }
+  }
+
+  async function startHands() {
+    if (typeof Hands === 'undefined') return;
+    try {
+      handsInst = new Hands({
+        locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f; }
+      });
+      handsInst.setOptions({
+        maxNumHands: 1, modelComplexity: 0,
+        minDetectionConfidence: 0.55, minTrackingConfidence: 0.45,
+      });
+      handsInst.onResults(onHandResults);
+      if (typeof handsInst.initialize === 'function') await handsInst.initialize();
+    } catch (e) {}
+  }
+
+  function handDetectLoop() {
+    (async function loop() {
+      if (!cameraActive) return;
+      if (!_hBusy && video.readyState >= 2 && handsInst) {
+        _hBusy = true;
+        try { await handsInst.send({ image: video }); } catch (_) {}
+        _hBusy = false;
+      }
+      setTimeout(loop, HAND_MS);
+    })();
+  }
+
   let cameraStarted = false;
   window.__startCamera = function () {
     if (cameraStarted) return;
     cameraStarted = true;
-    const btn = document.getElementById('gg-cam-btn');
+    var btn = document.getElementById('gg-cam-btn');
     if (btn) { btn.disabled = true; btn.textContent = '카메라 연결 중…'; }
     startCamera();
   };
 
 }());
 </script>
+
 
 </body>
 </html>
