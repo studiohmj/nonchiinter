@@ -218,6 +218,42 @@
     #scroll-mode-label.bot-pos { bottom: calc(15vh + 16px); }
     #scroll-mode-label.vis { opacity: 1; }
 
+    /* ── 카메라 에러 배너 ── */
+    #cam-error-banner {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 99999;
+      background: rgba(18, 12, 6, 0.97);
+      border-bottom: 1px solid rgba(255, 90, 60, 0.45);
+      padding: 14px 20px 14px 20px;
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      backdrop-filter: blur(10px);
+    }
+    #cam-error-banner.show { display: flex; align-items: flex-start; gap: 14px; }
+    #cam-error-banner .ceb-icon { font-size: 22px; flex-shrink: 0; line-height: 1.2; }
+    #cam-error-banner .ceb-body { flex: 1; min-width: 0; }
+    #cam-error-banner .ceb-title {
+      font-size: 13px; font-weight: 700; color: rgba(255,110,80,0.95);
+      letter-spacing: 0.02em; line-height: 1.4; margin-bottom: 4px;
+    }
+    #cam-error-banner .ceb-msg {
+      font-size: 12px; font-weight: 400; color: rgba(255,210,170,0.80);
+      line-height: 1.6;
+    }
+    #cam-error-banner .ceb-msg code {
+      font-family: 'Courier New', monospace;
+      background: rgba(255,255,255,0.08); border-radius: 3px;
+      padding: 1px 5px; font-size: 11.5px;
+      color: rgba(130,220,255,0.90);
+    }
+    #cam-error-banner .ceb-close {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.35); font-size: 18px; line-height: 1;
+      padding: 0 0 0 10px; flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    #cam-error-banner .ceb-close:hover { color: rgba(255,255,255,0.75); }
+
     /* ── 모바일 HUD / 오버레이 ── */
     @media (max-width: 768px) {
       #cam-box {
@@ -374,6 +410,20 @@
   </style>
 </head>
 <body>
+
+<!-- ── 카메라 에러 배너 ── -->
+<div id="cam-error-banner">
+  <span class="ceb-icon">📵</span>
+  <div class="ceb-body">
+    <div class="ceb-title" id="ceb-title">카메라를 사용하려면 로컬 서버가 필요합니다</div>
+    <div class="ceb-msg" id="ceb-msg">
+      이 파일을 <code>file://</code>로 열면 브라우저 보안 정책으로 카메라가 차단됩니다.<br>
+      터미널에서 <code>npx serve .</code> 또는 <code>python -m http.server 8000</code> 실행 후<br>
+      <code>http://localhost:8000</code>으로 접속하세요. 모바일은 HTTPS 호스팅이 필요합니다.
+    </div>
+  </div>
+  <button class="ceb-close" onclick="document.getElementById('cam-error-banner').classList.remove('show')" aria-label="닫기">✕</button>
+</div>
 
 <!-- Three.js 배경 -->
 <canvas id="three-bg"></canvas>
@@ -1413,6 +1463,18 @@
   const statusEl = document.getElementById('gg-status');
   const dotEl    = document.querySelector('.gg-dot-live');
 
+  function showErrorBanner(title, msg) {
+    var b = document.getElementById('cam-error-banner');
+    var t = document.getElementById('ceb-title');
+    var m = document.getElementById('ceb-msg');
+    if (!b) return;
+    if (t) t.textContent = title;
+    if (m) m.innerHTML  = msg;
+    b.classList.add('show');
+    var icon = b.querySelector('.ceb-icon');
+    if (icon) icon.textContent = '📵';
+  }
+
   function setStatus(type, msg) {
     if (statusEl) { statusEl.textContent = msg; statusEl.className = 'st-' + type; }
     const camStatusText = document.getElementById('cam-status-text');
@@ -1515,10 +1577,18 @@
   async function startCamera() {
     if (typeof FaceMesh === 'undefined') {
       setStatus('error', 'MediaPipe 로드 실패 — 인터넷 확인');
+      showErrorBanner('AI 모델 로드 실패',
+        'MediaPipe 라이브러리를 불러오지 못했습니다.<br>' +
+        '인터넷 연결을 확인하거나, <code>file://</code> 대신 로컬 서버를 사용하세요.<br>' +
+        '터미널: <code>npx serve .</code> → <code>http://localhost:PORT</code>');
       cameraStarted = false; resetCamBtn(); return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setStatus('error', 'HTTPS 필요 (' + location.protocol + ')');
+      showErrorBanner('카메라 접근 불가 (' + location.protocol + '//' + ')',
+        '브라우저 보안 정책으로 <code>' + location.protocol + '//</code> 에서는 카메라를 사용할 수 없습니다.<br>' +
+        '로컬 서버 실행 후 <code>http://localhost:PORT</code>로 접속하거나,<br>' +
+        '모바일은 <strong>HTTPS 호스팅</strong>(GitHub Pages, Netlify 등)이 필요합니다.');
       cameraStarted = false; resetCamBtn(); return;
     }
     var stream;
@@ -1531,12 +1601,28 @@
         audio: false
       });
     } catch (err) {
-      var msg =
-        (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') ? '권한 거부됨 — 브라우저 설정에서 허용' :
-        err.name === 'NotFoundError'    ? '카메라를 찾을 수 없음' :
-        err.name === 'NotReadableError' ? '카메라가 다른 앱에서 사용 중' :
-                                          '카메라 오류: ' + err.name;
+      var msg, bannerMsg;
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        msg = '권한 거부됨 — 브라우저 설정에서 허용';
+        bannerMsg = '카메라 권한이 거부되었습니다.<br>' +
+          '브라우저 주소창 왼쪽 🔒/📷 아이콘 → <strong>카메라 허용</strong>으로 변경 후 새로고침하세요.<br>' +
+          '모바일(iOS Safari): 설정 → Safari → 카메라 → 허용';
+      } else if (err.name === 'NotFoundError') {
+        msg = '카메라를 찾을 수 없음';
+        bannerMsg = '이 기기에서 카메라를 감지하지 못했습니다.<br>카메라가 연결되어 있는지 확인하세요.';
+      } else if (err.name === 'NotReadableError') {
+        msg = '카메라가 다른 앱에서 사용 중';
+        bannerMsg = '카메라가 다른 앱(화상회의 등)에서 사용 중입니다.<br>해당 앱을 종료한 후 다시 시도하세요.';
+      } else if (err.name === 'OverconstrainedError') {
+        msg = '카메라 설정 오류';
+        bannerMsg = '요청한 카메라 설정을 지원하지 않습니다.<br>다른 브라우저를 사용해 보세요.';
+      } else {
+        msg = '카메라 오류: ' + err.name;
+        bannerMsg = '카메라 연결 중 오류가 발생했습니다: <code>' + err.name + '</code><br>' +
+          '페이지를 새로고침하거나 다른 브라우저를 시도해 보세요.';
+      }
       setStatus('error', msg);
+      showErrorBanner('카메라를 열 수 없습니다', bannerMsg);
       cameraStarted = false; resetCamBtn(); return;
     }
     video.srcObject = stream;
@@ -1672,6 +1758,14 @@
   let cameraStarted = false;
   window.__startCamera = function () {
     if (cameraStarted) return;
+    /* 모바일 + file:// 조합은 반드시 실패 — 배너만 표시하고 종료 */
+    if (_isMobile && location.protocol === 'file:') {
+      showErrorBanner('모바일 카메라 사용 불가 (file:// 환경)',
+        '모바일 브라우저는 <code>file://</code> 페이지에서 카메라를 허용하지 않습니다.<br>' +
+        '① PC에서 <code>npx serve .</code> 실행 → 같은 Wi-Fi의 모바일에서 <code>http://[PC IP]:PORT</code> 접속<br>' +
+        '② 또는 GitHub Pages · Netlify 등 <strong>HTTPS</strong> 환경에 배포');
+      return;
+    }
     cameraStarted = true;
     var btn = document.getElementById('gg-cam-btn');
     if (btn) { btn.disabled = true; btn.textContent = '카메라 연결 중…'; }
@@ -1684,14 +1778,25 @@
     if (ggEl) ggEl.classList.add('expanded');
 
     if (_isMobile) {
-      /* 모바일: 자동 시작 안 함 — 버튼 탭으로 직접 시작
-         file:// 프로토콜이면 안내 메시지만 표시 */
+      /* 모바일: 자동 시작 안 함 — 버튼 탭으로 직접 시작 */
       if (location.protocol === 'file:') {
         var s = document.getElementById('gg-status');
-        if (s) { s.textContent = '로컬 서버 필요 (HTTPS)'; s.className = 'st-warn'; }
+        if (s) { s.textContent = 'HTTPS 필요 (아래 안내 확인)'; s.className = 'st-warn'; }
+        /* 버튼 비활성화 — file:// 에서는 무조건 실패하므로 */
+        var btn = document.getElementById('gg-cam-btn');
+        if (btn) { btn.disabled = true; btn.textContent = '서버 환경 필요'; }
+        showErrorBanner('모바일 카메라 사용 불가 (file:// 환경)',
+          '모바일 브라우저는 <code>file://</code> 페이지에서 카메라를 허용하지 않습니다.<br>' +
+          '<strong>해결 방법:</strong><br>' +
+          '① PC에서 <code>npx serve .</code> 실행 후 같은 Wi-Fi의 모바일에서 <code>http://[PC IP]:PORT</code> 접속<br>' +
+          '② 또는 GitHub Pages · Netlify 등 <strong>HTTPS</strong> 환경에 배포');
       }
     } else {
-      /* 데스크탑: 0.6초 후 자동 시작 */
+      /* 데스크탑: file:// 이면 경고 후 시작 시도, 아니면 바로 자동 시작 */
+      if (location.protocol === 'file:') {
+        var s2 = document.getElementById('gg-status');
+        if (s2) { s2.textContent = 'file:// — 제한적 동작'; s2.className = 'st-warn'; }
+      }
       setTimeout(window.__startCamera, 600);
     }
   });
