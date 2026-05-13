@@ -914,7 +914,7 @@
         <span class="gg-indicator"></span>
       </div>
     </div>
-    <button id="gg-cam-btn" onclick="window.__startCamera && window.__startCamera()">📷 카메라 시작</button>
+    <button id="gg-cam-btn">📷 카메라 시작</button>
   </div>
 </div>
 
@@ -1772,6 +1772,26 @@
     startCamera();
   };
 
+  /* ── 카메라 버튼: iOS Safari backdrop-filter click 버그 대응 ── */
+  (function() {
+    var btn = document.getElementById('gg-cam-btn');
+    if (!btn) return;
+    var _touched = false;
+    btn.addEventListener('touchstart', function() {
+      _touched = true;
+    }, { passive: true });
+    btn.addEventListener('touchend', function(e) {
+      if (!_touched) return;
+      _touched = false;
+      e.preventDefault(); /* ghost-click 방지 */
+      window.__startCamera && window.__startCamera();
+    }, { passive: false });
+    btn.addEventListener('click', function() {
+      if (_touched) return; /* touchend 에서 이미 처리됨 */
+      window.__startCamera && window.__startCamera();
+    });
+  })();
+
   /* ── 자동 카메라 시작 ── */
   window.addEventListener('load', function () {
     var ggEl = document.getElementById('gesture-guide');
@@ -1782,9 +1802,9 @@
       if (location.protocol === 'file:') {
         var s = document.getElementById('gg-status');
         if (s) { s.textContent = 'HTTPS 필요 (아래 안내 확인)'; s.className = 'st-warn'; }
-        /* 버튼 비활성화 — file:// 에서는 무조건 실패하므로 */
+        /* 버튼은 활성 유지 — 탭 시 배너로 안내 */
         var btn = document.getElementById('gg-cam-btn');
-        if (btn) { btn.disabled = true; btn.textContent = '서버 환경 필요'; }
+        if (btn) { btn.textContent = '⚠️ HTTPS 필요 (탭하여 확인)'; }
         showErrorBanner('모바일 카메라 사용 불가 (file:// 환경)',
           '모바일 브라우저는 <code>file://</code> 페이지에서 카메라를 허용하지 않습니다.<br>' +
           '<strong>해결 방법:</strong><br>' +
