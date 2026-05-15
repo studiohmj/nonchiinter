@@ -8,6 +8,197 @@
   <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* ── 다크모드 ── */
+    html { transition: background 0.5s ease, color 0.5s ease; }
+    html.dark {
+      --dm-bg:        #0d0c0b;
+      --dm-bg2:       #161412;
+      --dm-card:      #1c1a17;
+      --dm-card2:     #232018;
+      --dm-border:    rgba(255,140,40,0.18);
+      --dm-text:      #ece8e1;
+      --dm-muted:     rgba(236,232,225,0.55);
+      --dm-accent:    #ff8c30;
+      filter: none;
+    }
+    html.dark body {
+      background: var(--dm-bg) !important;
+      color: #e8e4de !important;
+    }
+    /* --- sections --- */
+    html.dark .hero { background: var(--dm-bg) !important; }
+    html.dark .section-alt { background: var(--dm-bg2) !important; }
+    html.dark .preview-section { background: var(--dm-bg) !important; }
+    html.dark .sim-section { background: var(--dm-bg2) !important; }
+    html.dark .community-section { background: var(--dm-bg) !important; }
+    html.dark .cta { background: linear-gradient(140deg,#d45a18 0%,#a83a0c 55%,#7a2206 100%) !important; }
+    html.dark .footer { background: #080705 !important; color: rgba(232,228,222,0.55) !important; }
+    /* --- nav --- */
+    html.dark .nav { background: rgba(13,12,11,0.95) !important; border-bottom-color: rgba(255,140,40,0.15) !important; }
+    html.dark .nav-link { color: rgba(232,228,222,0.65) !important; }
+    html.dark .nav-link:hover { color: #e8e4de !important; background: rgba(255,140,40,0.08) !important; }
+    /* --- hero proof --- */
+    html.dark .proof-label { color: rgba(232,228,222,0.60) !important; }
+    html.dark .proof-label strong { color: #ffb060 !important; }
+    html.dark .face { border-color: rgba(255,140,40,0.25) !important; filter: brightness(0.75) !important; }
+    html.dark .hero-lead, html.dark .hero-sub { color: rgba(232,228,222,0.72) !important; }
+    html.dark .proof-stat-num { color: #ff8c30 !important; }
+    html.dark .proof-stat-label { color: rgba(232,228,222,0.60) !important; }
+    /* --- cards (scenario section) --- */
+    html.dark .s-card { background: var(--dm-card) !important; border-color: rgba(255,140,40,0.15) !important; color: #e8e4de !important; }
+    html.dark .s-card:hover { border-color: rgba(255,140,40,0.35) !important; }
+    html.dark .s-icon { background: var(--dm-card2) !important; }
+    html.dark .s-desc { color: rgba(232,228,222,0.72) !important; }
+    html.dark .s-tag { background: rgba(255,140,40,0.20) !important; color: #ffb060 !important; border-color: transparent !important; }
+    /* --- preview section (iphone mock) --- */
+    html.dark .preview-card { background: var(--dm-card) !important; border-color: rgba(255,140,40,0.12) !important; }
+    html.dark .iphone-screen { background: #1a1814 !important; }
+    html.dark .iphone-bar { background: #0f0e0c !important; }
+    html.dark .phone-chip { color: rgba(232,228,222,0.60) !important; background: var(--dm-card2) !important; }
+    html.dark .app-bar { background: #1a1814 !important; border-bottom-color: rgba(255,140,40,0.12) !important; }
+    html.dark .app-bar-title { color: #e8e4de !important; }
+    html.dark .app-bar-right { color: rgba(232,228,222,0.55) !important; }
+    html.dark .app-section-label { color: rgba(232,228,222,0.40) !important; }
+    html.dark .app-prog-wrap { background: rgba(255,140,40,0.10) !important; }
+    html.dark .app-item { background: var(--dm-card2) !important; border-color: rgba(255,140,40,0.08) !important; }
+    html.dark .app-item.active { background: rgba(255,140,40,0.18) !important; border-color: rgba(255,140,40,0.40) !important; }
+    html.dark .app-item-title { color: #e8e4de !important; }
+    html.dark .app-item-arr { color: rgba(255,140,40,0.30) !important; }
+    html.dark .app-situation { background: var(--dm-card2) !important; border-color: rgba(255,140,40,0.12) !important; }
+    html.dark .app-sit-text { color: #e8e4de !important; }
+    html.dark .app-choices .app-choice { background: var(--dm-card2) !important; border-color: rgba(255,140,40,0.12) !important; color: rgba(232,228,222,0.80) !important; }
+    html.dark .app-choice.selected { background: rgba(255,140,40,0.18) !important; border-color: rgba(255,140,40,0.50) !important; color: #e8e4de !important; }
+    html.dark .choice-dot { background: rgba(255,140,40,0.25) !important; }
+    html.dark .app-choice.selected .choice-dot { background: #ff8c30 !important; }
+    /* --- preview section internals (bars, ring, insight) --- */
+    html.dark .app-q-label { color: rgba(232,228,222,0.50) !important; }
+    html.dark .app-ring { background: rgba(255,140,40,0.15) !important; border-color: rgba(255,140,40,0.55) !important; }
+    html.dark .app-ring-sub { color: rgba(232,228,222,0.45) !important; }
+    html.dark .app-bar-label { color: rgba(232,228,222,0.75) !important; }
+    html.dark .app-bar-track { background: rgba(255,140,40,0.10) !important; }
+    html.dark .app-bar-fill { background: rgba(255,255,255,0.12) !important; }
+    html.dark .app-bar-fill.win { background: #ff8c30 !important; }
+    html.dark .app-bar-pct { color: rgba(232,228,222,0.55) !important; }
+    html.dark .app-bar-pct.win { color: #ff8c30 !important; }
+    html.dark .app-insight { background: rgba(255,140,40,0.12) !important; color: rgba(232,228,222,0.80) !important; }
+    html.dark .dot-gray { background: rgba(255,255,255,0.18) !important; }
+    /* --- sim result --- */
+    html.dark .sim-result-name { color: rgba(232,228,222,0.78) !important; }
+    html.dark .sim-result-row.winner .sim-result-name { color: #e8e4de !important; }
+    /* --- sim section --- */
+    html.dark .sim-card { background: var(--dm-card) !important; border-color: rgba(255,140,40,0.15) !important; }
+    html.dark .sim-text { color: rgba(232,228,222,0.78) !important; }
+    html.dark .sim-tag { background: rgba(255,140,40,0.18) !important; color: #ffb060 !important; border-color: rgba(255,140,40,0.25) !important; }
+    html.dark .sim-option { background: var(--dm-card2) !important; border-color: rgba(255,140,40,0.12) !important; color: rgba(232,228,222,0.80) !important; }
+    html.dark .sim-option.selected { background: rgba(255,140,40,0.18) !important; border-color: rgba(255,140,40,0.50) !important; color: #e8e4de !important; }
+    html.dark .opt-marker { background: var(--dm-card) !important; border-color: rgba(255,140,40,0.25) !important; color: rgba(232,228,222,0.60) !important; }
+    html.dark .sim-option.selected .opt-marker { background: #ff8c30 !important; border-color: #ff8c30 !important; color: #fff !important; }
+    html.dark .step-name { color: rgba(232,228,222,0.50) !important; }
+    html.dark .sim-divider-line { background: rgba(255,140,40,0.15) !important; }
+    html.dark .sim-divider-dot { background: var(--dm-card2) !important; border-color: rgba(255,140,40,0.20) !important; }
+    html.dark .result-crown { background: rgba(255,140,40,0.18) !important; color: #ffb060 !important; border-color: rgba(255,140,40,0.30) !important; }
+    html.dark .result-track { background: rgba(255,140,40,0.10) !important; }
+    html.dark .result-pct { color: #ff8c30 !important; }
+    html.dark .result-pct.muted { color: rgba(232,228,222,0.50) !important; }
+    html.dark .sim-insight { background: rgba(255,140,40,0.08) !important; color: rgba(232,228,222,0.75) !important; border-left-color: #ff8c30 !important; }
+    html.dark .sim-insight strong { color: #ffb060 !important; }
+    /* --- community section --- */
+    html.dark .testimonial-card { background: var(--dm-card) !important; border-color: rgba(255,140,40,0.12) !important; }
+    html.dark .t-avatar { filter: brightness(0.75) saturate(0.8) !important; }
+    html.dark .t-nick { color: #e8e4de !important; }
+    html.dark .t-tag { color: rgba(232,228,222,0.45) !important; background: none !important; }
+    html.dark .t-text { color: rgba(232,228,222,0.78) !important; }
+    html.dark .t-empathy { color: rgba(232,228,222,0.50) !important; border-top-color: rgba(255,140,40,0.12) !important; }
+    html.dark .community-note { background: var(--dm-card) !important; border-color: rgba(255,140,40,0.18) !important; color: rgba(232,228,222,0.65) !important; }
+    /* --- global text --- */
+    html.dark h1, html.dark h2, html.dark h3, html.dark h4 { color: #f0ece6 !important; }
+    html.dark p, html.dark li { color: rgba(232,228,222,0.80) !important; }
+    html.dark .badge { background: rgba(255,140,40,0.15) !important; color: #ffb060 !important; border-color: rgba(255,140,40,0.25) !important; }
+    html.dark .section-label { color: #ff8c30 !important; }
+    html.dark .sim-label { color: #ff8c30 !important; }
+    html.dark .hero-badge { background: rgba(255,140,40,0.15) !important; color: #ffa060 !important; border-color: rgba(255,140,40,0.30) !important; }
+    /* --- buttons --- */
+    html.dark .logo-text { color: #ff8c30 !important; }
+    html.dark .nav-cta { background: #ff6020 !important; }
+    html.dark .btn-primary { background: #ff6020 !important; }
+    html.dark .btn-ghost { border-color: rgba(255,140,40,0.45) !important; color: #ffa060 !important; background: transparent !important; }
+    /* --- dividers --- */
+    html.dark .gg-divider { background: rgba(255,140,40,0.12) !important; }
+    html.dark hr { border-color: rgba(255,140,40,0.12) !important; }
+    html.dark * { transition: background 0.45s ease, color 0.45s ease, border-color 0.45s ease; }
+    /* 인터랙션 테마 전환: 모든 요소 부드럽게 (body[data-theme]이 있을 때만) */
+    body[data-theme] * {
+      transition: color 1.4s ease, background-color 1.5s ease, background 1.5s ease,
+                  border-color 1.2s ease, box-shadow 0.8s ease;
+    }
+    /* 전환 중: 다크↔라이트 양방향 모두 부드럽게 */
+    html.theme-transitioning,
+    html.theme-transitioning * {
+      transition: background 0.55s ease, background-color 0.55s ease,
+                  color 0.55s ease, border-color 0.50s ease,
+                  box-shadow 0.45s ease, filter 0.45s ease,
+                  opacity 0.40s ease !important;
+    }
+
+    /* ── Track status overlay (inside cam-box) ── */
+    #track-status {
+      position: absolute; bottom: 28px; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #cam-box:hover #track-status,
+    #track-status[data-state="stable"] { opacity: 1; }
+    #track-status[data-state="locked"] { opacity: 1; }
+    #track-status[data-state="lost"]   { opacity: 0.45; }
+    .ts-dot {
+      width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(120,220,130,0.9);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    #track-status[data-state="lost"] .ts-dot   { background: rgba(200,80,80,0.7); }
+    #track-status[data-state="locked"] .ts-dot { background: rgba(255,220,80,1); box-shadow: 0 0 6px rgba(255,220,80,0.8); animation: gg-pulse 1s ease-in-out infinite; }
+    .ts-label {
+      font-size: 7px; letter-spacing: 0.14em; text-transform: uppercase;
+      font-family: -apple-system, 'Pretendard', sans-serif; font-weight: 700;
+      color: rgba(120,220,130,0.75); transition: color 0.3s ease;
+    }
+    #track-status[data-state="lost"] .ts-label   { color: rgba(200,100,100,0.65); }
+    #track-status[data-state="locked"] .ts-label { color: rgba(255,220,80,0.90); }
+
+    /* ── Parallax: background canvas follows hand ── */
+    #three-bg {
+      transition: transform 0.8s cubic-bezier(0.16,1,0.3,1);
+      transform: translate(var(--hand-px, 0px), var(--hand-py, 0px));
+    }
+
+    /* ── Cam box: smooth glow transition ── */
+    #cam-box { transition: box-shadow 0.55s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease; }
+
+
+    /* 쉿 토스트 알림 */
+    #shush-toast {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.85);
+      background: rgba(20,18,14,0.92); color: #fff;
+      padding: 18px 32px; border-radius: 16px; font-size: 18px; font-weight: 600;
+      backdrop-filter: blur(12px); z-index: 99999;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      border: 1px solid rgba(255,140,40,0.35);
+    }
+    #shush-toast.vis { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    /* 쉿 진행 링 (카메라 HUD) */
+    #shush-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 3px solid transparent; pointer-events: none;
+      transition: border-color 0.2s ease;
+    }
+    #shush-ring.active { border-color: rgba(255,140,40,0.9); animation: shush-spin 1.5s linear forwards; }
+    @keyframes shush-spin {
+      0%   { clip-path: inset(0 100% 0 0); }
+      100% { clip-path: inset(0 0 0 0); }
+    }
+
     /* ── 히든 웹캠 / 트래킹 캔버스 ── */
     #hand-webcam {
       position: fixed; top: 0; left: 0;
@@ -24,84 +215,6 @@
     #three-bg {
       position: fixed; inset: 0;
       z-index: 0; pointer-events: none;
-    }
-
-    /* ── Hand gesture interaction states ── */
-    [data-hand-hover] {
-      transform: translateY(-10px) scale(1.04) !important;
-      box-shadow:
-        0 24px 56px rgba(255, 90, 20, 0.30),
-        0 0 0 2px rgba(255, 108, 30, 0.55) !important;
-      background: rgba(255, 90, 20, 0.05) !important;
-      transition:
-        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.35s ease,
-        background 0.35s ease !important;
-      z-index: 10; position: relative;
-    }
-    body[data-gesture="open"] .s-card {
-      transform: translateY(-4px) scale(1.015);
-      box-shadow: 0 12px 40px rgba(255, 108, 30, 0.14), 0 0 0 1px rgba(255,90,20,0.18);
-      border-color: rgba(255, 90, 20, 0.22);
-      transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    body[data-gesture="open"] .s-icon {
-      transform: scale(1.25) rotate(-6deg);
-      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    body[data-gesture="open"] .s-desc {
-      color: var(--body); max-height: 200px; transition: all 0.4s ease;
-    }
-    body[data-gesture="fist"] .s-card {
-      transform: scale(0.95) !important; opacity: 0.55 !important;
-      box-shadow: none !important; transition: all 0.35s ease !important;
-    }
-    body[data-gesture="fist"] .s-icon {
-      transform: scale(0.8) !important; transition: transform 0.35s ease !important;
-    }
-
-    /* ── 시선 커서 ── */
-    #hand-cursor {
-      position: fixed;
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(180, 215, 255, 0.80);
-      background: rgba(120, 170, 255, 0.10);
-      pointer-events: none; z-index: 9998;
-      display: none;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 8px rgba(120, 180, 255, 0.30);
-      transition:
-        width  0.40s cubic-bezier(0.34, 1.56, 0.64, 1),
-        height 0.40s cubic-bezier(0.34, 1.56, 0.64, 1),
-        border-color 0.25s ease,
-        background   0.25s ease,
-        opacity      0.25s ease,
-        box-shadow   0.25s ease;
-    }
-    #hand-cursor::after {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      background: rgba(180, 220, 255, 0.90);
-    }
-    #hand-cursor.on-element {
-      width: 18px; height: 18px;
-      border-color: rgba(140, 200, 255, 1);
-      background: rgba(130, 185, 255, 0.18);
-      box-shadow: 0 0 14px rgba(100, 170, 255, 0.55);
-    }
-    #hand-cursor.calibrating {
-      opacity: 0.35;
-      border-style: dashed;
-      border-color: rgba(255, 215, 100, 0.65);
-      box-shadow: none;
-    }
-    #hand-cursor.calibrating::after {
-      background: rgba(255, 215, 100, 0.70);
     }
 
     /* ── 카메라 HUD ── */
@@ -164,59 +277,6 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* ── 시선 스크롤 존 오버레이 ── */
-    #gaze-zone-top, #gaze-zone-bot {
-      position: fixed; left: 0; right: 0;
-      height: 15vh; pointer-events: none;
-      z-index: 9990; opacity: 0;
-      transition: opacity 0.4s ease, border-color 0.4s ease;
-    }
-    #gaze-zone-top {
-      top: 0;
-      background: linear-gradient(to bottom, rgba(255,122,47,0.09) 0%, transparent 100%);
-      border-bottom: 1px solid rgba(255,122,47,0);
-    }
-    #gaze-zone-bot {
-      bottom: 0;
-      background: linear-gradient(to top, rgba(255,122,47,0.09) 0%, transparent 100%);
-      border-top: 1px solid rgba(255,122,47,0);
-    }
-    #gaze-zone-top.active { opacity: 1; border-bottom-color: rgba(255,122,47,0.20); }
-    #gaze-zone-bot.active { opacity: 1; border-top-color: rgba(255,122,47,0.20); }
-
-    /* ── 드웰 진행 바 ── */
-    #dwell-bar {
-      position: fixed; left: 50%; transform: translateX(-50%);
-      width: 120px; height: 2px;
-      background: rgba(255,255,255,0.07); border-radius: 2px;
-      pointer-events: none; z-index: 9992;
-      opacity: 0; transition: opacity 0.2s ease;
-    }
-    #dwell-bar.top-pos { top: calc(15vh + 8px); }
-    #dwell-bar.bot-pos { bottom: calc(15vh + 8px); }
-    #dwell-bar.vis { opacity: 1; }
-    #dwell-bar-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(to right, rgba(255,122,47,0.5), rgba(255,190,80,0.95));
-      border-radius: 2px; transition: width 0.08s linear;
-    }
-
-    /* ── 스크롤 모드 텍스트 ── */
-    #scroll-mode-label {
-      position: fixed; left: 50%; transform: translateX(-50%);
-      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,150,70,0.90);
-      font-family: -apple-system, 'Pretendard', sans-serif;
-      pointer-events: none; z-index: 9993;
-      opacity: 0; transition: opacity 0.2s ease;
-      white-space: nowrap;
-      text-shadow: 0 0 16px rgba(255,120,50,0.35);
-    }
-    #scroll-mode-label.top-pos { top: calc(15vh + 16px); }
-    #scroll-mode-label.bot-pos { bottom: calc(15vh + 16px); }
-    #scroll-mode-label.vis { opacity: 1; }
-
     /* ── 카메라 에러 배너 ── */
     #cam-error-banner {
       display: none;
@@ -261,13 +321,6 @@
         border-radius: 10px;
       }
       #gesture-guide { bottom: 12px; right: 12px; width: 204px; }
-      #gaze-zone-top, #gaze-zone-bot { height: 12vh; }
-      #dwell-bar.top-pos  { top:    calc(12vh + 6px); }
-      #dwell-bar.bot-pos  { bottom: calc(12vh + 6px); }
-      #scroll-mode-label  { font-size: 9px; }
-      #scroll-mode-label.top-pos { top:    calc(12vh + 14px); }
-      #scroll-mode-label.bot-pos { bottom: calc(12vh + 14px); }
-      #scroll-ind { right: 12px; }
     }
     /* 480px 이하 — 소형 스마트폰 대응 */
     @media (max-width: 480px) {
@@ -278,29 +331,7 @@
       .gg-toggle { padding: 10px 12px; }
       .gg-title  { font-size: 10px; }
       #gg-cam-btn { font-size: 11px; padding: 8px 0; }
-      /* 스크롤 zone 높이 줄이기 */
-      #gaze-zone-top, #gaze-zone-bot { height: 10vh; }
-      #dwell-bar.top-pos  { top:    calc(10vh + 5px); }
-      #dwell-bar.bot-pos  { bottom: calc(10vh + 5px); }
-      #scroll-mode-label.top-pos { top:    calc(10vh + 12px); }
-      #scroll-mode-label.bot-pos { bottom: calc(10vh + 12px); }
-      #scroll-ind { right: 8px; font-size: 12px; padding: 6px 8px; }
     }
-
-    /* ── 스크롤 방향 인디케이터 ── */
-    #scroll-ind {
-      position: fixed; top: 50%; right: 18px;
-      transform: translateY(-50%);
-      z-index: 10002; pointer-events: none;
-      background: rgba(10, 8, 6, 0.82);
-      border: 1px solid rgba(100, 180, 255, 0.35);
-      border-radius: 10px; padding: 8px 10px;
-      font-size: 13px; font-weight: 700;
-      font-family: -apple-system, 'Pretendard', sans-serif;
-      color: rgba(140, 200, 255, 0.95);
-      opacity: 0; transition: opacity 0.15s; letter-spacing: 0.04em;
-    }
-    #scroll-ind.vis { opacity: 1; }
 
     /* ── 제스처 안내 패널 ── */
     #gesture-guide {
@@ -406,6 +437,454 @@
     #gg-cam-btn:hover { background: rgba(255,120,40,0.30); border-color: rgba(255,140,60,0.65); }
     #gg-cam-btn:disabled { opacity: 0.4; cursor: default; }
 
+    /* ── 섹션 레이아웃 ── */
+    section.hero,
+    section.section-alt,
+    section.preview-section,
+    section.sim-section,
+    section.community-section {
+      min-height: 100vh;
+    }
+
+    /* ══ Nav actions (다크모드 + 인터랙션 버튼) ══ */
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .ctrl-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 9999px;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.11);
+      color: var(--muted, #7a746f);
+      font-family: 'Pretendard','Roboto',sans-serif;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+      cursor: pointer; user-select: none; white-space: nowrap;
+      transition: background .2s, border-color .2s, color .2s, box-shadow .2s;
+      line-height: 1;
+    }
+    .ctrl-pill:hover {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(0,0,0,0.20);
+      color: var(--ink, #1a1614);
+    }
+    .ctrl-icon { font-size: 11px; line-height: 1; }
+    .ctrl-pill.dm-on {
+      border-color: rgba(180,120,0,0.30);
+      color: rgba(160,110,0,0.90);
+      background: rgba(200,140,0,0.06);
+    }
+    .ctrl-pill.im-on {
+      border-color: rgba(50,170,80,0.38);
+      color: rgba(40,160,75,0.92);
+      background: rgba(50,200,90,0.07);
+      box-shadow: 0 0 12px rgba(50,200,90,0.10);
+    }
+    html.dark .ctrl-pill {
+      border-color: rgba(255,255,255,0.13);
+      color: rgba(232,228,222,0.60);
+    }
+    html.dark .ctrl-pill:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.22);
+      color: rgba(236,232,225,0.90);
+    }
+    html.dark .ctrl-pill.dm-on {
+      border-color: rgba(255,190,60,0.32);
+      color: rgba(255,200,80,0.90);
+      background: rgba(255,180,40,0.08);
+    }
+    html.dark .ctrl-pill.im-on {
+      border-color: rgba(80,220,130,0.32);
+      color: rgba(100,235,150,0.90);
+      background: rgba(80,220,130,0.07);
+      box-shadow: 0 0 14px rgba(80,220,130,0.10);
+    }
+
+    /* ══ Atmospheric theme background layers ══ */
+    #theme-bg {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      opacity: 0; will-change: background;
+      transition: opacity 1.4s cubic-bezier(0.25,0.1,0.25,1);
+    }
+    #theme-bg.active { opacity: 1; }
+    #theme-noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 220px; mix-blend-mode: overlay;
+      transition: opacity 1.2s ease;
+    }
+    #theme-noise.active { opacity: 0.028; }
+    #theme-vignette {
+      position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0;
+      background: radial-gradient(ellipse 82% 76% at 50% 50%, transparent 32%, rgba(0,0,0,0.72) 100%);
+      mix-blend-mode: multiply;
+      transition: opacity 1.4s ease;
+    }
+    #theme-vignette.active { opacity: 1; }
+    #theme-tint {
+      position: fixed; inset: 0; z-index: 9997; pointer-events: none; opacity: 0;
+      mix-blend-mode: soft-light;
+      transition: background 2.4s ease, opacity 1.2s ease;
+    }
+    #theme-tint.active { opacity: 1; }
+    /* Thin orange HUD corner lines */
+    #th-hud-tl, #th-hud-tr {
+      position: fixed; z-index: 9998; pointer-events: none;
+      width: 34px; height: 34px;
+      border-color: rgba(255,140,60,0.00); border-style: solid; opacity: 0;
+      transition: border-color .9s ease, opacity .9s ease;
+    }
+    #th-hud-tl { top: 13px; left: 13px; border-width: 1px 0 0 1px; border-radius: 2px 0 0 0; }
+    #th-hud-tr { top: 13px; right: 13px; border-width: 1px 1px 0 0; border-radius: 0 2px 0 0; }
+    #th-hud-tl.active, #th-hud-tr.active { border-color: rgba(255,140,60,0.20); opacity: 1; }
+
+    /* ══ Swipe gesture feedback ══ */
+    #swipe-feedback {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      z-index: 10005; pointer-events: none;
+      display: flex; align-items: center; gap: 14px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    #swipe-feedback.vis { opacity: 1; }
+    .sw-arrow {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.32); font-size: 15px;
+      transition: border-color .18s, color .18s, transform .18s, box-shadow .18s;
+    }
+    .sw-arrow.lit {
+      border-color: rgba(255,255,255,0.26);
+      color: rgba(255,255,255,0.82);
+      transform: scale(1.22);
+      box-shadow: 0 0 14px rgba(255,255,255,0.07);
+    }
+    .sw-name {
+      font-family: 'Pretendard','Roboto',sans-serif;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.78); text-align: center; min-width: 100px;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.65);
+    }
+
+    /* ══ Theme indicator (bottom dots) ══ */
+    #theme-indicator {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      z-index: 10004; pointer-events: none;
+      display: none; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .th-dots { display: flex; gap: 7px; align-items: center; }
+    .th-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      transition: background .55s ease, transform .55s ease, box-shadow .55s ease;
+    }
+    .th-dot.active {
+      background: rgba(255,255,255,0.75);
+      transform: scale(1.45);
+      box-shadow: 0 0 8px rgba(255,255,255,0.32);
+    }
+    .th-label {
+      font-family: 'Pretendard','Roboto',sans-serif;
+      font-size: 8px; letter-spacing: 0.20em; text-transform: uppercase;
+      color: rgba(255,255,255,0.32);
+    }
+
+
+    /* ══ THEME ATMOSPHERIC SECTION OVERRIDE ══ */
+    /* body gradient animated by JS in tick() — clear CSS defaults so JS inline style wins */
+    body[data-theme] { background: transparent !important; transition: none !important; }
+    html.dark body[data-theme] { background: transparent !important; }
+    body[data-theme] .hero,
+    body[data-theme] .section-alt,
+    body[data-theme] .preview-section,
+    body[data-theme] .sim-section,
+    body[data-theme] .community-section,
+    body[data-theme] .cta,
+    body[data-theme] .footer {
+      background: transparent !important;
+      transition: background 1.8s ease, color 1.2s ease;
+    }
+    body[data-theme] .nav {
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      transition: background 1.2s ease, border-color 1.2s ease;
+    }
+    body[data-theme] .s-card,
+    body[data-theme] .sim-card,
+    body[data-theme] .testimonial-card {
+      transition: background 1.4s ease, border-color 1.2s ease, color 1.0s ease;
+    }
+
+    /* ── WEDDING (결혼식) ── */
+    body[data-theme="wedding"] { background: #fdf5ec !important; }
+    body[data-theme="wedding"] .nav { background: rgba(253,246,234,0.80) !important; border-bottom-color: rgba(200,150,50,0.20) !important; }
+    body[data-theme="wedding"] .nav-link { color: rgba(60,38,16,0.68) !important; }
+    body[data-theme="wedding"] .nav-link:hover { color: #3a2210 !important; }
+    body[data-theme="wedding"] h1, body[data-theme="wedding"] h2, body[data-theme="wedding"] h3 { color: #3a2210 !important; }
+    body[data-theme="wedding"] p, body[data-theme="wedding"] li { color: rgba(60,38,16,0.72) !important; }
+    body[data-theme="wedding"] .badge, body[data-theme="wedding"] .hero-badge { background: rgba(210,160,55,0.18) !important; color: #9c6818 !important; border-color: rgba(210,160,55,0.32) !important; }
+    body[data-theme="wedding"] .eyebrow, body[data-theme="wedding"] .section-label, body[data-theme="wedding"] .sim-label { color: #aa7a1e !important; }
+    body[data-theme="wedding"] .btn-primary { background: linear-gradient(135deg,#c89030,#a87020) !important; color: #fff9ef !important; }
+    body[data-theme="wedding"] .btn-ghost { border-color: rgba(200,148,40,0.48) !important; color: #9c6818 !important; background: rgba(200,148,40,0.06) !important; }
+    body[data-theme="wedding"] .nav-cta { background: #c08020 !important; }
+    body[data-theme="wedding"] .s-card { background: rgba(255,250,238,0.76) !important; border-color: rgba(200,150,50,0.22) !important; color: #3a2210 !important; }
+    body[data-theme="wedding"] .s-desc { color: rgba(60,38,16,0.68) !important; }
+    body[data-theme="wedding"] .s-tag { background: rgba(200,148,40,0.20) !important; color: #9c6818 !important; border-color: transparent !important; }
+    body[data-theme="wedding"] .sim-card { background: rgba(255,250,238,0.72) !important; border-color: rgba(200,150,50,0.20) !important; }
+    body[data-theme="wedding"] .sim-text { color: rgba(60,38,16,0.78) !important; }
+    body[data-theme="wedding"] .sim-tag { background: rgba(200,148,40,0.18) !important; color: #9c6818 !important; border-color: rgba(200,148,40,0.28) !important; }
+    body[data-theme="wedding"] .sim-option { background: rgba(255,250,238,0.80) !important; border-color: rgba(200,150,50,0.18) !important; color: rgba(60,38,16,0.80) !important; }
+    body[data-theme="wedding"] .sim-option.selected { background: rgba(200,148,40,0.22) !important; border-color: rgba(200,148,40,0.55) !important; color: #3a2210 !important; }
+    body[data-theme="wedding"] .opt-marker { background: rgba(255,250,238,0.90) !important; border-color: rgba(200,148,40,0.28) !important; color: #9c6818 !important; }
+    body[data-theme="wedding"] .sim-option.selected .opt-marker { background: #c08020 !important; border-color: #c08020 !important; color: #fff !important; }
+    body[data-theme="wedding"] .result-pct { color: #c08020 !important; }
+    body[data-theme="wedding"] .result-fill.win { background: #c08020 !important; }
+    body[data-theme="wedding"] .testimonial-card { background: rgba(255,250,238,0.74) !important; border-color: rgba(200,150,50,0.20) !important; }
+    body[data-theme="wedding"] .t-nick { color: #3a2210 !important; }
+    body[data-theme="wedding"] .t-text { color: rgba(60,38,16,0.80) !important; }
+    body[data-theme="wedding"] .t-tag { color: rgba(60,38,16,0.50) !important; }
+    body[data-theme="wedding"] .t-empathy { color: rgba(60,38,16,0.45) !important; border-top-color: rgba(200,150,50,0.15) !important; }
+    body[data-theme="wedding"] .proof-label { color: rgba(60,38,16,0.68) !important; }
+    body[data-theme="wedding"] .proof-label strong { color: #9c6818 !important; }
+    body[data-theme="wedding"] .proof-stat-num { color: #c08020 !important; }
+    body[data-theme="wedding"] .step-badge { background: rgba(200,148,40,0.22) !important; color: #9c6818 !important; }
+    body[data-theme="wedding"] .step-name { color: rgba(60,38,16,0.55) !important; }
+    body[data-theme="wedding"] .sim-divider-line { background: rgba(200,150,50,0.18) !important; }
+    body[data-theme="wedding"] .sim-divider-dot { background: rgba(255,250,238,0.90) !important; border-color: rgba(200,150,50,0.25) !important; }
+    body[data-theme="wedding"] .sim-insight { background: rgba(200,148,40,0.14) !important; color: rgba(60,38,16,0.80) !important; border-left-color: #c08020 !important; }
+    body[data-theme="wedding"] .community-note { background: rgba(255,250,238,0.72) !important; border-color: rgba(200,150,50,0.22) !important; color: rgba(60,38,16,0.68) !important; }
+    body[data-theme="wedding"] .result-crown { background: rgba(200,148,40,0.20) !important; color: #9c6818 !important; border-color: rgba(200,148,40,0.32) !important; }
+
+    /* ── FUNERAL (장례식) ── */
+    body[data-theme="funeral"] { background: #101626 !important; }
+    body[data-theme="funeral"] .nav { background: rgba(8,12,22,0.86) !important; border-bottom-color: rgba(55,75,135,0.28) !important; }
+    body[data-theme="funeral"] .nav-link { color: rgba(160,178,215,0.60) !important; }
+    body[data-theme="funeral"] .nav-link:hover { color: rgba(185,200,235,0.88) !important; }
+    body[data-theme="funeral"] h1, body[data-theme="funeral"] h2, body[data-theme="funeral"] h3 { color: #b8c6de !important; }
+    body[data-theme="funeral"] p, body[data-theme="funeral"] li { color: rgba(158,178,212,0.72) !important; }
+    body[data-theme="funeral"] .badge, body[data-theme="funeral"] .hero-badge { background: rgba(55,75,135,0.22) !important; color: #7888c0 !important; border-color: rgba(55,75,135,0.38) !important; }
+    body[data-theme="funeral"] .eyebrow, body[data-theme="funeral"] .section-label, body[data-theme="funeral"] .sim-label { color: #6070a8 !important; }
+    body[data-theme="funeral"] .btn-primary { background: linear-gradient(135deg,#364898,#283878) !important; color: #c8d4ea !important; }
+    body[data-theme="funeral"] .btn-ghost { border-color: rgba(70,90,155,0.45) !important; color: #7888b8 !important; background: rgba(55,75,135,0.08) !important; }
+    body[data-theme="funeral"] .nav-cta { background: #2e3e80 !important; color: #c8d4ea !important; }
+    body[data-theme="funeral"] .s-card { background: rgba(16,22,42,0.78) !important; border-color: rgba(55,75,135,0.28) !important; color: #b8c6de !important; }
+    body[data-theme="funeral"] .s-desc { color: rgba(155,172,205,0.72) !important; }
+    body[data-theme="funeral"] .s-tag { background: rgba(55,75,135,0.24) !important; color: #7888b8 !important; border-color: transparent !important; }
+    body[data-theme="funeral"] .sim-card { background: rgba(16,22,42,0.75) !important; border-color: rgba(55,75,135,0.25) !important; }
+    body[data-theme="funeral"] .sim-text { color: rgba(155,172,205,0.78) !important; }
+    body[data-theme="funeral"] .sim-tag { background: rgba(55,75,135,0.22) !important; color: #7888b8 !important; border-color: rgba(55,75,135,0.35) !important; }
+    body[data-theme="funeral"] .sim-option { background: rgba(18,26,50,0.82) !important; border-color: rgba(55,75,135,0.22) !important; color: rgba(155,172,205,0.82) !important; }
+    body[data-theme="funeral"] .sim-option.selected { background: rgba(55,75,135,0.25) !important; border-color: rgba(70,90,160,0.55) !important; color: #c8d4ea !important; }
+    body[data-theme="funeral"] .opt-marker { background: rgba(16,22,42,0.90) !important; border-color: rgba(55,75,135,0.32) !important; color: #7888b8 !important; }
+    body[data-theme="funeral"] .sim-option.selected .opt-marker { background: #364898 !important; border-color: #364898 !important; color: #c8d4ea !important; }
+    body[data-theme="funeral"] .result-pct { color: #6878b8 !important; }
+    body[data-theme="funeral"] .result-fill.win { background: #364898 !important; }
+    body[data-theme="funeral"] .testimonial-card { background: rgba(16,22,42,0.75) !important; border-color: rgba(55,75,135,0.25) !important; }
+    body[data-theme="funeral"] .t-nick { color: #b8c6de !important; }
+    body[data-theme="funeral"] .t-text { color: rgba(155,172,205,0.82) !important; }
+    body[data-theme="funeral"] .t-tag { color: rgba(130,150,185,0.50) !important; }
+    body[data-theme="funeral"] .t-empathy { color: rgba(100,120,160,0.50) !important; border-top-color: rgba(55,75,135,0.18) !important; }
+    body[data-theme="funeral"] .proof-label { color: rgba(155,172,205,0.68) !important; }
+    body[data-theme="funeral"] .proof-label strong { color: #7888b8 !important; }
+    body[data-theme="funeral"] .proof-stat-num { color: #6878b8 !important; }
+    body[data-theme="funeral"] .step-badge { background: rgba(55,75,135,0.24) !important; color: #7888b8 !important; }
+    body[data-theme="funeral"] .step-name { color: rgba(155,172,205,0.50) !important; }
+    body[data-theme="funeral"] .sim-divider-line { background: rgba(55,75,135,0.20) !important; }
+    body[data-theme="funeral"] .sim-divider-dot { background: rgba(16,22,42,0.92) !important; border-color: rgba(55,75,135,0.28) !important; }
+    body[data-theme="funeral"] .sim-insight { background: rgba(55,75,135,0.14) !important; color: rgba(155,172,205,0.80) !important; border-left-color: #364898 !important; }
+    body[data-theme="funeral"] .community-note { background: rgba(16,22,42,0.75) !important; border-color: rgba(55,75,135,0.28) !important; color: rgba(155,172,205,0.65) !important; }
+    body[data-theme="funeral"] .result-crown { background: rgba(55,75,135,0.22) !important; color: #7888b8 !important; border-color: rgba(55,75,135,0.35) !important; }
+
+    /* ── COMPANY DINNER (회식) ── */
+    body[data-theme="dinner"] { background: #281204 !important; }
+    body[data-theme="dinner"] .nav { background: rgba(18,7,2,0.88) !important; border-bottom-color: rgba(195,75,18,0.28) !important; }
+    body[data-theme="dinner"] .nav-link { color: rgba(220,158,70,0.62) !important; }
+    body[data-theme="dinner"] .nav-link:hover { color: rgba(240,185,105,0.90) !important; }
+    body[data-theme="dinner"] h1, body[data-theme="dinner"] h2, body[data-theme="dinner"] h3 { color: #e2b06a !important; }
+    body[data-theme="dinner"] p, body[data-theme="dinner"] li { color: rgba(208,150,68,0.74) !important; }
+    body[data-theme="dinner"] .badge, body[data-theme="dinner"] .hero-badge { background: rgba(195,75,18,0.22) !important; color: #c85820 !important; border-color: rgba(195,75,18,0.35) !important; }
+    body[data-theme="dinner"] .eyebrow, body[data-theme="dinner"] .section-label, body[data-theme="dinner"] .sim-label { color: #b84a18 !important; }
+    body[data-theme="dinner"] .btn-primary { background: linear-gradient(135deg,#b84020,#8c2a10) !important; color: #f8e4cc !important; }
+    body[data-theme="dinner"] .btn-ghost { border-color: rgba(190,75,20,0.48) !important; color: #c05520 !important; background: rgba(190,75,20,0.08) !important; }
+    body[data-theme="dinner"] .nav-cta { background: #a83818 !important; color: #f8e4cc !important; }
+    body[data-theme="dinner"] .s-card { background: rgba(48,20,6,0.82) !important; border-color: rgba(175,65,16,0.28) !important; color: #e2b06a !important; }
+    body[data-theme="dinner"] .s-desc { color: rgba(200,140,60,0.72) !important; }
+    body[data-theme="dinner"] .s-tag { background: rgba(175,65,16,0.25) !important; color: #c85820 !important; border-color: transparent !important; }
+    body[data-theme="dinner"] .sim-card { background: rgba(48,20,6,0.78) !important; border-color: rgba(175,65,16,0.25) !important; }
+    body[data-theme="dinner"] .sim-text { color: rgba(200,140,60,0.78) !important; }
+    body[data-theme="dinner"] .sim-tag { background: rgba(175,65,16,0.22) !important; color: #c85820 !important; border-color: rgba(175,65,16,0.38) !important; }
+    body[data-theme="dinner"] .sim-option { background: rgba(40,16,4,0.85) !important; border-color: rgba(175,65,16,0.24) !important; color: rgba(200,148,65,0.82) !important; }
+    body[data-theme="dinner"] .sim-option.selected { background: rgba(175,65,16,0.28) !important; border-color: rgba(195,80,22,0.58) !important; color: #f0d8b0 !important; }
+    body[data-theme="dinner"] .opt-marker { background: rgba(40,16,4,0.92) !important; border-color: rgba(175,65,16,0.32) !important; color: #c85820 !important; }
+    body[data-theme="dinner"] .sim-option.selected .opt-marker { background: #a83818 !important; border-color: #a83818 !important; color: #f8e4cc !important; }
+    body[data-theme="dinner"] .result-pct { color: #c05520 !important; }
+    body[data-theme="dinner"] .result-fill.win { background: #a83818 !important; }
+    body[data-theme="dinner"] .testimonial-card { background: rgba(48,20,6,0.78) !important; border-color: rgba(175,65,16,0.25) !important; }
+    body[data-theme="dinner"] .t-nick { color: #e2b06a !important; }
+    body[data-theme="dinner"] .t-text { color: rgba(200,148,65,0.82) !important; }
+    body[data-theme="dinner"] .t-tag { color: rgba(160,100,40,0.52) !important; }
+    body[data-theme="dinner"] .t-empathy { color: rgba(150,90,35,0.52) !important; border-top-color: rgba(175,65,16,0.18) !important; }
+    body[data-theme="dinner"] .proof-label { color: rgba(200,148,65,0.70) !important; }
+    body[data-theme="dinner"] .proof-label strong { color: #c85820 !important; }
+    body[data-theme="dinner"] .proof-stat-num { color: #c05520 !important; }
+    body[data-theme="dinner"] .step-badge { background: rgba(175,65,16,0.26) !important; color: #c85820 !important; }
+    body[data-theme="dinner"] .step-name { color: rgba(200,148,65,0.52) !important; }
+    body[data-theme="dinner"] .sim-divider-line { background: rgba(175,65,16,0.22) !important; }
+    body[data-theme="dinner"] .sim-divider-dot { background: rgba(40,16,4,0.92) !important; border-color: rgba(175,65,16,0.28) !important; }
+    body[data-theme="dinner"] .sim-insight { background: rgba(175,65,16,0.16) !important; color: rgba(200,148,65,0.82) !important; border-left-color: #a83818 !important; }
+    body[data-theme="dinner"] .community-note { background: rgba(48,20,6,0.78) !important; border-color: rgba(175,65,16,0.28) !important; color: rgba(200,148,65,0.65) !important; }
+    body[data-theme="dinner"] .result-crown { background: rgba(175,65,16,0.24) !important; color: #c85820 !important; border-color: rgba(175,65,16,0.35) !important; }
+
+    /* ── WORKPLACE (직장) ── */
+    body[data-theme="workplace"] { background: #080f1e !important; }
+    body[data-theme="workplace"] .nav { background: rgba(4,7,16,0.88) !important; border-bottom-color: rgba(38,78,155,0.28) !important; }
+    body[data-theme="workplace"] .nav-link { color: rgba(95,138,200,0.62) !important; }
+    body[data-theme="workplace"] .nav-link:hover { color: rgba(128,168,225,0.90) !important; }
+    body[data-theme="workplace"] h1, body[data-theme="workplace"] h2, body[data-theme="workplace"] h3 { color: #88b0d4 !important; }
+    body[data-theme="workplace"] p, body[data-theme="workplace"] li { color: rgba(95,135,195,0.74) !important; }
+    body[data-theme="workplace"] .badge, body[data-theme="workplace"] .hero-badge { background: rgba(38,78,155,0.22) !important; color: #4e7ab8 !important; border-color: rgba(38,78,155,0.38) !important; }
+    body[data-theme="workplace"] .eyebrow, body[data-theme="workplace"] .section-label, body[data-theme="workplace"] .sim-label { color: #3d6aaa !important; }
+    body[data-theme="workplace"] .btn-primary { background: linear-gradient(135deg,#265898,#1a3e72) !important; color: #c8dcf0 !important; }
+    body[data-theme="workplace"] .btn-ghost { border-color: rgba(45,90,165,0.48) !important; color: #4e7ab8 !important; background: rgba(38,78,155,0.08) !important; }
+    body[data-theme="workplace"] .nav-cta { background: #1e4e88 !important; color: #c8dcf0 !important; }
+    body[data-theme="workplace"] .s-card { background: rgba(10,18,36,0.82) !important; border-color: rgba(38,78,155,0.28) !important; color: #88b0d4 !important; }
+    body[data-theme="workplace"] .s-desc { color: rgba(92,132,190,0.72) !important; }
+    body[data-theme="workplace"] .s-tag { background: rgba(38,78,155,0.25) !important; color: #4e7ab8 !important; border-color: transparent !important; }
+    body[data-theme="workplace"] .sim-card { background: rgba(10,18,36,0.78) !important; border-color: rgba(38,78,155,0.25) !important; }
+    body[data-theme="workplace"] .sim-text { color: rgba(92,132,190,0.78) !important; }
+    body[data-theme="workplace"] .sim-tag { background: rgba(38,78,155,0.22) !important; color: #4e7ab8 !important; border-color: rgba(38,78,155,0.38) !important; }
+    body[data-theme="workplace"] .sim-option { background: rgba(8,15,30,0.85) !important; border-color: rgba(38,78,155,0.24) !important; color: rgba(92,135,192,0.82) !important; }
+    body[data-theme="workplace"] .sim-option.selected { background: rgba(38,78,155,0.28) !important; border-color: rgba(50,95,175,0.58) !important; color: #c8dcf0 !important; }
+    body[data-theme="workplace"] .opt-marker { background: rgba(8,15,30,0.92) !important; border-color: rgba(38,78,155,0.32) !important; color: #4e7ab8 !important; }
+    body[data-theme="workplace"] .sim-option.selected .opt-marker { background: #1e4e88 !important; border-color: #1e4e88 !important; color: #c8dcf0 !important; }
+    body[data-theme="workplace"] .result-pct { color: #3d6aaa !important; }
+    body[data-theme="workplace"] .result-fill.win { background: #1e4e88 !important; }
+    body[data-theme="workplace"] .testimonial-card { background: rgba(10,18,36,0.78) !important; border-color: rgba(38,78,155,0.25) !important; }
+    body[data-theme="workplace"] .t-nick { color: #88b0d4 !important; }
+    body[data-theme="workplace"] .t-text { color: rgba(92,135,192,0.82) !important; }
+    body[data-theme="workplace"] .t-tag { color: rgba(70,105,158,0.52) !important; }
+    body[data-theme="workplace"] .t-empathy { color: rgba(60,92,145,0.52) !important; border-top-color: rgba(38,78,155,0.18) !important; }
+    body[data-theme="workplace"] .proof-label { color: rgba(92,135,192,0.70) !important; }
+    body[data-theme="workplace"] .proof-label strong { color: #4e7ab8 !important; }
+    body[data-theme="workplace"] .proof-stat-num { color: #3d6aaa !important; }
+    body[data-theme="workplace"] .step-badge { background: rgba(38,78,155,0.26) !important; color: #4e7ab8 !important; }
+    body[data-theme="workplace"] .step-name { color: rgba(92,135,192,0.52) !important; }
+    body[data-theme="workplace"] .sim-divider-line { background: rgba(38,78,155,0.22) !important; }
+    body[data-theme="workplace"] .sim-divider-dot { background: rgba(8,15,30,0.92) !important; border-color: rgba(38,78,155,0.28) !important; }
+    body[data-theme="workplace"] .sim-insight { background: rgba(38,78,155,0.16) !important; color: rgba(92,135,192,0.82) !important; border-left-color: #1e4e88 !important; }
+    body[data-theme="workplace"] .community-note { background: rgba(10,18,36,0.78) !important; border-color: rgba(38,78,155,0.28) !important; color: rgba(92,135,192,0.65) !important; }
+    body[data-theme="workplace"] .result-crown { background: rgba(38,78,155,0.24) !important; color: #4e7ab8 !important; border-color: rgba(38,78,155,0.35) !important; }
+
+    /* ══ Missing sim-result + result-track for all themes ══ */
+    /* Wedding (light) */
+    body[data-theme="wedding"] .sim-result-name { color: rgba(60,38,16,0.72) !important; }
+    body[data-theme="wedding"] .sim-result-row.winner .sim-result-name { color: #3a2210 !important; }
+    body[data-theme="wedding"] .result-track { background: rgba(200,150,50,0.22) !important; }
+    body[data-theme="wedding"] .result-fill { background: rgba(200,148,40,0.20) !important; }
+    /* Funeral (dark navy) */
+    body[data-theme="funeral"] .sim-result-name { color: rgba(155,175,210,0.75) !important; }
+    body[data-theme="funeral"] .sim-result-row.winner .sim-result-name { color: #b8c6de !important; }
+    body[data-theme="funeral"] .result-track { background: rgba(45,58,95,0.55) !important; }
+    body[data-theme="funeral"] .result-fill { background: rgba(55,75,135,0.35) !important; }
+    /* Dinner (dark amber/red) */
+    body[data-theme="dinner"] .sim-result-name { color: rgba(200,148,65,0.75) !important; }
+    body[data-theme="dinner"] .sim-result-row.winner .sim-result-name { color: #e2b06a !important; }
+    body[data-theme="dinner"] .result-track { background: rgba(90,35,12,0.55) !important; }
+    body[data-theme="dinner"] .result-fill { background: rgba(175,65,16,0.35) !important; }
+    /* Workplace (dark steel blue) */
+    body[data-theme="workplace"] .sim-result-name { color: rgba(92,132,190,0.75) !important; }
+    body[data-theme="workplace"] .sim-result-row.winner .sim-result-name { color: #88b0d4 !important; }
+    body[data-theme="workplace"] .result-track { background: rgba(25,50,100,0.55) !important; }
+    body[data-theme="workplace"] .result-fill { background: rgba(38,78,155,0.35) !important; }
+
+    /* ══ Phone mock: dark theme overrides (iphone-screen, app elements) ══ */
+    /* Common dark phone screen for funeral/dinner/workplace */
+    body[data-theme="funeral"] .iphone-screen,
+    body[data-theme="dinner"] .iphone-screen,
+    body[data-theme="workplace"] .iphone-screen { background: #181c24 !important; }
+    body[data-theme="funeral"] .iphone-bar,
+    body[data-theme="dinner"] .iphone-bar,
+    body[data-theme="workplace"] .iphone-bar { background: rgba(255,255,255,0.07) !important; }
+    body[data-theme="funeral"] .app-bar,
+    body[data-theme="dinner"] .app-bar,
+    body[data-theme="workplace"] .app-bar { background: rgba(20,24,34,0.98) !important; border-bottom-color: rgba(255,255,255,0.07) !important; }
+    body[data-theme="funeral"] .app-bar-title, body[data-theme="funeral"] .app-bar-right, body[data-theme="funeral"] .app-back,
+    body[data-theme="dinner"] .app-bar-title, body[data-theme="dinner"] .app-bar-right, body[data-theme="dinner"] .app-back,
+    body[data-theme="workplace"] .app-bar-title, body[data-theme="workplace"] .app-bar-right, body[data-theme="workplace"] .app-back { color: rgba(215,225,245,0.88) !important; }
+    body[data-theme="funeral"] .app-section-label,
+    body[data-theme="dinner"] .app-section-label,
+    body[data-theme="workplace"] .app-section-label { color: rgba(155,175,215,0.45) !important; }
+    body[data-theme="funeral"] .app-item,
+    body[data-theme="dinner"] .app-item,
+    body[data-theme="workplace"] .app-item { background: rgba(22,28,42,0.90) !important; border-color: rgba(60,80,140,0.18) !important; }
+    body[data-theme="funeral"] .app-item.active,
+    body[data-theme="dinner"] .app-item.active,
+    body[data-theme="workplace"] .app-item.active { background: rgba(45,62,120,0.28) !important; border-color: rgba(70,95,165,0.42) !important; }
+    body[data-theme="funeral"] .app-item-title,
+    body[data-theme="dinner"] .app-item-title,
+    body[data-theme="workplace"] .app-item-title { color: rgba(200,215,245,0.88) !important; }
+    body[data-theme="funeral"] .app-item-tag,
+    body[data-theme="dinner"] .app-item-tag,
+    body[data-theme="workplace"] .app-item-tag { color: rgba(130,160,225,0.75) !important; }
+    body[data-theme="funeral"] .app-item-arr,
+    body[data-theme="dinner"] .app-item-arr,
+    body[data-theme="workplace"] .app-item-arr { color: rgba(90,115,175,0.50) !important; }
+    body[data-theme="funeral"] .app-situation,
+    body[data-theme="dinner"] .app-situation,
+    body[data-theme="workplace"] .app-situation { background: rgba(22,28,42,0.90) !important; border-color: rgba(60,80,140,0.18) !important; }
+    body[data-theme="funeral"] .app-sit-text, body[data-theme="funeral"] .app-sit-hint,
+    body[data-theme="funeral"] .app-sit-tag, body[data-theme="funeral"] .app-sit-participants,
+    body[data-theme="dinner"] .app-sit-text, body[data-theme="dinner"] .app-sit-hint,
+    body[data-theme="dinner"] .app-sit-tag, body[data-theme="dinner"] .app-sit-participants,
+    body[data-theme="workplace"] .app-sit-text, body[data-theme="workplace"] .app-sit-hint,
+    body[data-theme="workplace"] .app-sit-tag, body[data-theme="workplace"] .app-sit-participants { color: rgba(200,215,245,0.82) !important; }
+    body[data-theme="funeral"] .app-choices .app-choice,
+    body[data-theme="dinner"] .app-choices .app-choice,
+    body[data-theme="workplace"] .app-choices .app-choice { background: rgba(22,28,42,0.90) !important; border-color: rgba(60,80,140,0.18) !important; color: rgba(185,205,242,0.80) !important; }
+    body[data-theme="funeral"] .app-choices .app-choice.selected,
+    body[data-theme="dinner"] .app-choices .app-choice.selected,
+    body[data-theme="workplace"] .app-choices .app-choice.selected { background: rgba(48,70,145,0.30) !important; border-color: rgba(68,98,172,0.58) !important; color: rgba(215,228,255,0.95) !important; }
+    body[data-theme="funeral"] .app-q-label,
+    body[data-theme="dinner"] .app-q-label,
+    body[data-theme="workplace"] .app-q-label { color: rgba(140,168,230,0.72) !important; }
+    body[data-theme="funeral"] .phone-chip,
+    body[data-theme="dinner"] .phone-chip,
+    body[data-theme="workplace"] .phone-chip { color: rgba(185,205,240,0.58) !important; }
+    /* Wedding phone: subtle warm tint */
+    body[data-theme="wedding"] .iphone-screen { background: #fdf8f0 !important; }
+    body[data-theme="wedding"] .app-bar { border-bottom-color: rgba(200,150,50,0.18) !important; }
+    body[data-theme="wedding"] .app-item { background: rgba(255,250,238,0.88) !important; }
+    body[data-theme="wedding"] .phone-chip { color: rgba(100,65,25,0.62) !important; }
+    /* Wedding CTA store buttons: visible on warm peach bg */
+    body[data-theme="wedding"] .store-btn { color: #3a2210 !important; background: rgba(192,128,32,0.12) !important; border-color: rgba(192,128,32,0.38) !important; }
+    body[data-theme="wedding"] .cta-eyebrow { background: rgba(200,148,40,0.14) !important; border-color: rgba(200,148,40,0.32) !important; }
+
+    /* ══ Swipe hold progress ring ══ */
+    #swipe-hold-ring {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 84px; height: 84px;
+      z-index: 10006; pointer-events: none;
+      opacity: 0; transition: opacity 0.28s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #swipe-hold-ring.vis { opacity: 1; }
+    .shr-track { fill: none; stroke: rgba(255,255,255,0.10); stroke-width: 3.5; }
+    .shr-arc {
+      fill: none; stroke: rgba(255,255,255,0.88); stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-dasharray: 194.78;
+      stroke-dashoffset: 194.78;
+      transform-origin: 40px 40px;
+      transform: rotate(-90deg);
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.42));
+    }
+    .shr-icon {
+      position: absolute; font-size: 22px; font-weight: 700;
+      color: rgba(255,255,255,0.80);
+      text-shadow: 0 1px 12px rgba(0,0,0,0.65);
+      letter-spacing: -0.02em;
+    }
+
   </style>
 </head>
 <body>
@@ -427,6 +906,39 @@
 <!-- Three.js 배경 -->
 <canvas id="three-bg"></canvas>
 
+<!-- ── 분위기 테마 레이어 ── -->
+<div id="theme-bg"></div>
+<div id="theme-noise"></div>
+<div id="theme-vignette"></div>
+<div id="theme-tint"></div>
+<div id="th-hud-tl"></div>
+<div id="th-hud-tr"></div>
+
+<!-- ── 스와이프 피드백 (테마 전환 후 토스트) ── -->
+<div id="swipe-feedback">
+  <div class="sw-name" id="sw-name"></div>
+</div>
+
+<!-- ── 방향 유지 진행 링 ── -->
+<div id="swipe-hold-ring">
+  <svg width="80" height="80" viewBox="0 0 80 80" style="overflow:visible">
+    <circle cx="40" cy="40" r="31" class="shr-track"/>
+    <circle cx="40" cy="40" r="31" class="shr-arc" id="shr-arc"/>
+  </svg>
+  <span class="shr-icon" id="shr-icon"></span>
+</div>
+
+<!-- ── 테마 인디케이터 ── -->
+<div id="theme-indicator">
+  <div class="th-dots">
+    <div class="th-dot active" data-idx="0"></div>
+    <div class="th-dot" data-idx="1"></div>
+    <div class="th-dot" data-idx="2"></div>
+    <div class="th-dot" data-idx="3"></div>
+  </div>
+  <span class="th-label" id="th-lbl">결혼식</span>
+</div>
+
 <!-- ── NAV ────────────────────────────── -->
 <nav class="nav">
   <div class="nav-inner">
@@ -434,16 +946,26 @@
       <img src="icon-app.png" alt="눈치코치" class="logo-img" />
     </a>
     <div class="nav-links">
-      <a href="#scenarios" class="nav-link">상황 유형</a>
-      <a href="#simulate"  class="nav-link">시뮬레이션</a>
-      <a href="#community" class="nav-link">후기</a>
+      <a href="#s2" class="nav-link">상황 유형</a>
+      <a href="#s4" class="nav-link">시뮬레이션</a>
+      <a href="#s5" class="nav-link">후기</a>
     </div>
-    <a href="#download" class="nav-cta">무료 시작</a>
+    <div class="nav-actions">
+      <button class="ctrl-pill" id="darkmode-btn" aria-label="다크모드 토글">
+        <span class="ctrl-icon" id="dm-icon">◐</span>
+        <span>다크모드</span>
+      </button>
+      <button class="ctrl-pill" id="interact-btn" aria-label="인터랙션 모드">
+        <span class="ctrl-icon">✦</span>
+        <span>인터랙션</span>
+      </button>
+      <a href="#download" class="nav-cta">무료 시작</a>
+    </div>
   </div>
 </nav>
 
 <!-- ── HERO ────────────────────────────── -->
-<section class="hero">
+<section class="hero" id="s1">
   <div class="hero-content">
     <div class="badge">
       <span class="badge-dot"></span>
@@ -459,8 +981,8 @@
       실제 데이터를 보면서 함께 익혀봐요!
     </p>
     <div class="hero-cta-row">
-      <a href="#simulate" class="btn-primary">시뮬레이션 보기</a>
-      <a href="#community" class="btn-ghost">사용 후기 보기</a>
+      <a href="#s4" class="btn-primary">시뮬레이션 보기</a>
+      <a href="#s5" class="btn-ghost">사용 후기 보기</a>
     </div>
     <div class="hero-proof">
       <div class="proof-faces">
@@ -501,7 +1023,7 @@
 </section>
 
 <!-- ── SCENARIOS ────────────────────────────── -->
-<section class="section-alt" id="scenarios">
+<section class="section-alt" id="s2">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow">다루는 상황들</p>
@@ -544,7 +1066,7 @@
 </section>
 
 <!-- ── APP PREVIEW ────────────────────────────── -->
-<section class="preview-section" id="preview">
+<section class="preview-section" id="s3">
   <div class="container">
     <div class="section-head center">
       <p class="eyebrow">이렇게 작동해요</p>
@@ -694,7 +1216,7 @@
 </section>
 
 <!-- ── SIMULATION ────────────────────────────── -->
-<section class="sim-section" id="simulate">
+<section class="sim-section" id="s4">
   <div class="container">
     <div class="section-head center">
       <p class="eyebrow">직접 해보는 연습</p>
@@ -792,7 +1314,7 @@
 </section>
 
 <!-- ── COMMUNITY ────────────────────────────── -->
-<section class="community-section" id="community">
+<section class="community-section" id="s5">
   <div class="container">
     <div class="section-head center">
       <p class="eyebrow">커뮤니티 후기</p>
@@ -877,7 +1399,7 @@
   <button class="gg-toggle" id="gg-toggle" aria-label="제스처 가이드 열기/닫기">
     <span class="gg-dot-live"></span>
     <span class="gg-status-line">
-      <span class="gg-title">Eye Tracking</span>
+      <span class="gg-title">손 제스처 가이드</span>
       <span id="gg-status">▼ 펼쳐서 시작</span>
     </span>
     <svg class="gg-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -886,64 +1408,57 @@
   </button>
   <div class="gg-body">
     <div class="gg-body-inner">
-      <div class="gg-item active" data-g="gaze">
-        <span class="gg-hand">👁️</span>
-        <div class="gg-info">
-          <div class="gg-name">Gaze</div>
-          <div class="gg-desc">시선으로 카드 호버</div>
-        </div>
-        <span class="gg-indicator"></span>
-      </div>
-      <div class="gg-divider"></div>
-      <div class="gg-item" data-g="scroll-up">
+      <div class="gg-item" data-g="hand-shush">
         <span class="gg-hand">☝️</span>
         <div class="gg-info">
-          <div class="gg-name">Index Up</div>
-          <div class="gg-desc">검지 위 → 위로 스크롤</div>
+          <div class="gg-name">쉿 — 다크모드</div>
+          <div class="gg-desc">검지 세워 1.5초 유지</div>
         </div>
         <span class="gg-indicator"></span>
       </div>
       <div class="gg-divider"></div>
-      <div class="gg-item" data-g="scroll-down">
-        <span class="gg-hand">👇</span>
+      <div class="gg-item" data-g="swipe-left">
+        <span class="gg-hand">👈</span>
         <div class="gg-info">
-          <div class="gg-name">Index Down</div>
-          <div class="gg-desc">검지 아래 → 아래로 스크롤</div>
+          <div class="gg-name">왼쪽 스와이프</div>
+          <div class="gg-desc">손 이동 → 이전 분위기</div>
+        </div>
+        <span class="gg-indicator"></span>
+      </div>
+      <div class="gg-divider"></div>
+      <div class="gg-item" data-g="swipe-right">
+        <span class="gg-hand">👉</span>
+        <div class="gg-info">
+          <div class="gg-name">오른쪽 스와이프</div>
+          <div class="gg-desc">손 이동 → 다음 분위기</div>
         </div>
         <span class="gg-indicator"></span>
       </div>
     </div>
-    <button id="gg-cam-btn">📷 카메라 시작</button>
+    <button id="gg-cam-btn">✦ 인터랙션 시작</button>
   </div>
 </div>
-
-<!-- ── 스크롤 인디케이터 ── -->
-<div id="scroll-ind">↑</div>
-
-<!-- ── 시선 커서 ── -->
-<div id="hand-cursor"></div>
 
 <!-- ── 카메라 HUD ── -->
 <div id="cam-box">
   <video id="cam-display" autoplay playsinline muted></video>
   <canvas id="cam-skel-canvas"></canvas>
   <div id="cam-hud-bar">
-    <span id="cam-label">● Eye Track</span>
-    <span id="cam-mode">Idle</span>
+    <span id="cam-label">● HAND</span>
+    <span id="cam-mode">READY</span>
   </div>
   <div id="cam-status-bar">
     <span id="cam-status-dot"></span>
     <span id="cam-status-text">카메라 연결 중…</span>
   </div>
+  <div id="track-status" data-state="lost">
+    <span class="ts-dot"></span>
+    <span class="ts-label">HAND LOST</span>
+  </div>
 </div>
 
-<!-- ── 시선 존 오버레이 ── -->
-<div id="gaze-zone-top"></div>
-<div id="gaze-zone-bot"></div>
-<!-- ── 드웰 진행 바 ── -->
-<div id="dwell-bar" class="top-pos"><div id="dwell-bar-fill"></div></div>
-<!-- ── 스크롤 모드 텍스트 ── -->
-<div id="scroll-mode-label" class="top-pos"></div>
+<!-- ── 쉿 제스처 토스트 ── -->
+<div id="shush-toast">🤫 다크모드 전환 중…</div>
 
 <!-- ── 히든 웹캠 ── -->
 <video id="hand-webcam" autoplay playsinline muted></video>
@@ -956,8 +1471,7 @@
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js"></script>
 <script>
 (function () {
   'use strict';
@@ -981,104 +1495,36 @@
   const CFG = {
     fadeIn:       0.06,
     fadeOut:      0.038,
-    idleN:        10,
-    gazeAmpX:     4.2,
-    gazeAmpY:     4.8,
+    idleN:        22,
     scrollZone:   0.22,
-    scrollSpd:    28,
-    /* ── 시선 스무딩 파이프라인 ── */
-    gazeDeadband: 42,    /* px: 노이즈 차단 (90→42 — 스크롤 존 진입 가능하도록) */
-    gazeSpring:   0.038,
-    gazeDamping:  0.82,
-    gazeSnapDist: 80,
-    gazeSnapStr:  0.038,
+    scrollSpd:    14,
   };
 
-  /* ── FaceMesh 랜드마크 인덱스 ── */
-  const L_IRIS  = 468, R_IRIS  = 473;
-  const L_OUTER = 33,  L_INNER = 133;
-  const L_TOP1  = 159, L_TOP2  = 160;
-  const L_BOT1  = 145, L_BOT2  = 144;
-  const R_OUTER = 263, R_INNER = 362;
-  const R_TOP1  = 386, R_TOP2  = 387;
-  const R_BOT1  = 374, R_BOT2  = 373;
-  const L_EYE_PTS = [33,160,159,158,157,173,133,155,154,153,145,144,163,7];
-  const R_EYE_PTS = [263,387,386,385,384,398,362,382,381,380,374,373,390,249];
-
   /* ── 상태 ── */
-  let vis = 0, detected = false;
+  let vis = 0;
   let effects = [], idlePts = [];
-  let hovCard = null, mpReady = false, frameN = 0;
-  let faceInst = null, cameraActive = false;
+  let mpReady = false, frameN = 0;
+  let cameraActive = false;
   let camSkelCtx = null, camSkelW = 220, camSkelH = 165;
-  let gazeCursorEl = null;
-  /* 시선 스무딩 파이프라인 */
-  let _gazeEWA_X = null, _gazeEWA_Y = null;  /* EWA 사전 스무딩 */
-  let gazeRawBuf  = [];
-  let gazeTargetX = null, gazeTargetY = null;
-  let gazeDispX   = null, gazeDispY   = null;
-  let gazeVX = 0, gazeVY = 0;
-  let gazeX = null, gazeY = null;
-  let _snapTargets = null;
-  /* 기준점 자동 보정 */
-  let baseOffX = 0, baseOffY = 0, calibFrames = 0;
-  /* 드웰 타이밍 — 모바일은 짧게 */
-  const DWELL_MS = _isMobile ? 480 : 650;
-  let _dwellStart = 0, _dwellZone = '';
-  /* 스크롤 */
-  let scrollVel = 0, scrollTarget = 0, _scrollAccel = 1.0;
-  let handScrollDir = 0, handScrollActive = false;
+  let _lastHandLM = null;  /* 손 카메라 오버레이용 */
+  /* 다크모드 */
+  let _darkMode = false;
+  let _shushTimer = null;
+  let _shushToastEl = null;
   let _lastHandUpdate = 0;
-  let _handScrollState = 'neutral';
-  let _handDY_EWA = 0;
-  /* 시선 스크롤 상태 */
-  let _eyeScrollState = 'neutral';
-  let gesture = '';
+  /* 랜드마크 EWA 스무딩 (드로잉용) */
+  let _smoothLM = null;
+  /* 쉿 진행률 */
+  let _shushStartMs = 0;
+  let _shushProgress = 0;
+  /* 트래킹 상태 */
+  let _trackState = 'lost';  /* 'stable' | 'lost' | 'locked' */
+  let _lastTrackState = '';
+  /* 손 위치 스무딩 (패럴랙스) */
+  let _palmSmX = 0.5, _palmSmY = 0.5;
   /* DOM 상태 캐시 — 불필요한 재쓰기 방지 (60fps rAF 부하 절감) */
   let _lastHudMode = '', _lastGuide = '';
-  let _scrollIndVis = false, _scrollIndText = '';
-  let _scrollModeLabelVis = false, _scrollModeLabelText = '', _scrollModeLabelPos = '';
-  let _lastCursorX = -999, _lastCursorY = -999;
-  let _gazeZoneTopEl = null, _gazeZoneBotEl = null;
 
-  function dn(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-
-  function calcEAR(lm) {
-    const lEAR = (dn(lm[L_TOP1], lm[L_BOT1]) + dn(lm[L_TOP2], lm[L_BOT2])) /
-                 (2 * dn(lm[L_OUTER], lm[L_INNER]) + 1e-6);
-    const rEAR = (dn(lm[R_TOP1], lm[R_BOT1]) + dn(lm[R_TOP2], lm[R_BOT2])) /
-                 (2 * dn(lm[R_OUTER], lm[R_INNER]) + 1e-6);
-    return (lEAR + rEAR) / 2;
-  }
-
-  function calcGaze(lm) {
-    const lW  = dn(lm[L_OUTER], lm[L_INNER]) + 1e-6;
-    const rW  = dn(lm[R_OUTER], lm[R_INNER]) + 1e-6;
-    const lCX = (lm[L_OUTER].x + lm[L_INNER].x) / 2;
-    const lCY = (lm[L_OUTER].y + lm[L_INNER].y) / 2;
-    const rCX = (lm[R_OUTER].x + lm[R_INNER].x) / 2;
-    const rCY = (lm[R_OUTER].y + lm[R_INNER].y) / 2;
-    const rawOffX = ((lm[L_IRIS].x - lCX) / lW + (lm[R_IRIS].x - rCX) / rW) / 2;
-    const rawOffY = ((lm[L_IRIS].y - lCY) / lW + (lm[R_IRIS].y - rCY) / rW) / 2;
-    /* EWA 사전 스무딩 — 고주파 노이즈 제거 (캘리브레이션 전에 적용) */
-    if (_gazeEWA_X === null) { _gazeEWA_X = rawOffX; _gazeEWA_Y = rawOffY; }
-    _gazeEWA_X += (rawOffX - _gazeEWA_X) * 0.36;
-    _gazeEWA_Y += (rawOffY - _gazeEWA_Y) * 0.36;
-    const offX = _gazeEWA_X, offY = _gazeEWA_Y;
-    /* 자동 캘리브레이션 */
-    const alpha = calibFrames < 90 ? 0.12 : 0.0015;
-    calibFrames++;
-    baseOffX += (offX - baseOffX) * alpha;
-    baseOffY += (offY - baseOffY) * alpha;
-    const dX = offX - baseOffX;
-    const dY = offY - baseOffY;
-    const gx = 0.5 - dX * CFG.gazeAmpX;
-    const gy = 0.5 + dY * CFG.gazeAmpY;
-    return {
-      x: Math.max(0, Math.min(1, gx)) * window.innerWidth,
-      y: Math.max(0, Math.min(1, gy)) * window.innerHeight
-    };
-  }
 
   /* ── 이펙트 ── */
   const rpl  = a => `rgba(255,170,90,${a})`;
@@ -1115,38 +1561,8 @@
       sz: Math.random()*1.6+0.5,
       a:  Math.random()*0.22+0.10,
       h:  22+Math.random()*20,
+      s:  68, l: 62,
     }));
-  }
-
-  /* rAF 루프 밖에서 캐시 — getBoundingClientRect reflow 방지 */
-  let _hoverTargets = null;
-  function refreshHoverTargets() {
-    _hoverTargets = [...document.querySelectorAll('.s-card,.testimonial-card,.sim-option')].map(el => {
-      const r = el.getBoundingClientRect();
-      return { el, l: r.left, r: r.right, t: r.top, b: r.bottom,
-               cx: (r.left + r.right) * 0.5, cy: (r.top + r.bottom) * 0.5 };
-    });
-  }
-
-  function updateHover(fx, fy) {
-    if (!_hoverTargets) return;
-    let best = null, bestD = Infinity;
-    for (const t of _hoverTargets) {
-      if (fx > t.l && fx < t.r && fy > t.t && fy < t.b) {
-        const d = Math.hypot(fx - t.cx, fy - t.cy);
-        if (d < bestD) { bestD = d; best = t.el; }
-      }
-    }
-    if (best !== hovCard) {
-      if (hovCard) hovCard.removeAttribute('data-hand-hover');
-      hovCard = best;
-      if (hovCard) hovCard.setAttribute('data-hand-hover', '');
-    }
-    if (gazeCursorEl) gazeCursorEl.classList.toggle('on-element', best !== null);
-  }
-  function clearHover() {
-    if (hovCard) { hovCard.removeAttribute('data-hand-hover'); hovCard = null; }
-    if (gazeCursorEl) gazeCursorEl.classList.remove('on-element');
   }
 
   function updateGuide(g) {
@@ -1157,17 +1573,6 @@
     });
   }
 
-  function onGesture(g) {
-    if (g === gesture) return;
-    gesture = g;
-    document.body.dataset.gesture = g;
-    updateGuide(g);
-    const cx = gazeX !== null ? gazeX : canvas.width  / 2;
-    const cy = gazeY !== null ? gazeY : canvas.height / 2;
-    if      (g === 'open') emitBloom(cx, cy);
-    else if (g === 'fist') { emitCollapse(cx, cy); clearHover(); }
-    if (g !== 'gaze') clearHover();
-  }
 
   function drawIdle() {
     const fo = 1 - vis;
@@ -1178,56 +1583,109 @@
       if (p.y < -4) { p.y = canvas.height + 4; p.x = Math.random()*canvas.width; }
       if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
       ctx.globalAlpha = p.a * fo;
-      ctx.fillStyle   = `hsl(${p.h},68%,62%)`;
+      ctx.fillStyle   = `hsl(${p.h},${p.s||68}%,${p.l||62}%)`;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI*2); ctx.fill();
     });
     ctx.restore();
   }
 
-  function drawCamEye(lm) {
+  function drawCamHand() {
     if (!camSkelCtx) return;
     camSkelCtx.clearRect(0, 0, camSkelW, camSkelH);
-    const px = i => (1 - lm[i].x) * camSkelW;
-    const py = i => lm[i].y * camSkelH;
+    if (!_smoothLM) return;
+    var lm = _smoothLM;
+    var px = function(i) { return (1 - lm[i].x) * camSkelW; };
+    var py = function(i) { return lm[i].y * camSkelH; };
+
+    var isShushing  = !!_shushTimer;
+    var accentAlpha = isShushing ? 0.28 : 0.20;
+    var accentHue   = isShushing ? '255,220,100' : '255,130,40';
+
     camSkelCtx.save();
-    camSkelCtx.lineCap = 'round';
-    [L_EYE_PTS, R_EYE_PTS].forEach(pts => {
+    camSkelCtx.lineCap = 'round'; camSkelCtx.lineJoin = 'round';
+
+    /* ── PASS 1: ambient palm glow (shadowBlur) ── */
+    var glowR = 22;
+    camSkelCtx.shadowBlur = glowR;
+    camSkelCtx.shadowColor = 'rgba(' + accentHue + ',' + (accentAlpha * 1.6) + ')';
+    camSkelCtx.strokeStyle = 'rgba(' + accentHue + ',' + accentAlpha + ')';
+    camSkelCtx.lineWidth = 3.5;
+    var palmLinks = [[0,5],[0,9],[0,13],[0,17],[5,9],[9,13],[13,17]];
+    palmLinks.forEach(function(p) {
       camSkelCtx.beginPath();
-      pts.forEach((i, j) => j === 0 ? camSkelCtx.moveTo(px(i), py(i)) : camSkelCtx.lineTo(px(i), py(i)));
-      camSkelCtx.closePath();
-      camSkelCtx.strokeStyle = 'rgba(100,190,255,0.55)';
-      camSkelCtx.lineWidth = 0.9; camSkelCtx.stroke();
+      camSkelCtx.moveTo(px(p[0]), py(p[0]));
+      camSkelCtx.lineTo(px(p[1]), py(p[1]));
+      camSkelCtx.stroke();
     });
-    [[L_IRIS, L_OUTER, L_INNER], [R_IRIS, R_OUTER, R_INNER]].forEach(([ci, co, ci2]) => {
-      const irisR = Math.max(3, dn(lm[co], lm[ci2]) * camSkelW * 0.16);
-      const ix = px(ci), iy = py(ci);
+    [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]].forEach(function(ch) {
       camSkelCtx.beginPath();
-      camSkelCtx.arc(ix, iy, irisR, 0, Math.PI * 2);
-      camSkelCtx.strokeStyle = 'rgba(100,180,255,0.90)';
-      camSkelCtx.lineWidth = 1.8; camSkelCtx.stroke();
+      ch.forEach(function(i,j){ j===0 ? camSkelCtx.moveTo(px(i),py(i)) : camSkelCtx.lineTo(px(i),py(i)); });
+      camSkelCtx.stroke();
+    });
+    camSkelCtx.shadowBlur = 0;
+
+    /* ── PASS 2: crisp skeleton lines ── */
+    /* palm cross-links */
+    camSkelCtx.strokeStyle = 'rgba(255,120,30,0.28)';
+    camSkelCtx.lineWidth = 0.65;
+    palmLinks.forEach(function(p) {
       camSkelCtx.beginPath();
-      camSkelCtx.arc(ix, iy, 2, 0, Math.PI * 2);
-      camSkelCtx.fillStyle = 'rgba(200,230,255,1)';
+      camSkelCtx.moveTo(px(p[0]), py(p[0]));
+      camSkelCtx.lineTo(px(p[1]), py(p[1]));
+      camSkelCtx.stroke();
+    });
+
+    /* finger chains with tip gradient brightening */
+    [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]].forEach(function(ch, ci) {
+      var isIdx = ci === 1;
+      var lw = isIdx ? 0.95 : 0.70;
+      var x0=px(ch[0]),y0=py(ch[0]),x1=px(ch[ch.length-1]),y1=py(ch[ch.length-1]);
+      var grad;
+      try {
+        grad = camSkelCtx.createLinearGradient(x0,y0,x1,y1);
+        grad.addColorStop(0,'rgba(255,115,25,' + (isIdx?0.65:0.40) + ')');
+        grad.addColorStop(1,'rgba(255,185,80,' + (isIdx?0.95:0.72) + ')');
+      } catch(e) { grad='rgba(255,145,45,0.7)'; }
+      camSkelCtx.strokeStyle = grad;
+      camSkelCtx.lineWidth = lw;
+      camSkelCtx.beginPath();
+      ch.forEach(function(i,j){ j===0 ? camSkelCtx.moveTo(px(i),py(i)) : camSkelCtx.lineTo(px(i),py(i)); });
+      camSkelCtx.stroke();
+    });
+
+    /* ── PASS 3: joint dots ── */
+    [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].forEach(function(i) {
+      var isTip  = [4,8,12,16,20].indexOf(i) !== -1;
+      var isMCP  = [5,9,13,17].indexOf(i) !== -1;
+      var r = isTip ? 2.2 : isMCP ? 1.6 : i===0 ? 1.8 : 1.1;
+      if (isTip) {
+        /* tip outer ring */
+        camSkelCtx.beginPath(); camSkelCtx.arc(px(i),py(i),r+2.8,0,Math.PI*2);
+        camSkelCtx.fillStyle='rgba(255,170,60,0.10)'; camSkelCtx.fill();
+        camSkelCtx.beginPath(); camSkelCtx.arc(px(i),py(i),r+1.2,0,Math.PI*2);
+        camSkelCtx.fillStyle='rgba(255,170,60,0.18)'; camSkelCtx.fill();
+      }
+      camSkelCtx.beginPath(); camSkelCtx.arc(px(i),py(i),r,0,Math.PI*2);
+      camSkelCtx.fillStyle = isTip ? 'rgba(255,200,90,1)' :
+                              isMCP ? 'rgba(255,145,50,0.88)' : 'rgba(255,130,40,0.65)';
       camSkelCtx.fill();
     });
+
+    /* ── PASS 4: shush progress arc at index tip ── */
+    if (isShushing && _shushProgress > 0) {
+      var cx=px(8), cy=py(8);
+      var endA = -Math.PI/2 + _shushProgress * Math.PI * 2;
+      /* track ring */
+      camSkelCtx.beginPath(); camSkelCtx.arc(cx,cy,10,0,Math.PI*2);
+      camSkelCtx.strokeStyle='rgba(255,200,80,0.12)'; camSkelCtx.lineWidth=1.5; camSkelCtx.stroke();
+      /* progress arc */
+      camSkelCtx.shadowBlur = 6; camSkelCtx.shadowColor='rgba(255,220,80,0.7)';
+      camSkelCtx.beginPath(); camSkelCtx.arc(cx,cy,10,-Math.PI/2,endA);
+      camSkelCtx.strokeStyle='rgba(255,220,90,0.95)'; camSkelCtx.lineWidth=1.5; camSkelCtx.stroke();
+      camSkelCtx.shadowBlur = 0;
+    }
+
     camSkelCtx.restore();
-  }
-
-  function clearCamSkeleton() {
-    if (camSkelCtx) camSkelCtx.clearRect(0, 0, camSkelW, camSkelH);
-  }
-
-  function updateGazeCursor(x, y) {
-    if (!gazeCursorEl) return;
-    if (Math.abs(x - _lastCursorX) < 0.6 && Math.abs(y - _lastCursorY) < 0.6) return;
-    _lastCursorX = x; _lastCursorY = y;
-    gazeCursorEl.style.display = 'block';
-    gazeCursorEl.style.left = x + 'px';
-    gazeCursorEl.style.top  = y + 'px';
-  }
-  function hideGazeCursor() {
-    if (gazeCursorEl) gazeCursorEl.style.display = 'none';
-    _lastCursorX = -999; _lastCursorY = -999;
   }
 
   function drawEffects() {
@@ -1254,52 +1712,24 @@
     ctx.restore();
   }
 
-  /* ── 드웰 / 존 / HUD 헬퍼 ── */
-  let _dwellBarEl = null, _dwellFillEl = null;
-  function _ensureDwellEls() {
-    if (!_dwellBarEl)  _dwellBarEl  = document.getElementById('dwell-bar');
-    if (!_dwellFillEl) _dwellFillEl = document.getElementById('dwell-bar-fill');
-  }
-  function updateDwellBar(progress, zone) {
-    _ensureDwellEls();
-    if (!_dwellBarEl || !_dwellFillEl) return;
-    _dwellBarEl.className = 'vis ' + (zone === 'up' ? 'top-pos' : 'bot-pos');
-    _dwellFillEl.style.width = (progress * 100).toFixed(1) + '%';
-  }
-  function hideDwellBar() {
-    _ensureDwellEls();
-    if (_dwellBarEl)  _dwellBarEl.className = (_dwellZone === 'down' ? 'bot-pos' : 'top-pos');
-    if (_dwellFillEl) _dwellFillEl.style.width = '0%';
-  }
-  function showScrollModeLabel(text, pos) {
-    if (_scrollModeLabelVis && _scrollModeLabelText === text && _scrollModeLabelPos === pos) return;
-    _scrollModeLabelVis = true; _scrollModeLabelText = text; _scrollModeLabelPos = pos;
-    const el = document.getElementById('scroll-mode-label');
-    if (!el) return;
-    el.textContent = text;
-    el.className = 'vis ' + (pos === 'top' ? 'top-pos' : 'bot-pos');
-  }
-  function hideScrollModeLabel() {
-    if (!_scrollModeLabelVis) return;
-    _scrollModeLabelVis = false; _scrollModeLabelText = ''; _scrollModeLabelPos = '';
-    const el = document.getElementById('scroll-mode-label');
-    if (el) el.classList.remove('vis');
-  }
+  /* ── HUD 헬퍼 ── */
   function setHUDMode(mode) {
     if (mode === _lastHudMode) return;
     _lastHudMode = mode;
     const el = document.getElementById('cam-mode');
+    var box = document.getElementById('cam-box');
     if (!el) return;
     const map = {
-      idle:     { text: 'IDLE',   color: 'rgba(140,150,170,0.55)' },
-      gaze:     { text: 'EYE ON', color: 'rgba(120,220,130,0.85)' },
-      'eye-up': { text: 'EYE ↑',  color: 'rgba(255,180,80,0.95)'  },
-      'eye-dn': { text: 'EYE ↓',  color: 'rgba(255,180,80,0.95)'  },
-      hand:     { text: 'HAND',   color: 'rgba(100,200,255,0.90)'  },
+      idle:   { text: 'READY',    color: 'rgba(140,150,170,0.45)', glow: '' },
+      hand:   { text: 'TRACKING', color: 'rgba(120,220,130,0.85)', glow: '0 0 18px rgba(120,220,130,0.18)' },
+      locked: { text: 'LOCKED',   color: 'rgba(255,220,80,1)',     glow: '0 0 26px rgba(255,210,50,0.38)' },
     };
     const m = map[mode] || map.idle;
     el.textContent = m.text;
     el.style.color = m.color;
+    if (box) box.style.boxShadow = m.glow
+      ? '0 12px 40px rgba(0,0,0,0.60), 0 0 0 0.5px rgba(255,122,47,0.08), ' + m.glow
+      : '0 12px 40px rgba(0,0,0,0.60), 0 0 0 0.5px rgba(255,122,47,0.08)';
   }
 
   /* ── rAF 루프 ── */
@@ -1311,140 +1741,86 @@
     if (!_isMobile || frameN % 2 === 0) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!_isMobile) {
-        vis = Math.max(0, Math.min(1, vis + (detected ? CFG.fadeIn : -CFG.fadeOut)));
+        vis = Math.max(0, Math.min(1, vis + (_lastHandLM ? CFG.fadeIn : -CFG.fadeOut)));
         drawIdle();
       }
       drawEffects();
     }
 
-    /* ── 시선 스프링 물리 ── */
-    if (gazeTargetX !== null && gazeDispX !== null) {
-      gazeVX += (gazeTargetX - gazeDispX) * CFG.gazeSpring;
-      gazeVY += (gazeTargetY - gazeDispY) * CFG.gazeSpring;
-      /* 자석: 데스크탑만, 스크롤 중 제외 */
-      if (!_isMobile && _snapTargets && scrollVel < 1) {
-        let bDist = CFG.gazeSnapDist;
-        let bx = 0, by = 0, found = false;
-        _snapTargets.forEach(t => {
-          const d = Math.hypot(gazeDispX - t.cx, gazeDispY - t.cy);
-          if (d < bDist) { bDist = d; bx = t.cx; by = t.cy; found = true; }
-        });
-        if (found) {
-          gazeVX += (bx - gazeDispX) * CFG.gazeSnapStr;
-          gazeVY += (by - gazeDispY) * CFG.gazeSnapStr;
-        }
-      }
-      gazeVX *= CFG.gazeDamping;
-      gazeVY *= CFG.gazeDamping;
-      gazeDispX += gazeVX;
-      gazeDispY += gazeVY;
-
-      updateGazeCursor(gazeDispX, gazeDispY);
-      /* 호버 감지: 데스크탑만 */
-      if (!_isMobile && frameN % 9 === 0) updateHover(gazeDispX, gazeDispY);
-
-      if (gazeCursorEl) gazeCursorEl.classList.toggle('calibrating', calibFrames < 90);
+    /* shush progress */
+    if (_shushTimer) {
+      _shushProgress = Math.min(1, (Date.now() - _shushStartMs) / 1500);
+    } else if (_shushProgress > 0) {
+      _shushProgress = 0;
     }
 
-    /* ── 핸드 스크롤 (250ms 미수신 시 자동 해제) ── */
-    if (handScrollActive && Date.now() - _lastHandUpdate > 250) {
-      handScrollActive = false; handScrollDir = 0;
-      _handScrollState = 'neutral';
-    }
-
-    /* ── 시선 스크롤 (드웰 타이밍 기반, 핸드 없을 때만) ── */
-    const _zT = _gazeZoneTopEl;
-    const _zB = _gazeZoneBotEl;
-    if (cameraActive && gazeY !== null && !handScrollActive) {
-      const h     = window.innerHeight;
-      const zoneH = h * 0.16;
-      const inTop = gazeY < zoneH;
-      const inBot = gazeY > h - zoneH;
-      const curZone = inTop ? 'up' : inBot ? 'down' : '';
-
-      if (_zT) _zT.classList.toggle('active', inTop || _eyeScrollState === 'up');
-      if (_zB) _zB.classList.toggle('active', inBot || _eyeScrollState === 'down');
-
-      if (_eyeScrollState === 'neutral') {
-        if (curZone) {
-          if (_dwellZone !== curZone) { _dwellStart = Date.now(); _dwellZone = curZone; }
-          const prog = Math.min(1, (Date.now() - _dwellStart) / DWELL_MS);
-          updateDwellBar(prog, curZone);
-          if (prog >= 1) { _eyeScrollState = curZone; _scrollAccel = 1.0; hideDwellBar(); }
-        } else {
-          _dwellStart = 0; _dwellZone = ''; hideDwellBar();
-        }
-      } else {
-        const exitH = h * 0.30;
-        const stillIn = (_eyeScrollState === 'up'   && gazeY < exitH) ||
-                        (_eyeScrollState === 'down'  && gazeY > h - exitH);
-        if (!stillIn) {
-          _eyeScrollState = 'neutral'; _scrollAccel = 1.0;
-          _dwellStart = 0; _dwellZone = ''; hideDwellBar();
-        } else {
-          _scrollAccel = Math.min(2.2, _scrollAccel + 0.005);
-        }
-      }
-    } else if (!cameraActive || gazeY === null) {
-      if (_eyeScrollState !== 'neutral') {
-        _eyeScrollState = 'neutral'; _scrollAccel = 1.0;
-        _dwellStart = 0; _dwellZone = ''; hideDwellBar();
-      }
-      if (_zT) _zT.classList.remove('active');
-      if (_zB) _zB.classList.remove('active');
-    }
-
-    /* ── 스크롤 인디케이터 & HUD 모드 ── */
-    let _hudMode = detected ? 'gaze' : 'idle';
-    if (handScrollActive) {
-      showScrollInd(handScrollDir < 0 ? '↑' : '↓');
-      showScrollModeLabel(handScrollDir < 0 ? 'Hand Scroll Up' : 'Hand Scroll Down',
-                          handScrollDir < 0 ? 'top' : 'bot');
-      updateGuide(handScrollDir < 0 ? 'scroll-up' : 'scroll-down');
-      _hudMode = 'hand';
-    } else if (_eyeScrollState !== 'neutral') {
-      showScrollInd(_eyeScrollState === 'up' ? '↑' : '↓');
-      showScrollModeLabel(_eyeScrollState === 'up' ? 'Gaze Scroll Up' : 'Gaze Scroll Down',
-                          _eyeScrollState === 'up' ? 'top' : 'bot');
-      updateGuide(_eyeScrollState === 'up' ? 'scroll-up' : 'scroll-down');
-      _hudMode = _eyeScrollState === 'up' ? 'eye-up' : 'eye-dn';
+    /* parallax: smooth palm position → CSS var */
+    if (_lastHandLM) {
+      _palmSmX += ((1 - _lastHandLM[9].x) - _palmSmX) * 0.06;
+      _palmSmY += (_lastHandLM[9].y - _palmSmY) * 0.06;
     } else {
-      hideScrollInd(); hideScrollModeLabel();
-      updateGuide('gaze');
+      _palmSmX += (0.5 - _palmSmX) * 0.04;
+      _palmSmY += (0.5 - _palmSmY) * 0.04;
     }
-    setHUDMode(_hudMode);
+    document.documentElement.style.setProperty('--hand-px', ((_palmSmX - 0.5) * -12).toFixed(2) + 'px');
+    document.documentElement.style.setProperty('--hand-py', ((_palmSmY - 0.5) * -8).toFixed(2) + 'px');
 
-    /* ── 최종 스크롤 (핸드 우선, 가속도 적용) ── */
-    const eyeDir = _eyeScrollState === 'up' ? -1 : _eyeScrollState === 'down' ? 1 : 0;
-    const activeDir = handScrollActive ? handScrollDir : eyeDir;
-    const activeSpd = handScrollActive ? CFG.scrollSpd : CFG.scrollSpd * _scrollAccel;
-    scrollTarget = activeDir * activeSpd;
-    scrollVel += (scrollTarget - scrollVel) * 0.20;
-    if (Math.abs(scrollVel) > 0.4) window.scrollBy(0, scrollVel);
-    else if (scrollTarget === 0) { scrollVel *= 0.80; if (Math.abs(scrollVel) < 0.1) scrollVel = 0; }
+    /* track status HUD */
+    var hudState = _shushTimer ? 'locked' : _lastHandLM ? 'hand' : 'idle';
+    setHUDMode(hudState);
+
+    /* track status label */
+    if (_trackState !== _lastTrackState) {
+      _lastTrackState = _trackState;
+      var tsEl = document.getElementById('track-status');
+      if (tsEl) {
+        tsEl.dataset.state = _trackState;
+        var labels = { stable:'TRACKING STABLE', lost:'HAND LOST', locked:'GESTURE LOCKED' };
+        var lblEl  = tsEl.querySelector('.ts-label');
+        if (lblEl) lblEl.textContent = labels[_trackState] || '';
+      }
+    }
+
+    /* ── 테마 배경 보간 (_tIdx >= 0 인 경우만) ── */
+    if (_tInteract && _tIdx >= 0) {
+      var LT = 0.028;
+      var tgtBg = _TGRADS[_tIdx];
+      for (var _si = 0; _si < 3; _si++) {
+        _tBg[_si][0] = _tBg[_si][0] + (tgtBg[_si][0]-_tBg[_si][0])*LT;
+        _tBg[_si][1] = _tBg[_si][1] + (tgtBg[_si][1]-_tBg[_si][1])*LT;
+        _tBg[_si][2] = _tBg[_si][2] + (tgtBg[_si][2]-_tBg[_si][2])*LT;
+      }
+      _tVign = _tVign + (_THEMES[_tIdx].vign - _tVign) * LT;
+      /* 바디 배경 그라디언트 직접 애니메이션 (z-index 스태킹 우회) */
+      document.body.style.background =
+        'radial-gradient(ellipse 160% 120% at 50% -12%,' +
+        'rgb('+Math.round(_tBg[0][0])+','+Math.round(_tBg[0][1])+','+Math.round(_tBg[0][2])+') 0%,' +
+        'rgb('+Math.round(_tBg[1][0])+','+Math.round(_tBg[1][1])+','+Math.round(_tBg[1][2])+') 52%,' +
+        'rgb('+Math.round(_tBg[2][0])+','+Math.round(_tBg[2][1])+','+Math.round(_tBg[2][2])+') 100%)';
+      var vigEl = document.getElementById('theme-vignette');
+      if (vigEl) vigEl.style.opacity = _tVign.toFixed(3);
+      var tntEl = document.getElementById('theme-tint');
+      if (tntEl) tntEl.style.background = _THEMES[_tIdx].tint;
+    }
+
+    /* ── 스와이프 유지 링 업데이트 ── */
+    if (_tInteract && _shrEl) {
+      if (_swHoldDir !== 0) {
+        _shrEl.classList.add('vis');
+        if (_shrIcon) _shrIcon.textContent = _swHoldDir > 0 ? '→' : '←';
+        if (_shrArc) _shrArc.style.strokeDashoffset = (194.78 * (1 - _swHoldProgress)).toFixed(2);
+      } else {
+        _shrEl.classList.remove('vis');
+        if (_shrArc) _shrArc.style.strokeDashoffset = '194.78';
+      }
+    }
   }
+  _shushToastEl = document.getElementById('shush-toast');
+  var _shrEl   = document.getElementById('swipe-hold-ring');
+  var _shrArc  = document.getElementById('shr-arc');
+  var _shrIcon = document.getElementById('shr-icon');
   resize();
   tick();
-
-  /* 요소 자석 캐시: 스크롤/리사이즈 후 업데이트 (레이아웃 reflow를 이벤트 기반으로 제한) */
-  function refreshSnapTargets() {
-    _snapTargets = [...document.querySelectorAll('.s-card,.testimonial-card')].map(el => {
-      const r = el.getBoundingClientRect();
-      return { cx: (r.left + r.right) * 0.5, cy: (r.top + r.bottom) * 0.5 };
-    });
-  }
-  var _snapTimer = null;
-  function _refreshAll() { refreshSnapTargets(); refreshHoverTargets(); }
-  window.addEventListener('scroll', function() {
-    clearTimeout(_snapTimer);
-    _snapTimer = setTimeout(_refreshAll, 150);
-  }, { passive: true });
-  window.addEventListener('resize', _refreshAll);
-  setTimeout(_refreshAll, 600);
-
-  gazeCursorEl    = document.getElementById('hand-cursor');
-  _gazeZoneTopEl  = document.getElementById('gaze-zone-top');
-  _gazeZoneBotEl  = document.getElementById('gaze-zone-bot');
 
   const statusEl = document.getElementById('gg-status');
   const dotEl    = document.querySelector('.gg-dot-live');
@@ -1476,80 +1852,17 @@
     if (camStatusDot) camStatusDot.style.background = col;
   }
 
-  function onResults(res) {
-    if (res.multiFaceLandmarks && res.multiFaceLandmarks.length > 0) {
-      detected = true;
-      setStatus('ok', calibFrames < 90 ? '보정 중… 정면을 바라봐 주세요' : '눈 감지됨 ✦');
-      const lm = res.multiFaceLandmarks[0];
-
-      if (lm[L_IRIS] && lm[R_IRIS]) {
-        const raw = calcGaze(lm);
-
-        /* 1. 미디언 필터 (7샘플) — 스파이크 제거 */
-        gazeRawBuf.push([raw.x, raw.y]);
-        if (gazeRawBuf.length > 7) gazeRawBuf.shift();
-        if (gazeRawBuf.length < 4) { drawCamEye(lm); return; }
-        const xs = gazeRawBuf.map(p => p[0]).sort((a, b) => a - b);
-        const ys = gazeRawBuf.map(p => p[1]).sort((a, b) => a - b);
-        const mi = Math.floor(gazeRawBuf.length / 2);
-        const filtX = xs[mi], filtY = ys[mi];
-
-        /* 2. 초기화 */
-        if (gazeDispX === null) {
-          gazeDispX = filtX; gazeDispY = filtY;
-          gazeTargetX = filtX; gazeTargetY = filtY;
-        }
-
-        /* 3. 적응형 데드밴드 — 큰 움직임은 즉시, 작은 움직임도 부드럽게 수렴 */
-        const dist = Math.hypot(filtX - gazeTargetX, filtY - gazeTargetY);
-        if (dist > CFG.gazeDeadband) {
-          gazeTargetX = filtX; gazeTargetY = filtY;
-        } else if (dist > 10) {
-          gazeTargetX += (filtX - gazeTargetX) * 0.10;
-          gazeTargetY += (filtY - gazeTargetY) * 0.10;
-        }
-
-        gazeX = gazeTargetX; gazeY = gazeTargetY;
-      }
-
-      drawCamEye(lm);
-
-    } else {
-      if (detected) setStatus('', '얼굴을 화면에 보여주세요');
-      detected = false;
-      calibFrames = 0;
-      _gazeEWA_X = null; _gazeEWA_Y = null;
-      clearCamSkeleton(); hideGazeCursor(); clearHover();
-      gazeRawBuf = [];
-      gazeTargetX = null; gazeTargetY = null;
-      gazeDispX   = null; gazeDispY   = null;
-      gazeVX = 0; gazeVY = 0;
-      gazeX = null; gazeY = null;
-      _eyeScrollState = 'neutral'; _dwellStart = 0; _dwellZone = '';
-      hideDwellBar();
-    }
-  }
-
-  /* FaceMesh + Hands 교차 실행 — GPU 경합 완전 제거 */
   function detectLoop() {
-    var _busy = false, _frame = 0;
-    /* 모바일: FaceMesh 전용 70ms — 눈 추적 14fps
-       데스크탑: Face+Hands 교대 62ms — rAF 여유 확보 (48→62) */
-    var DET_MS = _isMobile ? 70 : 62;
+    var _busy = false;
+    var DET_MS = 66;
     (async function loop() {
       if (!cameraActive) return;
       if (!_busy && video.readyState >= 2) {
         _busy = true;
         try {
-          if (_isMobile) {
-            if (faceInst) await faceInst.send({ image: video });
-          } else {
-            if (_frame % 2 === 0 && faceInst) await faceInst.send({ image: video });
-            else if (handsInst)               await handsInst.send({ image: video });
-          }
+          if (handsInst) await handsInst.send({ image: video });
         } catch (_) {}
         _busy = false;
-        _frame++;
       }
       setTimeout(loop, DET_MS);
     })();
@@ -1560,15 +1873,29 @@
     if (b) { b.disabled = false; b.textContent = '📷 다시 시도'; b.style.display = ''; }
   }
 
-  async function startCamera() {
-    if (typeof FaceMesh === 'undefined') {
-      setStatus('error', 'MediaPipe 로드 실패 — 인터넷 확인');
-      showErrorBanner('AI 모델 로드 실패',
-        'MediaPipe 라이브러리를 불러오지 못했습니다.<br>' +
-        '인터넷 연결을 확인하거나, <code>file://</code> 대신 로컬 서버를 사용하세요.<br>' +
-        '터미널: <code>npx serve .</code> → <code>http://localhost:PORT</code>');
-      cameraStarted = false; resetCamBtn(); return;
+  function stopCamera() {
+    cameraActive = false;
+    if (video && video.srcObject) {
+      video.srcObject.getTracks().forEach(function(t){ t.stop(); });
+      video.srcObject = null;
     }
+    var camDisplay = document.getElementById('cam-display');
+    if (camDisplay) {
+      if (camDisplay.srcObject) {
+        camDisplay.srcObject.getTracks().forEach(function(t){ t.stop(); });
+      }
+      camDisplay.srcObject = null;
+    }
+    var camBox = document.getElementById('cam-box');
+    if (camBox) camBox.style.display = 'none';
+    cameraStarted = false;
+    mpReady = false;
+    _lastHandLM = null;
+    _smoothLM = null;
+    setStatus('', '카메라 연결 중…');
+  }
+
+  async function startCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setStatus('error', 'HTTPS 필요 (' + location.protocol + ')');
       showErrorBanner('카메라 접근 불가 (' + location.protocol + '//' + ')',
@@ -1627,98 +1954,148 @@
     }
     await new Promise(function(r) {
       if (video.readyState >= 2) { r(); return; }
-      video.addEventListener('loadeddata', r, { once: true });
+      var _tmo = setTimeout(r, 5000);
+      video.addEventListener('loadeddata', function() { clearTimeout(_tmo); r(); }, { once: true });
     });
     var btn = document.getElementById('gg-cam-btn');
     if (btn) btn.style.display = 'none';
     setStatus('', 'AI 모델 로딩 중…');
-    try {
-      faceInst = new FaceMesh({
-        locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/' + f; }
-      });
-      faceInst.setOptions({
-        maxNumFaces: 1, refineLandmarks: true,
-        minDetectionConfidence: _isMobile ? 0.40 : 0.45,
-        minTrackingConfidence:  _isMobile ? 0.35 : 0.40,
-      });
-      faceInst.onResults(onResults);
-      if (typeof faceInst.initialize === 'function') {
-        await faceInst.initialize();
-      } else {
-        await new Promise(function(r) { setTimeout(r, 800); });
-        try { await faceInst.send({ image: video }); } catch (_) {}
-      }
-    } catch (e) {
-      setStatus('error', 'AI 모델 초기화 실패 — 인터넷 확인');
-      cameraStarted = false; resetCamBtn(); return;
-    }
-    setStatus('', '얼굴을 화면에 보여주세요');
     mpReady = true; cameraActive = true;
-    calibFrames = 0; baseOffX = 0; baseOffY = 0;
     await startHands();
-    detectLoop(); /* FaceMesh + Hands 교차 단일 루프 */
+    setStatus('ok', '손 인식 중 ✦');
+    detectLoop();
   }
 
-  /* ── MediaPipe Hands (검지 스크롤) ── */
+  /* ── MediaPipe Hands (손가락 카운트 네비게이션) ── */
   let handsInst = null;
-  var _hBusy = false, HAND_MS = 66; /* ~15fps for scroll */
 
-  const scrollIndEl = document.getElementById('scroll-ind');
-  function showScrollInd(text) {
-    if (!scrollIndEl) return;
-    if (_scrollIndVis && _scrollIndText === text) return;
-    _scrollIndVis = true; _scrollIndText = text;
-    scrollIndEl.textContent = text;
-    scrollIndEl.classList.add('vis');
+  function isShush(lm) {
+    /* countFingers와 동일한 임계값 사용 — 검지만 편 상태 판별 */
+    var M = _handMetrics(lm);
+    function isExt(t, m) { return M.tm(t,m) > M.hs * 0.60 || M.dw(t) > M.dw(m) * 1.55; }
+    if (!isExt(8,5))  return false; /* 검지 안 폈으면 탈락 */
+    if (isExt(12,9))  return false; /* 중지 펴있으면 탈락 */
+    if (isExt(16,13)) return false; /* 약지 펴있으면 탈락 */
+    if (isExt(20,17)) return false; /* 소지 펴있으면 탈락 */
+    var tx = lm[8].x, ty = lm[8].y;
+    return tx > 0.20 && tx < 0.80 && ty > 0.05 && ty < 0.65;
   }
-  function hideScrollInd() {
-    if (!scrollIndEl || !_scrollIndVis) return;
-    _scrollIndVis = false; _scrollIndText = '';
-    scrollIndEl.classList.remove('vis');
+
+  function triggerDarkMode() {
+    document.documentElement.classList.add('theme-transitioning');
+    _darkMode = !_darkMode;
+    document.documentElement.classList.toggle('dark', _darkMode);
+    setTimeout(function() { document.documentElement.classList.remove('theme-transitioning'); }, 650);
+    var dmBtn = document.getElementById('darkmode-btn');
+    var dmIcon = document.getElementById('dm-icon');
+    if (dmBtn) dmBtn.classList.toggle('dm-on', _darkMode);
+    if (dmIcon) dmIcon.textContent = _darkMode ? '◑' : '◐';
+    if (!_shushToastEl) _shushToastEl = document.getElementById('shush-toast');
+    if (_shushToastEl) {
+      _shushToastEl.textContent = _darkMode ? '🌙 다크모드 ON' : '☀️ 라이트모드 ON';
+      _shushToastEl.classList.add('vis');
+      setTimeout(function() { _shushToastEl.classList.remove('vis'); }, 1800);
+    }
+  }
+
+  function _handMetrics(lm) {
+    var hs = Math.hypot(lm[9].x - lm[0].x, lm[9].y - lm[0].y);
+    var wx = lm[0].x, wy = lm[0].y;
+    var tm = function(t,m){ return Math.hypot(lm[t].x-lm[m].x, lm[t].y-lm[m].y); };
+    var dw = function(i){   return Math.hypot(lm[i].x-wx, lm[i].y-wy); };
+    return { hs:hs, tm:tm, dw:dw };
   }
 
   function onHandResults(res) {
     _lastHandUpdate = Date.now();
     if (!res.multiHandLandmarks || !res.multiHandLandmarks.length) {
-      _handScrollState = 'neutral';
-      handScrollActive = false; handScrollDir = 0;
-      _handDY_EWA = 0;
+      _lastHandLM = null;
+      _smoothLM = null;
+      drawCamHand();
+      _trackState = 'lost';
+      if (_shushTimer) { clearTimeout(_shushTimer); _shushTimer = null; _shushProgress = 0; }
+      updateGuide('');
+      /* 스와이프 및 유지 상태 리셋 */
+      _swBaseX = null; _swBaseY = null;
+      _swHoldDir = 0; _swHoldStartMs = 0; _swHoldProgress = 0;
       return;
     }
-    const lm = res.multiHandLandmarks[0];
-    const rawDY = lm[8].y - lm[5].y; /* 검지 끝 vs MCP */
-    /* EWA 스무딩으로 손 제스처 노이즈 완화 */
-    _handDY_EWA += (rawDY - _handDY_EWA) * 0.42;
-    const dy = _handDY_EWA;
+    var lm = res.multiHandLandmarks[0];
+    _lastHandLM = lm;
+    /* EWA smooth landmarks for drawing */
+    var EWA_DRAW = 0.40;
+    if (!_smoothLM) {
+      _smoothLM = lm.map(function(p){ return {x:p.x,y:p.y}; });
+    } else {
+      lm.forEach(function(p,i){
+        _smoothLM[i].x += (p.x - _smoothLM[i].x) * EWA_DRAW;
+        _smoothLM[i].y += (p.y - _smoothLM[i].y) * EWA_DRAW;
+      });
+    }
+    _trackState = 'stable';
+    drawCamHand();
 
-    /* 히스테리시스: 진입 ±0.18, 해제 ±0.09 */
-    if (_handScrollState === 'neutral') {
-      if      (dy < -0.18) { _handScrollState = 'up'; }
-      else if (dy >  0.18) { _handScrollState = 'down'; }
-    } else if (_handScrollState === 'up') {
-      if (dy > -0.09)      { _handScrollState = 'neutral'; }
-    } else if (_handScrollState === 'down') {
-      if (dy <  0.09)      { _handScrollState = 'neutral'; }
+    /* ── 쉿 제스처 → 다크모드 토글 ── */
+    if (isShush(lm)) {
+      _trackState = 'locked';
+      if (!_shushTimer) {
+        _shushStartMs = Date.now();
+        updateGuide('hand-shush');
+        _shushTimer = setTimeout(function() {
+          triggerDarkMode();
+          _shushTimer = null;
+          _shushProgress = 0;
+          _trackState = 'stable';
+          updateGuide('');
+        }, 1500);
+      }
+      return;
+    } else {
+      if (_shushTimer) { clearTimeout(_shushTimer); _shushTimer = null; }
     }
 
-    if (_handScrollState === 'up') {
-      handScrollDir = -1; handScrollActive = true;
-      updateGuide('scroll-up');
-    } else if (_handScrollState === 'down') {
-      handScrollDir =  1; handScrollActive = true;
-      updateGuide('scroll-down');
-    } else {
-      handScrollActive = false; handScrollDir = 0;
-      updateGuide('gaze');
+    /* ── 방향 유지 1.5초 → 테마 전환 (인터랙션 모드 전용) ── */
+    if (_tInteract) {
+      var _sx = 1 - lm[9].x, _sy = lm[9].y;
+      _swSmX += (_sx - _swSmX) * _SW_ALPHA;
+      _swSmY += (_sy - _swSmY) * _SW_ALPHA;
+      if (_swBaseX === null) { _swBaseX = _swSmX; _swBaseY = _swSmY; }
+      var _dx = _swSmX - _swBaseX, _dy = _swSmY - _swBaseY;
+      var _absDx = Math.abs(_dx);
+      var _isHoriz = _absDx > Math.abs(_dy) * _SW_VRATIO;
+      var _dirNow = (_absDx > _SW_HOLD_THRESH && _isHoriz) ? (_dx > 0 ? 1 : -1) : 0;
+
+      if (_dirNow !== 0) {
+        if (_dirNow !== _swHoldDir) {
+          /* 새 방향 시작 */
+          _swHoldDir = _dirNow; _swHoldStartMs = Date.now(); _swHoldProgress = 0;
+        } else {
+          /* 같은 방향 유지 — 진행률 계산 */
+          _swHoldProgress = Math.min(1, (Date.now() - _swHoldStartMs) / _SW_HOLD_MS);
+          if (_swHoldProgress >= 1 && Date.now() - _swLastMs > _SW_COOL) {
+            /* _tIdx === -1(기본)에서 시작: right→0(wedding), left→마지막(workplace) */
+            var _nextIdx = _tIdx < 0
+              ? (_swHoldDir > 0 ? 0 : _THEMES.length - 1)
+              : _tIdx + _swHoldDir;
+            setTheme(_nextIdx);
+            updateGuide(_swHoldDir > 0 ? 'swipe-right' : 'swipe-left');
+            _swLastMs = Date.now();
+            _swBaseX = _swSmX; _swBaseY = _swSmY;
+            _swHoldDir = 0; _swHoldStartMs = 0; _swHoldProgress = 0;
+          }
+        }
+      } else if (_absDx < _SW_CANCEL_THRESH) {
+        /* 손이 중앙 근처로 돌아옴 → 유지 취소 */
+        _swHoldDir = 0; _swHoldStartMs = 0; _swHoldProgress = 0;
+      }
     }
   }
 
   async function startHands() {
-    if (_isMobile) return; /* 모바일: 손 추적 비활성화 — 눈 추적에 집중 */
     if (typeof Hands === 'undefined') return;
     try {
       handsInst = new Hands({
-        locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f; }
+        locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/' + f; }
       });
       handsInst.setOptions({
         maxNumHands: 1, modelComplexity: 0,
@@ -1732,14 +2109,6 @@
   let cameraStarted = false;
   window.__startCamera = function () {
     if (cameraStarted) return;
-    /* 모바일 + file:// 조합은 반드시 실패 — 배너만 표시하고 종료 */
-    if (_isMobile && location.protocol === 'file:') {
-      showErrorBanner('모바일 카메라 사용 불가 (file:// 환경)',
-        '모바일 브라우저는 <code>file://</code> 페이지에서 카메라를 허용하지 않습니다.<br>' +
-        '① PC에서 <code>npx serve .</code> 실행 → 같은 Wi-Fi의 모바일에서 <code>http://[PC IP]:PORT</code> 접속<br>' +
-        '② 또는 GitHub Pages · Netlify 등 <strong>HTTPS</strong> 환경에 배포');
-      return;
-    }
     cameraStarted = true;
     var btn = document.getElementById('gg-cam-btn');
     if (btn) { btn.disabled = true; btn.textContent = '카메라 연결 중…'; }
@@ -1766,34 +2135,161 @@
     });
   })();
 
-  /* ── 자동 카메라 시작 ── */
-  window.addEventListener('load', function () {
-    var ggEl = document.getElementById('gesture-guide');
-    if (ggEl) ggEl.classList.add('expanded');
+  /* 자동 카메라 시작 제거 — 인터랙션 모드 버튼으로 명시적 시작 */
 
-    if (_isMobile) {
-      /* 모바일: 자동 시작 안 함 — 버튼 탭으로 직접 시작 */
-      if (location.protocol === 'file:') {
-        var s = document.getElementById('gg-status');
-        if (s) { s.textContent = 'HTTPS 필요 (아래 안내 확인)'; s.className = 'st-warn'; }
-        /* 버튼은 활성 유지 — 탭 시 배너로 안내 */
-        var btn = document.getElementById('gg-cam-btn');
-        if (btn) { btn.textContent = '⚠️ HTTPS 필요 (탭하여 확인)'; }
-        showErrorBanner('모바일 카메라 사용 불가 (file:// 환경)',
-          '모바일 브라우저는 <code>file://</code> 페이지에서 카메라를 허용하지 않습니다.<br>' +
-          '<strong>해결 방법:</strong><br>' +
-          '① PC에서 <code>npx serve .</code> 실행 후 같은 Wi-Fi의 모바일에서 <code>http://[PC IP]:PORT</code> 접속<br>' +
-          '② 또는 GitHub Pages · Netlify 등 <strong>HTTPS</strong> 환경에 배포');
+
+  /* ══════════════════════════════════════════════════════════
+     테마 시스템 + 인터랙션 모드
+  ══════════════════════════════════════════════════════════ */
+  var _THEMES = [
+    { id:'wedding',   name:'결혼식', icon:'💍',
+      grad:['#fdf5ec','#f0d4a8','#e8c290'],
+      tint:'rgba(255,210,150,0.10)', vign:0.22,
+      part:{h:34,s:52,l:74,a:0.26,spd:0.36,n:16} },
+    { id:'funeral',   name:'장례식', icon:'🕯️',
+      grad:['#101626','#161c2e','#1a2038'],
+      tint:'rgba(18,26,58,0.20)', vign:0.58,
+      part:{h:220,s:18,l:48,a:0.13,spd:0.11,n:4} },
+    { id:'dinner',    name:'회식',   icon:'🍻',
+      grad:['#281204','#361605','#2c0e06'],
+      tint:'rgba(200,75,18,0.15)', vign:0.46,
+      part:{h:26,s:80,l:60,a:0.36,spd:0.78,n:22} },
+    { id:'workplace', name:'직장',   icon:'🤝',
+      grad:['#080f1e','#0d1526','#0b111e'],
+      tint:'rgba(38,86,178,0.12)', vign:0.50,
+      part:{h:212,s:44,l:62,a:0.20,spd:0.27,n:8} }
+  ];
+
+  function _h2rgb(h) {
+    return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+  }
+  var _TGRADS = _THEMES.map(function(t){ return t.grad.map(_h2rgb); });
+
+  var _tIdx   = 0;
+  var _tBg    = _TGRADS[0].map(function(c){ return [c[0],c[1],c[2]]; });
+  var _tVign  = 0;
+  var _tInteract = false;
+
+  /* Swipe hold state */
+  var _swSmX=0.5, _swSmY=0.5, _swBaseX=null, _swBaseY=null;
+  var _swHoldDir=0, _swHoldStartMs=0, _swHoldProgress=0, _swLastMs=0;
+  var _SW_HOLD_THRESH=0.10, _SW_CANCEL_THRESH=0.055, _SW_VRATIO=1.55, _SW_COOL=1200, _SW_ALPHA=0.22, _SW_HOLD_MS=1500;
+
+  function setTheme(idx) {
+    idx = ((idx % _THEMES.length) + _THEMES.length) % _THEMES.length;
+    if (idx === _tIdx) return;
+    _tIdx = idx;
+    var t = _THEMES[_tIdx];
+    /* body 테마 속성 → [data-theme] CSS 활성화 */
+    document.body.dataset.theme = t.id;
+    /* Update indicator dots + label */
+    document.querySelectorAll('.th-dot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
+    var lbl = document.getElementById('th-lbl'); if (lbl) lbl.textContent = t.name;
+    /* Rebuild idle particles */
+    var p = t.part;
+    idlePts.forEach(function(pt, i) {
+      if (i < p.n) {
+        pt.h = p.h+(Math.random()-0.5)*30; pt.s=p.s; pt.l=p.l;
+        pt.a = p.a*(0.7+Math.random()*0.6);
+        pt.vx = (Math.random()-0.5)*0.28;
+        pt.vy = -(p.spd*(Math.random()*0.5+0.5));
+        pt.sz = Math.random()*1.8+0.4;
+      } else { pt.a = 0; }
+    });
+    /* Swipe feedback flash */
+    var fb=document.getElementById('swipe-feedback'), nm=document.getElementById('sw-name');
+    if(fb&&nm){ nm.textContent=t.icon+' '+t.name; fb.classList.add('vis'); clearTimeout(fb._ht); fb._ht=setTimeout(function(){fb.classList.remove('vis');},1500); }
+  }
+
+  function toggleInteractMode() {
+    _tInteract = !_tInteract;
+    var btn  = document.getElementById('interact-btn');
+    var bg   = document.getElementById('theme-bg');
+    var noise= document.getElementById('theme-noise');
+    var vig  = document.getElementById('theme-vignette');
+    var tnt  = document.getElementById('theme-tint');
+    var tind = document.getElementById('theme-indicator');
+    var htl  = document.getElementById('th-hud-tl');
+    var htr  = document.getElementById('th-hud-tr');
+    var guide= document.getElementById('gesture-guide');
+    var toggle= [bg,noise,vig,tnt,htl,htr];
+    var ggBtn = document.getElementById('gg-cam-btn');
+    if (_tInteract) {
+      toggle.forEach(function(el){ if(el) el.classList.add('active'); });
+      if (tind)  tind.style.display = 'flex';
+      if (btn)   btn.classList.add('im-on');
+      if (guide) guide.classList.add('expanded');
+      if (ggBtn) ggBtn.textContent = '✕ 인터랙션 종료';
+      if (!cameraStarted) window.__startCamera && window.__startCamera();
+      /* 기본 모드에서 시작: 다크모드 상태 유지, 첫 스와이프 전까지 테마 없음 */
+      _tIdx = -1;
+      /* _tBg를 현재 페이지 배경색으로 초기화 (첫 테마 전환 부드럽게) */
+      if (_darkMode) {
+        _tBg = [[13,12,11],[16,14,12],[13,12,11]];
+      } else {
+        _tBg = [[255,249,244],[252,246,238],[248,242,232]];
       }
+      _tVign = 0;
+      document.body.removeAttribute('data-theme');
+      document.body.style.background = '';
+      /* 인디케이터 초기화 (기본 상태엔 활성 테마 없음) */
+      document.querySelectorAll('.th-dot').forEach(function(d){ d.classList.remove('active'); });
+      var _lbl0 = document.getElementById('th-lbl'); if (_lbl0) _lbl0.textContent = '← 스와이프 →';
+      _swBaseX=null; _swBaseY=null;
+      _swHoldDir=0; _swHoldStartMs=0; _swHoldProgress=0;
     } else {
-      /* 데스크탑: file:// 이면 경고 후 시작 시도, 아니면 바로 자동 시작 */
-      if (location.protocol === 'file:') {
-        var s2 = document.getElementById('gg-status');
-        if (s2) { s2.textContent = 'file:// — 제한적 동작'; s2.className = 'st-warn'; }
-      }
-      setTimeout(window.__startCamera, 600);
+      toggle.forEach(function(el){ if(el) el.classList.remove('active'); });
+      if (tind)  tind.style.display = 'none';
+      if (btn)   btn.classList.remove('im-on');
+      _swBaseX=null; _swBaseY=null;
+      _swHoldDir=0; _swHoldStartMs=0; _swHoldProgress=0;
+      /* 유지 링 숨기기 */
+      if (_shrEl) _shrEl.classList.remove('vis');
+      if (ggBtn) ggBtn.textContent = '✦ 인터랙션 시작';
+      var fb=document.getElementById('swipe-feedback'); if(fb) fb.classList.remove('vis');
+      /* 바디 배경 및 인라인 스타일 제거 → CSS 클래스가 페이드아웃 처리 */
+      document.body.style.background = '';
+      var vigEl2=document.getElementById('theme-vignette'); if(vigEl2) vigEl2.style.opacity='';
+      /* body 데이터 테마 제거 */
+      document.body.removeAttribute('data-theme');
+      /* 카메라 중지 */
+      stopCamera();
+      /* 파티클 기본값 복원 */
+      idlePts.forEach(function(pt){
+        pt.h=22+Math.random()*20; pt.s=68; pt.l=62;
+        pt.a=Math.random()*0.22+0.10;
+        pt.vx=(Math.random()-0.5)*0.35; pt.vy=-(Math.random()*0.25+0.05);
+        pt.sz=Math.random()*1.6+0.5;
+      });
     }
-  });
+  }
+
+  /* ── 버튼 이벤트 연결 ── */
+  (function(){
+    /* 다크모드 버튼: 클릭으로 토글 */
+    var dmBtn = document.getElementById('darkmode-btn');
+    if (dmBtn) {
+      dmBtn.addEventListener('click', function(){ triggerDarkMode(); });
+    }
+    /* 인터랙션 모드 버튼 */
+    var imBtn = document.getElementById('interact-btn');
+    if (imBtn) {
+      var _imt = false;
+      imBtn.addEventListener('touchstart', function(){ _imt=true; }, {passive:true});
+      imBtn.addEventListener('touchend',   function(e){ if(!_imt)return; _imt=false; e.preventDefault(); toggleInteractMode(); }, {passive:false});
+      imBtn.addEventListener('click',      function(){ if(_imt)return; toggleInteractMode(); });
+    }
+    /* 제스처 가이드 버튼: 인터랙션 모드 시작/종료 */
+    var camBtn = document.getElementById('gg-cam-btn');
+    if (camBtn) {
+      var nb = camBtn.cloneNode(true);
+      camBtn.parentNode.replaceChild(nb, camBtn);
+      var _cbt = false;
+      nb.addEventListener('touchstart', function(){ _cbt=true; }, {passive:true});
+      nb.addEventListener('touchend',   function(e){ if(!_cbt)return; _cbt=false; e.preventDefault(); toggleInteractMode(); }, {passive:false});
+      nb.addEventListener('click',      function(){ if(_cbt)return; toggleInteractMode(); });
+    }
+  })();
 
 }());
 </script>

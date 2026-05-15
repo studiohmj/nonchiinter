@@ -1109,75 +1109,69 @@ body {
   .hero {
     flex-direction: column;
     padding: 64px var(--container-pad) 72px;
+    gap: 36px;
   }
   .hero-sub { max-width: 100%; }
   .hero-device { order: -1; }
   .device { width: 228px; }
   .nav-links { display: none; }
-  /* 모바일 nav: CTA 버튼도 크기 줄이기 */
+  /* 모바일 nav: ctrl-pill 아이콘만 표시 */
+  .ctrl-pill span:not(.ctrl-icon) { display: none; }
+  .ctrl-pill { padding: 6px 9px; min-width: 34px; justify-content: center; }
+  .nav-actions { gap: 5px; }
   .nav-cta { font-size: 13px; padding: 8px 14px; }
+  /* hero CTA 버튼 스택 */
+  .hero-cta-row { flex-direction: column; align-items: stretch; max-width: 300px; }
+  .btn-primary, .btn-ghost { text-align: center; justify-content: center; padding: 15px 24px; }
   .sim-flow { max-width: 100%; }
   .community-note {
     flex-direction: column; gap: 14px; text-align: center;
   }
-  /* 섹션 헤더 좌우 패딩 보정 */
   .section-head { padding: 0 4px; }
-  /* 시뮬레이션 카드 내부 여백 축소 */
   .sim-card { padding: 20px 16px; }
   .sim-option { padding: 11px 14px; font-size: 14px; }
-  /* 결과 행 — 오른쪽 영역 폭 줄이기 */
   .sim-result-right { width: 84px; }
   .sim-result-row   { gap: 10px; }
-  /* CTA 섹션 */
   .cta-title { font-size: 36px; }
   .store-btns { gap: 10px; }
+  /* 미리보기 섹션 오버플로 방지 */
+  .preview-section { overflow-x: hidden; }
 }
 
 @media (max-width: 540px) {
   :root { --container-pad: 16px; }
   .card-grid.col-3 { grid-template-columns: 1fr; }
-  /* 카드 내부 여백 최적화 */
   .s-card { padding: 20px 18px; }
   /* Hero */
   .hero-title { font-size: 40px; letter-spacing: -1.5px; }
-  .hero-proof { flex-wrap: wrap; }
+  .hero-proof { flex-wrap: wrap; gap: 8px; }
+  .hero-cta-row { max-width: 100%; }
+  /* Preview phone 축소 */
+  .phone-col.center .iphone { width: 192px; }
+  .iphone.large .iphone-screen { min-height: 372px; }
+  .phone-chip { font-size: 10px; padding: 5px 12px; }
   /* 스토어 버튼 */
   .store-btns { flex-direction: column; align-items: center; }
-  .store-btn  { width: 200px; justify-content: center; }
+  .store-btn  { width: 210px; justify-content: center; }
   /* 푸터 */
   .footer-inner { flex-direction: column; gap: 10px; text-align: center; }
-  /* 후기 카드: 모두 표시 */
+  /* 후기 카드 */
   .testimonial-grid .testimonial-card:nth-child(3) { display: block; }
   .testimonial-card { padding: 18px; }
-
-  /* ── 시뮬레이션 결과 줄바꿈 수정 ── */
-  /* 결과 행 정렬 위쪽 기준 */
+  /* 시뮬레이션 결과 */
   .sim-result-row { align-items: flex-start; gap: 8px; }
-  /* 오른쪽 영역 더 작게 */
   .sim-result-right { width: 72px; }
   .result-pct       { font-size: 20px; }
   .result-pct.muted { font-size: 14px; }
-  /* 왼쪽 영역: name이 넓게 쓰고 crown은 아래 줄로 */
-  .sim-result-left {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    row-gap: 4px;
-  }
-  .sim-result-name {
-    flex: 1;
-    min-width: 0;
-  }
-  /* 👑 뱃지 — marker 너비(22px)+gap(10px)만큼 들여쓰기 후 전체 폭 */
-  .result-crown {
-    order: 10;
-    flex-basis: 100%;
-    margin-left: 32px;
-    font-size: 10px;
-  }
-  /* 시뮬레이션 카드 */
-  .sim-card { padding: 16px 14px; }
-  .sim-option { padding: 10px 12px; font-size: 13px; gap: 10px; }
+  .sim-result-left  { flex-wrap: wrap; align-items: flex-start; row-gap: 4px; }
+  .sim-result-name  { flex: 1; min-width: 0; }
+  .result-crown     { order: 10; flex-basis: 100%; margin-left: 32px; font-size: 10px; }
+  .sim-card    { padding: 16px 14px; }
+  .sim-option  { padding: 10px 12px; font-size: 13px; gap: 10px; }
   .sim-insight { font-size: 12px; padding: 8px 10px; }
+  /* 섹션 헤더 타이포 */
+  .sec-title { letter-spacing: -0.8px; }
+  .sec-sub   { font-size: 15px; }
 }
 
 @media (max-width: 380px) {
