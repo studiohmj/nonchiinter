@@ -31,7 +31,7 @@
     html.dark .preview-section { background: var(--dm-bg) !important; }
     html.dark .sim-section { background: var(--dm-bg2) !important; }
     html.dark .community-section { background: var(--dm-bg) !important; }
-    html.dark .cta { background: linear-gradient(140deg,#d45a18 0%,#a83a0c 55%,#7a2206 100%) !important; }
+    html.dark .cta { background: linear-gradient(140deg,#f05424 0%,#c83408 55%,#962006 100%) !important; }
     html.dark .footer { background: #080705 !important; color: rgba(232,228,222,0.55) !important; }
     /* --- nav --- */
     html.dark .nav { background: rgba(13,12,11,0.95) !important; border-bottom-color: rgba(255,140,40,0.15) !important; }
@@ -134,10 +134,12 @@
     /* 전환 중: 다크↔라이트 양방향 모두 부드럽게 */
     html.theme-transitioning,
     html.theme-transitioning * {
-      transition: background 0.55s ease, background-color 0.55s ease,
-                  color 0.55s ease, border-color 0.50s ease,
-                  box-shadow 0.45s ease, filter 0.45s ease,
-                  opacity 0.40s ease !important;
+      transition: background 0.70s cubic-bezier(0.4,0,0.2,1),
+                  background-color 0.70s cubic-bezier(0.4,0,0.2,1),
+                  color 0.65s cubic-bezier(0.4,0,0.2,1),
+                  border-color 0.60s cubic-bezier(0.4,0,0.2,1),
+                  box-shadow 0.55s cubic-bezier(0.4,0,0.2,1),
+                  filter 0.55s cubic-bezier(0.4,0,0.2,1) !important;
     }
 
     /* ── Track status overlay (inside cam-box) ── */
@@ -180,7 +182,7 @@
     #shush-toast {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.85);
       background: rgba(20,18,14,0.92); color: #fff;
-      padding: 18px 32px; border-radius: 16px; font-size: 18px; font-weight: 600;
+      padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
       backdrop-filter: blur(12px); z-index: 99999;
       opacity: 0; pointer-events: none;
       transition: opacity 0.25s ease, transform 0.25s ease;
@@ -438,7 +440,6 @@
     #gg-cam-btn:disabled { opacity: 0.4; cursor: default; }
 
     /* ── 섹션 레이아웃 ── */
-    section.hero,
     section.section-alt,
     section.preview-section,
     section.sim-section,
@@ -447,7 +448,7 @@
     }
 
     /* ══ Nav actions (다크모드 + 인터랙션 버튼) ══ */
-    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .nav-actions { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
     .ctrl-pill {
       display: flex; align-items: center; gap: 5px;
       padding: 6px 12px; border-radius: 9999px;
@@ -569,18 +570,34 @@
     /* ══ Theme indicator (bottom dots) ══ */
     #theme-indicator {
       position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-      z-index: 10004; pointer-events: none;
+      z-index: 10004; pointer-events: auto;
       display: none; flex-direction: column; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.30);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px; padding: 8px 16px;
+      border: 1px solid rgba(255,255,255,0.10);
     }
-    .th-dots { display: flex; gap: 7px; align-items: center; }
+    .th-nav-row { display: flex; align-items: center; gap: 10px; }
+    .th-arrow {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.60); font-size: 13px; line-height: 1;
+      width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s, color .18s, border-color .18s;
+      padding: 0;
+    }
+    .th-arrow:hover { background: rgba(255,255,255,0.18); color: #fff; border-color: rgba(255,255,255,0.45); }
+    .th-dots { display: flex; gap: 10px; align-items: center; }
     .th-dot {
-      width: 5px; height: 5px; border-radius: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
       background: rgba(255,255,255,0.18);
+      cursor: pointer;
       transition: background .55s ease, transform .55s ease, box-shadow .55s ease;
     }
+    .th-dot:hover { background: rgba(255,255,255,0.45); transform: scale(1.3); }
     .th-dot.active {
       background: rgba(255,255,255,0.75);
-      transform: scale(1.45);
+      transform: scale(1.5);
       box-shadow: 0 0 8px rgba(255,255,255,0.32);
     }
     .th-label {
@@ -615,92 +632,103 @@
     }
 
     /* ── WEDDING (결혼식) ── */
-    body[data-theme="wedding"] { background: #fdf5ec !important; }
-    body[data-theme="wedding"] .nav { background: rgba(253,246,234,0.80) !important; border-bottom-color: rgba(200,150,50,0.20) !important; }
-    body[data-theme="wedding"] .nav-link { color: rgba(60,38,16,0.68) !important; }
-    body[data-theme="wedding"] .nav-link:hover { color: #3a2210 !important; }
-    body[data-theme="wedding"] h1, body[data-theme="wedding"] h2, body[data-theme="wedding"] h3 { color: #3a2210 !important; }
-    body[data-theme="wedding"] p, body[data-theme="wedding"] li { color: rgba(60,38,16,0.72) !important; }
-    body[data-theme="wedding"] .badge, body[data-theme="wedding"] .hero-badge { background: rgba(210,160,55,0.18) !important; color: #9c6818 !important; border-color: rgba(210,160,55,0.32) !important; }
-    body[data-theme="wedding"] .eyebrow, body[data-theme="wedding"] .section-label, body[data-theme="wedding"] .sim-label { color: #aa7a1e !important; }
-    body[data-theme="wedding"] .btn-primary { background: linear-gradient(135deg,#c89030,#a87020) !important; color: #fff9ef !important; }
-    body[data-theme="wedding"] .btn-ghost { border-color: rgba(200,148,40,0.48) !important; color: #9c6818 !important; background: rgba(200,148,40,0.06) !important; }
-    body[data-theme="wedding"] .nav-cta { background: #c08020 !important; }
-    body[data-theme="wedding"] .s-card { background: rgba(255,250,238,0.76) !important; border-color: rgba(200,150,50,0.22) !important; color: #3a2210 !important; }
-    body[data-theme="wedding"] .s-desc { color: rgba(60,38,16,0.68) !important; }
-    body[data-theme="wedding"] .s-tag { background: rgba(200,148,40,0.20) !important; color: #9c6818 !important; border-color: transparent !important; }
-    body[data-theme="wedding"] .sim-card { background: rgba(255,250,238,0.72) !important; border-color: rgba(200,150,50,0.20) !important; }
-    body[data-theme="wedding"] .sim-text { color: rgba(60,38,16,0.78) !important; }
-    body[data-theme="wedding"] .sim-tag { background: rgba(200,148,40,0.18) !important; color: #9c6818 !important; border-color: rgba(200,148,40,0.28) !important; }
-    body[data-theme="wedding"] .sim-option { background: rgba(255,250,238,0.80) !important; border-color: rgba(200,150,50,0.18) !important; color: rgba(60,38,16,0.80) !important; }
-    body[data-theme="wedding"] .sim-option.selected { background: rgba(200,148,40,0.22) !important; border-color: rgba(200,148,40,0.55) !important; color: #3a2210 !important; }
-    body[data-theme="wedding"] .opt-marker { background: rgba(255,250,238,0.90) !important; border-color: rgba(200,148,40,0.28) !important; color: #9c6818 !important; }
-    body[data-theme="wedding"] .sim-option.selected .opt-marker { background: #c08020 !important; border-color: #c08020 !important; color: #fff !important; }
-    body[data-theme="wedding"] .result-pct { color: #c08020 !important; }
-    body[data-theme="wedding"] .result-fill.win { background: #c08020 !important; }
-    body[data-theme="wedding"] .testimonial-card { background: rgba(255,250,238,0.74) !important; border-color: rgba(200,150,50,0.20) !important; }
-    body[data-theme="wedding"] .t-nick { color: #3a2210 !important; }
-    body[data-theme="wedding"] .t-text { color: rgba(60,38,16,0.80) !important; }
-    body[data-theme="wedding"] .t-tag { color: rgba(60,38,16,0.50) !important; }
-    body[data-theme="wedding"] .t-empathy { color: rgba(60,38,16,0.45) !important; border-top-color: rgba(200,150,50,0.15) !important; }
-    body[data-theme="wedding"] .proof-label { color: rgba(60,38,16,0.68) !important; }
-    body[data-theme="wedding"] .proof-label strong { color: #9c6818 !important; }
-    body[data-theme="wedding"] .proof-stat-num { color: #c08020 !important; }
-    body[data-theme="wedding"] .step-badge { background: rgba(200,148,40,0.22) !important; color: #9c6818 !important; }
-    body[data-theme="wedding"] .step-name { color: rgba(60,38,16,0.55) !important; }
-    body[data-theme="wedding"] .sim-divider-line { background: rgba(200,150,50,0.18) !important; }
-    body[data-theme="wedding"] .sim-divider-dot { background: rgba(255,250,238,0.90) !important; border-color: rgba(200,150,50,0.25) !important; }
-    body[data-theme="wedding"] .sim-insight { background: rgba(200,148,40,0.14) !important; color: rgba(60,38,16,0.80) !important; border-left-color: #c08020 !important; }
-    body[data-theme="wedding"] .community-note { background: rgba(255,250,238,0.72) !important; border-color: rgba(200,150,50,0.22) !important; color: rgba(60,38,16,0.68) !important; }
-    body[data-theme="wedding"] .result-crown { background: rgba(200,148,40,0.20) !important; color: #9c6818 !important; border-color: rgba(200,148,40,0.32) !important; }
+    body[data-theme="wedding"] { background: #fff0f5 !important; }
+    body[data-theme="wedding"] .nav { background: rgba(255,240,248,0.84) !important; border-bottom-color: rgba(220,80,140,0.18) !important; }
+    body[data-theme="wedding"] .nav-link { color: rgba(100,20,60,0.65) !important; }
+    body[data-theme="wedding"] .nav-link:hover { color: #5a0a30 !important; }
+    body[data-theme="wedding"] h1, body[data-theme="wedding"] h2, body[data-theme="wedding"] h3 { color: #5a0a30 !important; }
+    body[data-theme="wedding"] p, body[data-theme="wedding"] li { color: rgba(100,20,60,0.72) !important; }
+    /* 디바이스 목업 내부는 어두운 화면이므로 텍스트 색 보호 */
+    body[data-theme="wedding"] .ds-situation { color: rgba(255,255,255,.78) !important; }
+    body[data-theme="wedding"] .ds-choice { color: rgba(255,255,255,.40) !important; }
+    body[data-theme="wedding"] .ds-pct-label { color: rgba(255,255,255,.36) !important; }
+    body[data-theme="wedding"] .ds-label { color: rgba(255,255,255,.26) !important; }
+    body[data-theme="wedding"] .badge, body[data-theme="wedding"] .hero-badge { background: rgba(230,80,140,0.15) !important; color: #c0306e !important; border-color: rgba(220,80,140,0.30) !important; }
+    body[data-theme="wedding"] .eyebrow, body[data-theme="wedding"] .section-label, body[data-theme="wedding"] .sim-label { color: #c03878 !important; }
+    body[data-theme="wedding"] .btn-primary { background: linear-gradient(135deg,#e0408a,#b82870) !important; color: #fff0f5 !important; }
+    body[data-theme="wedding"] .btn-ghost { border-color: rgba(210,60,130,0.45) !important; color: #b82870 !important; background: rgba(220,80,140,0.06) !important; }
+    body[data-theme="wedding"] .nav-cta { background: #d03878 !important; }
+    body[data-theme="wedding"] .s-card { background: rgba(255,242,250,0.80) !important; border-color: rgba(220,80,140,0.20) !important; color: #5a0a30 !important; }
+    body[data-theme="wedding"] .s-desc { color: rgba(100,20,60,0.68) !important; }
+    body[data-theme="wedding"] .s-tag { background: rgba(220,80,140,0.18) !important; color: #c0306e !important; border-color: transparent !important; }
+    body[data-theme="wedding"] .sim-card { background: rgba(255,242,250,0.76) !important; border-color: rgba(220,80,140,0.18) !important; }
+    body[data-theme="wedding"] .sim-text { color: rgba(100,20,60,0.78) !important; }
+    body[data-theme="wedding"] .sim-tag { background: rgba(220,80,140,0.16) !important; color: #c0306e !important; border-color: rgba(220,80,140,0.26) !important; }
+    body[data-theme="wedding"] .sim-option { background: rgba(255,242,250,0.84) !important; border-color: rgba(220,80,140,0.16) !important; color: rgba(100,20,60,0.80) !important; }
+    body[data-theme="wedding"] .sim-option.selected { background: rgba(220,80,140,0.20) !important; border-color: rgba(210,60,130,0.55) !important; color: #5a0a30 !important; }
+    body[data-theme="wedding"] .opt-marker { background: rgba(255,242,250,0.92) !important; border-color: rgba(210,60,130,0.26) !important; color: #c0306e !important; }
+    body[data-theme="wedding"] .sim-option.selected .opt-marker { background: #d03878 !important; border-color: #d03878 !important; color: #fff !important; }
+    body[data-theme="wedding"] .result-pct { color: #d03878 !important; }
+    body[data-theme="wedding"] .result-fill.win { background: #d03878 !important; }
+    body[data-theme="wedding"] .testimonial-card { background: rgba(255,242,250,0.78) !important; border-color: rgba(220,80,140,0.18) !important; }
+    body[data-theme="wedding"] .t-nick { color: #5a0a30 !important; }
+    body[data-theme="wedding"] .t-text { color: rgba(100,20,60,0.80) !important; }
+    body[data-theme="wedding"] .t-tag { color: rgba(100,20,60,0.48) !important; }
+    body[data-theme="wedding"] .t-empathy { color: rgba(100,20,60,0.42) !important; border-top-color: rgba(220,80,140,0.14) !important; }
+    body[data-theme="wedding"] .proof-label { color: rgba(100,20,60,0.68) !important; }
+    body[data-theme="wedding"] .proof-label strong { color: #c0306e !important; }
+    body[data-theme="wedding"] .proof-stat-num { color: #d03878 !important; }
+    body[data-theme="wedding"] .step-badge { background: rgba(220,80,140,0.20) !important; color: #c0306e !important; }
+    body[data-theme="wedding"] .step-name { color: rgba(100,20,60,0.52) !important; }
+    body[data-theme="wedding"] .sim-divider-line { background: rgba(220,80,140,0.16) !important; }
+    body[data-theme="wedding"] .sim-divider-dot { background: rgba(255,242,250,0.92) !important; border-color: rgba(220,80,140,0.24) !important; }
+    body[data-theme="wedding"] .sim-insight { background: rgba(220,80,140,0.12) !important; color: rgba(100,20,60,0.80) !important; border-left-color: #d03878 !important; }
+    body[data-theme="wedding"] .community-note { background: rgba(255,242,250,0.76) !important; border-color: rgba(220,80,140,0.20) !important; color: rgba(100,20,60,0.68) !important; }
+    body[data-theme="wedding"] .result-crown { background: rgba(220,80,140,0.18) !important; color: #c0306e !important; border-color: rgba(220,80,140,0.30) !important; }
+    /* 테마 인디케이터 dot/arrow: 밝은 배경에서 가시성 */
+    body[data-theme="wedding"] .th-dot { background: rgba(190,40,110,0.28) !important; }
+    body[data-theme="wedding"] .th-dot:hover { background: rgba(190,40,110,0.55) !important; }
+    body[data-theme="wedding"] .th-dot.active { background: rgba(200,40,120,0.82) !important; box-shadow: 0 0 8px rgba(200,40,120,0.38) !important; }
+    body[data-theme="wedding"] .th-arrow { background: rgba(200,40,120,0.10) !important; border-color: rgba(200,40,120,0.32) !important; color: rgba(170,30,100,0.80) !important; }
+    body[data-theme="wedding"] .th-label { color: rgba(160,30,90,0.55) !important; }
 
-    /* ── FUNERAL (장례식) ── */
-    body[data-theme="funeral"] { background: #101626 !important; }
-    body[data-theme="funeral"] .nav { background: rgba(8,12,22,0.86) !important; border-bottom-color: rgba(55,75,135,0.28) !important; }
-    body[data-theme="funeral"] .nav-link { color: rgba(160,178,215,0.60) !important; }
-    body[data-theme="funeral"] .nav-link:hover { color: rgba(185,200,235,0.88) !important; }
-    body[data-theme="funeral"] h1, body[data-theme="funeral"] h2, body[data-theme="funeral"] h3 { color: #b8c6de !important; }
-    body[data-theme="funeral"] p, body[data-theme="funeral"] li { color: rgba(158,178,212,0.72) !important; }
-    body[data-theme="funeral"] .badge, body[data-theme="funeral"] .hero-badge { background: rgba(55,75,135,0.22) !important; color: #7888c0 !important; border-color: rgba(55,75,135,0.38) !important; }
-    body[data-theme="funeral"] .eyebrow, body[data-theme="funeral"] .section-label, body[data-theme="funeral"] .sim-label { color: #6070a8 !important; }
-    body[data-theme="funeral"] .btn-primary { background: linear-gradient(135deg,#364898,#283878) !important; color: #c8d4ea !important; }
-    body[data-theme="funeral"] .btn-ghost { border-color: rgba(70,90,155,0.45) !important; color: #7888b8 !important; background: rgba(55,75,135,0.08) !important; }
-    body[data-theme="funeral"] .nav-cta { background: #2e3e80 !important; color: #c8d4ea !important; }
-    body[data-theme="funeral"] .s-card { background: rgba(16,22,42,0.78) !important; border-color: rgba(55,75,135,0.28) !important; color: #b8c6de !important; }
-    body[data-theme="funeral"] .s-desc { color: rgba(155,172,205,0.72) !important; }
-    body[data-theme="funeral"] .s-tag { background: rgba(55,75,135,0.24) !important; color: #7888b8 !important; border-color: transparent !important; }
-    body[data-theme="funeral"] .sim-card { background: rgba(16,22,42,0.75) !important; border-color: rgba(55,75,135,0.25) !important; }
-    body[data-theme="funeral"] .sim-text { color: rgba(155,172,205,0.78) !important; }
-    body[data-theme="funeral"] .sim-tag { background: rgba(55,75,135,0.22) !important; color: #7888b8 !important; border-color: rgba(55,75,135,0.35) !important; }
-    body[data-theme="funeral"] .sim-option { background: rgba(18,26,50,0.82) !important; border-color: rgba(55,75,135,0.22) !important; color: rgba(155,172,205,0.82) !important; }
-    body[data-theme="funeral"] .sim-option.selected { background: rgba(55,75,135,0.25) !important; border-color: rgba(70,90,160,0.55) !important; color: #c8d4ea !important; }
-    body[data-theme="funeral"] .opt-marker { background: rgba(16,22,42,0.90) !important; border-color: rgba(55,75,135,0.32) !important; color: #7888b8 !important; }
-    body[data-theme="funeral"] .sim-option.selected .opt-marker { background: #364898 !important; border-color: #364898 !important; color: #c8d4ea !important; }
-    body[data-theme="funeral"] .result-pct { color: #6878b8 !important; }
-    body[data-theme="funeral"] .result-fill.win { background: #364898 !important; }
-    body[data-theme="funeral"] .testimonial-card { background: rgba(16,22,42,0.75) !important; border-color: rgba(55,75,135,0.25) !important; }
-    body[data-theme="funeral"] .t-nick { color: #b8c6de !important; }
-    body[data-theme="funeral"] .t-text { color: rgba(155,172,205,0.82) !important; }
-    body[data-theme="funeral"] .t-tag { color: rgba(130,150,185,0.50) !important; }
-    body[data-theme="funeral"] .t-empathy { color: rgba(100,120,160,0.50) !important; border-top-color: rgba(55,75,135,0.18) !important; }
-    body[data-theme="funeral"] .proof-label { color: rgba(155,172,205,0.68) !important; }
-    body[data-theme="funeral"] .proof-label strong { color: #7888b8 !important; }
-    body[data-theme="funeral"] .proof-stat-num { color: #6878b8 !important; }
-    body[data-theme="funeral"] .step-badge { background: rgba(55,75,135,0.24) !important; color: #7888b8 !important; }
-    body[data-theme="funeral"] .step-name { color: rgba(155,172,205,0.50) !important; }
-    body[data-theme="funeral"] .sim-divider-line { background: rgba(55,75,135,0.20) !important; }
-    body[data-theme="funeral"] .sim-divider-dot { background: rgba(16,22,42,0.92) !important; border-color: rgba(55,75,135,0.28) !important; }
-    body[data-theme="funeral"] .sim-insight { background: rgba(55,75,135,0.14) !important; color: rgba(155,172,205,0.80) !important; border-left-color: #364898 !important; }
-    body[data-theme="funeral"] .community-note { background: rgba(16,22,42,0.75) !important; border-color: rgba(55,75,135,0.28) !important; color: rgba(155,172,205,0.65) !important; }
-    body[data-theme="funeral"] .result-crown { background: rgba(55,75,135,0.22) !important; color: #7888b8 !important; border-color: rgba(55,75,135,0.35) !important; }
+    /* ── FUNERAL (장례식) — 무채색 회/재 ── */
+    body[data-theme="funeral"] { background: #0e0f0c !important; }
+    body[data-theme="funeral"] .nav { background: rgba(8,8,7,0.90) !important; border-bottom-color: rgba(120,120,112,0.20) !important; }
+    body[data-theme="funeral"] .nav-link { color: rgba(155,155,148,0.65) !important; }
+    body[data-theme="funeral"] .nav-link:hover { color: rgba(195,195,188,0.88) !important; }
+    body[data-theme="funeral"] h1, body[data-theme="funeral"] h2, body[data-theme="funeral"] h3 { color: #c8c8c0 !important; }
+    body[data-theme="funeral"] p, body[data-theme="funeral"] li { color: rgba(155,155,148,0.75) !important; }
+    body[data-theme="funeral"] .badge, body[data-theme="funeral"] .hero-badge { background: rgba(100,100,95,0.22) !important; color: #909088 !important; border-color: rgba(110,110,105,0.35) !important; }
+    body[data-theme="funeral"] .eyebrow, body[data-theme="funeral"] .section-label, body[data-theme="funeral"] .sim-label { color: #888880 !important; }
+    body[data-theme="funeral"] .btn-primary { background: linear-gradient(135deg,#3a3a35,#252520) !important; color: #c0c0b8 !important; }
+    body[data-theme="funeral"] .btn-ghost { border-color: rgba(110,110,105,0.45) !important; color: #909088 !important; background: rgba(100,100,95,0.08) !important; }
+    body[data-theme="funeral"] .nav-cta { background: #383830 !important; color: #c0c0b8 !important; }
+    body[data-theme="funeral"] .s-card { background: rgba(18,18,16,0.85) !important; border-color: rgba(100,100,95,0.22) !important; color: #c0c0b8 !important; }
+    body[data-theme="funeral"] .s-desc { color: rgba(148,148,142,0.75) !important; }
+    body[data-theme="funeral"] .s-tag { background: rgba(80,80,75,0.28) !important; color: #909088 !important; border-color: transparent !important; }
+    body[data-theme="funeral"] .sim-card { background: rgba(18,18,16,0.82) !important; border-color: rgba(100,100,95,0.20) !important; }
+    body[data-theme="funeral"] .sim-text { color: rgba(148,148,142,0.80) !important; }
+    body[data-theme="funeral"] .sim-tag { background: rgba(80,80,75,0.25) !important; color: #909088 !important; border-color: rgba(100,100,95,0.32) !important; }
+    body[data-theme="funeral"] .sim-option { background: rgba(20,20,18,0.85) !important; border-color: rgba(90,90,85,0.22) !important; color: rgba(148,148,142,0.85) !important; }
+    body[data-theme="funeral"] .sim-option.selected { background: rgba(80,80,75,0.28) !important; border-color: rgba(110,110,105,0.55) !important; color: #c8c8c0 !important; }
+    body[data-theme="funeral"] .opt-marker { background: rgba(18,18,16,0.92) !important; border-color: rgba(90,90,85,0.32) !important; color: #909088 !important; }
+    body[data-theme="funeral"] .sim-option.selected .opt-marker { background: #585852 !important; border-color: #585852 !important; color: #c8c8c0 !important; }
+    body[data-theme="funeral"] .result-pct { color: #909088 !important; }
+    body[data-theme="funeral"] .result-fill.win { background: #4a4a45 !important; }
+    body[data-theme="funeral"] .testimonial-card { background: rgba(18,18,16,0.80) !important; border-color: rgba(100,100,95,0.20) !important; }
+    body[data-theme="funeral"] .t-nick { color: #c0c0b8 !important; }
+    body[data-theme="funeral"] .t-text { color: rgba(148,148,142,0.85) !important; }
+    body[data-theme="funeral"] .t-tag { color: rgba(120,120,115,0.55) !important; }
+    body[data-theme="funeral"] .t-empathy { color: rgba(110,110,105,0.52) !important; border-top-color: rgba(100,100,95,0.18) !important; }
+    body[data-theme="funeral"] .proof-label { color: rgba(148,148,142,0.70) !important; }
+    body[data-theme="funeral"] .proof-label strong { color: #909088 !important; }
+    body[data-theme="funeral"] .proof-stat-num { color: #888880 !important; }
+    body[data-theme="funeral"] .step-badge { background: rgba(80,80,75,0.25) !important; color: #909088 !important; }
+    body[data-theme="funeral"] .step-name { color: rgba(148,148,142,0.52) !important; }
+    body[data-theme="funeral"] .sim-divider-line { background: rgba(100,100,95,0.18) !important; }
+    body[data-theme="funeral"] .sim-divider-dot { background: rgba(18,18,16,0.95) !important; border-color: rgba(100,100,95,0.24) !important; }
+    body[data-theme="funeral"] .sim-insight { background: rgba(80,80,75,0.14) !important; color: rgba(148,148,142,0.82) !important; border-left-color: #585852 !important; }
+    body[data-theme="funeral"] .community-note { background: rgba(18,18,16,0.78) !important; border-color: rgba(100,100,95,0.22) !important; color: rgba(148,148,142,0.68) !important; }
+    body[data-theme="funeral"] .result-crown { background: rgba(80,80,75,0.22) !important; color: #909088 !important; border-color: rgba(100,100,95,0.32) !important; }
 
     /* ── COMPANY DINNER (회식) ── */
     body[data-theme="dinner"] { background: #281204 !important; }
     body[data-theme="dinner"] .nav { background: rgba(18,7,2,0.88) !important; border-bottom-color: rgba(195,75,18,0.28) !important; }
-    body[data-theme="dinner"] .nav-link { color: rgba(220,158,70,0.62) !important; }
-    body[data-theme="dinner"] .nav-link:hover { color: rgba(240,185,105,0.90) !important; }
-    body[data-theme="dinner"] h1, body[data-theme="dinner"] h2, body[data-theme="dinner"] h3 { color: #e2b06a !important; }
-    body[data-theme="dinner"] p, body[data-theme="dinner"] li { color: rgba(208,150,68,0.74) !important; }
+    body[data-theme="dinner"] .nav-link { color: rgba(240,185,110,0.80) !important; }
+    body[data-theme="dinner"] .nav-link:hover { color: rgba(255,210,140,0.95) !important; }
+    body[data-theme="dinner"] h1, body[data-theme="dinner"] h2, body[data-theme="dinner"] h3 { color: #f0c880 !important; }
+    body[data-theme="dinner"] p, body[data-theme="dinner"] li { color: rgba(235,180,105,0.90) !important; }
     body[data-theme="dinner"] .badge, body[data-theme="dinner"] .hero-badge { background: rgba(195,75,18,0.22) !important; color: #c85820 !important; border-color: rgba(195,75,18,0.35) !important; }
     body[data-theme="dinner"] .eyebrow, body[data-theme="dinner"] .section-label, body[data-theme="dinner"] .sim-label { color: #b84a18 !important; }
     body[data-theme="dinner"] .btn-primary { background: linear-gradient(135deg,#b84020,#8c2a10) !important; color: #f8e4cc !important; }
@@ -775,16 +803,16 @@
     body[data-theme="workplace"] .result-crown { background: rgba(38,78,155,0.24) !important; color: #4e7ab8 !important; border-color: rgba(38,78,155,0.35) !important; }
 
     /* ══ Missing sim-result + result-track for all themes ══ */
-    /* Wedding (light) */
-    body[data-theme="wedding"] .sim-result-name { color: rgba(60,38,16,0.72) !important; }
-    body[data-theme="wedding"] .sim-result-row.winner .sim-result-name { color: #3a2210 !important; }
-    body[data-theme="wedding"] .result-track { background: rgba(200,150,50,0.22) !important; }
-    body[data-theme="wedding"] .result-fill { background: rgba(200,148,40,0.20) !important; }
-    /* Funeral (dark navy) */
-    body[data-theme="funeral"] .sim-result-name { color: rgba(155,175,210,0.75) !important; }
-    body[data-theme="funeral"] .sim-result-row.winner .sim-result-name { color: #b8c6de !important; }
-    body[data-theme="funeral"] .result-track { background: rgba(45,58,95,0.55) !important; }
-    body[data-theme="funeral"] .result-fill { background: rgba(55,75,135,0.35) !important; }
+    /* Wedding (light pink) */
+    body[data-theme="wedding"] .sim-result-name { color: rgba(100,20,60,0.72) !important; }
+    body[data-theme="wedding"] .sim-result-row.winner .sim-result-name { color: #5a0a30 !important; }
+    body[data-theme="wedding"] .result-track { background: rgba(220,80,140,0.18) !important; }
+    body[data-theme="wedding"] .result-fill { background: rgba(210,60,120,0.22) !important; }
+    /* Funeral (dark grey/ash) */
+    body[data-theme="funeral"] .sim-result-name { color: rgba(148,148,142,0.78) !important; }
+    body[data-theme="funeral"] .sim-result-row.winner .sim-result-name { color: #c0c0b8 !important; }
+    body[data-theme="funeral"] .result-track { background: rgba(60,60,55,0.55) !important; }
+    body[data-theme="funeral"] .result-fill { background: rgba(80,80,75,0.38) !important; }
     /* Dinner (dark amber/red) */
     body[data-theme="dinner"] .sim-result-name { color: rgba(200,148,65,0.75) !important; }
     body[data-theme="dinner"] .sim-result-row.winner .sim-result-name { color: #e2b06a !important; }
@@ -796,67 +824,216 @@
     body[data-theme="workplace"] .result-track { background: rgba(25,50,100,0.55) !important; }
     body[data-theme="workplace"] .result-fill { background: rgba(38,78,155,0.35) !important; }
 
-    /* ══ Phone mock: dark theme overrides (iphone-screen, app elements) ══ */
-    /* Common dark phone screen for funeral/dinner/workplace */
-    body[data-theme="funeral"] .iphone-screen,
-    body[data-theme="dinner"] .iphone-screen,
-    body[data-theme="workplace"] .iphone-screen { background: #181c24 !important; }
-    body[data-theme="funeral"] .iphone-bar,
-    body[data-theme="dinner"] .iphone-bar,
-    body[data-theme="workplace"] .iphone-bar { background: rgba(255,255,255,0.07) !important; }
-    body[data-theme="funeral"] .app-bar,
-    body[data-theme="dinner"] .app-bar,
-    body[data-theme="workplace"] .app-bar { background: rgba(20,24,34,0.98) !important; border-bottom-color: rgba(255,255,255,0.07) !important; }
-    body[data-theme="funeral"] .app-bar-title, body[data-theme="funeral"] .app-bar-right, body[data-theme="funeral"] .app-back,
-    body[data-theme="dinner"] .app-bar-title, body[data-theme="dinner"] .app-bar-right, body[data-theme="dinner"] .app-back,
-    body[data-theme="workplace"] .app-bar-title, body[data-theme="workplace"] .app-bar-right, body[data-theme="workplace"] .app-back { color: rgba(215,225,245,0.88) !important; }
-    body[data-theme="funeral"] .app-section-label,
-    body[data-theme="dinner"] .app-section-label,
-    body[data-theme="workplace"] .app-section-label { color: rgba(155,175,215,0.45) !important; }
-    body[data-theme="funeral"] .app-item,
-    body[data-theme="dinner"] .app-item,
-    body[data-theme="workplace"] .app-item { background: rgba(22,28,42,0.90) !important; border-color: rgba(60,80,140,0.18) !important; }
-    body[data-theme="funeral"] .app-item.active,
-    body[data-theme="dinner"] .app-item.active,
-    body[data-theme="workplace"] .app-item.active { background: rgba(45,62,120,0.28) !important; border-color: rgba(70,95,165,0.42) !important; }
-    body[data-theme="funeral"] .app-item-title,
-    body[data-theme="dinner"] .app-item-title,
-    body[data-theme="workplace"] .app-item-title { color: rgba(200,215,245,0.88) !important; }
-    body[data-theme="funeral"] .app-item-tag,
-    body[data-theme="dinner"] .app-item-tag,
-    body[data-theme="workplace"] .app-item-tag { color: rgba(130,160,225,0.75) !important; }
-    body[data-theme="funeral"] .app-item-arr,
-    body[data-theme="dinner"] .app-item-arr,
-    body[data-theme="workplace"] .app-item-arr { color: rgba(90,115,175,0.50) !important; }
-    body[data-theme="funeral"] .app-situation,
-    body[data-theme="dinner"] .app-situation,
-    body[data-theme="workplace"] .app-situation { background: rgba(22,28,42,0.90) !important; border-color: rgba(60,80,140,0.18) !important; }
+    /* ══ Phone mock: 테마별 폰 화면 내부 색상 ══ */
+    /* 장례식 — 회색/재 */
+    body[data-theme="funeral"] .iphone-screen { background: #141412 !important; }
+    body[data-theme="funeral"] .iphone-bar { background: rgba(255,255,255,0.06) !important; }
+    body[data-theme="funeral"] .app-bar { background: rgba(14,14,12,0.98) !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+    body[data-theme="funeral"] .app-bar-title, body[data-theme="funeral"] .app-bar-right { color: rgba(200,200,192,0.85) !important; }
+    body[data-theme="funeral"] .app-section-label { color: rgba(130,130,124,0.50) !important; }
+    body[data-theme="funeral"] .app-item { background: rgba(24,24,22,0.92) !important; border-color: rgba(80,80,75,0.18) !important; }
+    body[data-theme="funeral"] .app-item.active { background: rgba(50,50,46,0.35) !important; border-color: rgba(100,100,95,0.40) !important; }
+    body[data-theme="funeral"] .app-item-title { color: rgba(190,190,182,0.90) !important; }
+    body[data-theme="funeral"] .app-item-tag { color: rgba(130,130,124,0.78) !important; }
+    body[data-theme="funeral"] .app-item-arr { color: rgba(100,100,95,0.45) !important; }
+    body[data-theme="funeral"] .app-situation { background: rgba(22,22,20,0.90) !important; border-color: rgba(80,80,75,0.18) !important; }
     body[data-theme="funeral"] .app-sit-text, body[data-theme="funeral"] .app-sit-hint,
-    body[data-theme="funeral"] .app-sit-tag, body[data-theme="funeral"] .app-sit-participants,
+    body[data-theme="funeral"] .app-sit-tag, body[data-theme="funeral"] .app-sit-participants { color: rgba(185,185,178,0.85) !important; }
+    body[data-theme="funeral"] .app-choices .app-choice { background: rgba(22,22,20,0.90) !important; border-color: rgba(80,80,75,0.18) !important; color: rgba(170,170,164,0.82) !important; }
+    body[data-theme="funeral"] .app-choices .app-choice.selected { background: rgba(60,60,55,0.32) !important; border-color: rgba(100,100,95,0.55) !important; color: rgba(210,210,202,0.96) !important; }
+    body[data-theme="funeral"] .app-q-label { color: rgba(130,130,124,0.75) !important; }
+    body[data-theme="funeral"] .phone-chip { color: rgba(140,140,134,0.60) !important; }
+    /* 회식 — 따뜻한 앰버 */
+    body[data-theme="dinner"] .iphone-screen { background: #1c1008 !important; }
+    body[data-theme="dinner"] .iphone-bar { background: rgba(255,200,100,0.06) !important; }
+    body[data-theme="dinner"] .app-bar { background: rgba(16,8,3,0.98) !important; border-bottom-color: rgba(200,100,30,0.15) !important; }
+    body[data-theme="dinner"] .app-bar-title, body[data-theme="dinner"] .app-bar-right { color: rgba(240,195,120,0.88) !important; }
+    body[data-theme="dinner"] .app-section-label { color: rgba(180,110,50,0.55) !important; }
+    body[data-theme="dinner"] .app-item { background: rgba(28,14,5,0.92) !important; border-color: rgba(160,75,20,0.20) !important; }
+    body[data-theme="dinner"] .app-item.active { background: rgba(120,50,12,0.28) !important; border-color: rgba(180,90,25,0.45) !important; }
+    body[data-theme="dinner"] .app-item-title { color: rgba(240,190,110,0.90) !important; }
+    body[data-theme="dinner"] .app-item-tag { color: rgba(200,130,60,0.80) !important; }
+    body[data-theme="dinner"] .app-item-arr { color: rgba(160,90,30,0.50) !important; }
+    body[data-theme="dinner"] .app-situation { background: rgba(28,14,5,0.90) !important; border-color: rgba(160,75,20,0.18) !important; }
     body[data-theme="dinner"] .app-sit-text, body[data-theme="dinner"] .app-sit-hint,
-    body[data-theme="dinner"] .app-sit-tag, body[data-theme="dinner"] .app-sit-participants,
+    body[data-theme="dinner"] .app-sit-tag, body[data-theme="dinner"] .app-sit-participants { color: rgba(235,185,100,0.85) !important; }
+    body[data-theme="dinner"] .app-choices .app-choice { background: rgba(28,14,5,0.90) !important; border-color: rgba(160,75,20,0.18) !important; color: rgba(220,170,90,0.82) !important; }
+    body[data-theme="dinner"] .app-choices .app-choice.selected { background: rgba(140,60,15,0.30) !important; border-color: rgba(195,95,28,0.58) !important; color: rgba(255,215,140,0.96) !important; }
+    body[data-theme="dinner"] .app-q-label { color: rgba(180,110,50,0.78) !important; }
+    body[data-theme="dinner"] .phone-chip { color: rgba(200,145,70,0.65) !important; }
+    /* 직장 — 차가운 네이비 블루 */
+    body[data-theme="workplace"] .iphone-screen { background: #0a1020 !important; }
+    body[data-theme="workplace"] .iphone-bar { background: rgba(80,120,200,0.07) !important; }
+    body[data-theme="workplace"] .app-bar { background: rgba(6,10,20,0.98) !important; border-bottom-color: rgba(50,90,160,0.18) !important; }
+    body[data-theme="workplace"] .app-bar-title, body[data-theme="workplace"] .app-bar-right { color: rgba(165,195,240,0.88) !important; }
+    body[data-theme="workplace"] .app-section-label { color: rgba(90,130,190,0.52) !important; }
+    body[data-theme="workplace"] .app-item { background: rgba(12,20,38,0.92) !important; border-color: rgba(45,80,150,0.20) !important; }
+    body[data-theme="workplace"] .app-item.active { background: rgba(40,70,140,0.28) !important; border-color: rgba(65,100,170,0.45) !important; }
+    body[data-theme="workplace"] .app-item-title { color: rgba(180,210,250,0.90) !important; }
+    body[data-theme="workplace"] .app-item-tag { color: rgba(115,155,220,0.80) !important; }
+    body[data-theme="workplace"] .app-item-arr { color: rgba(75,115,180,0.50) !important; }
+    body[data-theme="workplace"] .app-situation { background: rgba(12,20,38,0.90) !important; border-color: rgba(45,80,150,0.18) !important; }
     body[data-theme="workplace"] .app-sit-text, body[data-theme="workplace"] .app-sit-hint,
-    body[data-theme="workplace"] .app-sit-tag, body[data-theme="workplace"] .app-sit-participants { color: rgba(200,215,245,0.82) !important; }
-    body[data-theme="funeral"] .app-choices .app-choice,
-    body[data-theme="dinner"] .app-choices .app-choice,
-    body[data-theme="workplace"] .app-choices .app-choice { background: rgba(22,28,42,0.90) !important; border-color: rgba(60,80,140,0.18) !important; color: rgba(185,205,242,0.80) !important; }
-    body[data-theme="funeral"] .app-choices .app-choice.selected,
-    body[data-theme="dinner"] .app-choices .app-choice.selected,
-    body[data-theme="workplace"] .app-choices .app-choice.selected { background: rgba(48,70,145,0.30) !important; border-color: rgba(68,98,172,0.58) !important; color: rgba(215,228,255,0.95) !important; }
-    body[data-theme="funeral"] .app-q-label,
-    body[data-theme="dinner"] .app-q-label,
-    body[data-theme="workplace"] .app-q-label { color: rgba(140,168,230,0.72) !important; }
-    body[data-theme="funeral"] .phone-chip,
-    body[data-theme="dinner"] .phone-chip,
-    body[data-theme="workplace"] .phone-chip { color: rgba(185,205,240,0.58) !important; }
-    /* Wedding phone: subtle warm tint */
-    body[data-theme="wedding"] .iphone-screen { background: #fdf8f0 !important; }
-    body[data-theme="wedding"] .app-bar { border-bottom-color: rgba(200,150,50,0.18) !important; }
-    body[data-theme="wedding"] .app-item { background: rgba(255,250,238,0.88) !important; }
-    body[data-theme="wedding"] .phone-chip { color: rgba(100,65,25,0.62) !important; }
-    /* Wedding CTA store buttons: visible on warm peach bg */
-    body[data-theme="wedding"] .store-btn { color: #3a2210 !important; background: rgba(192,128,32,0.12) !important; border-color: rgba(192,128,32,0.38) !important; }
-    body[data-theme="wedding"] .cta-eyebrow { background: rgba(200,148,40,0.14) !important; border-color: rgba(200,148,40,0.32) !important; }
+    body[data-theme="workplace"] .app-sit-tag, body[data-theme="workplace"] .app-sit-participants { color: rgba(175,205,248,0.85) !important; }
+    body[data-theme="workplace"] .app-choices .app-choice { background: rgba(12,20,38,0.90) !important; border-color: rgba(45,80,150,0.18) !important; color: rgba(160,195,245,0.82) !important; }
+    body[data-theme="workplace"] .app-choices .app-choice.selected { background: rgba(40,72,148,0.30) !important; border-color: rgba(65,100,175,0.58) !important; color: rgba(210,228,255,0.96) !important; }
+    body[data-theme="workplace"] .app-q-label { color: rgba(115,155,220,0.78) !important; }
+    body[data-theme="workplace"] .phone-chip { color: rgba(130,165,225,0.62) !important; }
+    /* 결혼식 — 밝은 핑크 */
+    body[data-theme="wedding"] .iphone-screen { background: #fff5f8 !important; }
+    body[data-theme="wedding"] .iphone-bar { background: rgba(220,80,140,0.05) !important; }
+    body[data-theme="wedding"] .app-bar { border-bottom-color: rgba(220,80,140,0.14) !important; }
+    body[data-theme="wedding"] .app-item { background: rgba(255,240,248,0.90) !important; }
+    body[data-theme="wedding"] .phone-chip { color: rgba(150,40,90,0.65) !important; }
+    /* 결혼식 CTA */
+    body[data-theme="wedding"] .store-btn { color: #5a0a30 !important; background: rgba(210,60,120,0.10) !important; border-color: rgba(210,60,120,0.35) !important; }
+    body[data-theme="wedding"] .cta-eyebrow { background: rgba(220,80,140,0.12) !important; border-color: rgba(220,80,140,0.28) !important; }
+    /* 웨딩 HUD 코너 핑크 */
+    body[data-theme="wedding"] #th-hud-tl.active,
+    body[data-theme="wedding"] #th-hud-tr.active { border-color: rgba(210,60,130,0.28) !important; }
+
+    /* ══ Theme atmospheric animations ══ */
+
+    /* 결혼식 — 타이틀 opacity 펄스 (text-shadow 제거 → 블러 없음) */
+    @keyframes wed-title-pulse { 0%,100%{opacity:1} 50%{opacity:0.88} }
+    body[data-theme="wedding"] .hero-title { animation: wed-title-pulse 5.5s ease-in-out infinite; }
+    /* 결혼식 — 카드 핑크 glow */
+    @keyframes wed-card-glow {
+      0%,100% { box-shadow: 0 2px 10px rgba(220,80,140,0.06); }
+      50%      { box-shadow: 0 2px 22px rgba(220,80,140,0.22); }
+    }
+    body[data-theme="wedding"] .s-card, body[data-theme="wedding"] .sim-card { animation: wed-card-glow 5.5s ease-in-out infinite; }
+
+    /* 장례식 — 촛불처럼 천천히 숨쉬는 카드 */
+    @keyframes fun-candle-breathe { 0%,100%{opacity:1} 45%{opacity:0.86} 60%{opacity:0.94} }
+    body[data-theme="funeral"] .s-card,
+    body[data-theme="funeral"] .sim-card,
+    body[data-theme="funeral"] .testimonial-card { animation: fun-candle-breathe 8s ease-in-out infinite; }
+    @keyframes fun-title-dim { 0%,100%{opacity:0.95} 50%{opacity:0.78} }
+    body[data-theme="funeral"] .hero-title { animation: fun-title-dim 9s ease-in-out infinite; }
+
+    /* 회식 — 카드 ember glow */
+    @keyframes din-ember-glow {
+      0%,100% { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+      35%      { box-shadow: 0 0 24px rgba(180,70,16,0.30); }
+      70%      { box-shadow: 0 0 14px rgba(220,100,20,0.20); }
+    }
+    body[data-theme="dinner"] .s-card { animation: din-ember-glow 4s ease-in-out infinite; }
+
+    /* 직장 — 버튼 파란빛 data pulse */
+    @keyframes work-data-pulse { 0%,100%{box-shadow:0 0 0 rgba(38,86,178,0)} 50%{box-shadow:0 0 18px rgba(38,86,178,0.26)} }
+    body[data-theme="workplace"] .btn-primary,
+    body[data-theme="workplace"] .nav-cta { animation: work-data-pulse 5s ease-in-out infinite; }
+
+    /* ══ Dark mode + Interaction mode: theme wins over dark mode CSS ══ */
+    /* html.dark body[data-theme] has specificity (0,2,2) > html.dark body (0,1,2) */
+    html.dark body[data-theme="wedding"]   { color: rgba(100,20,60,0.82)   !important; }
+    html.dark body[data-theme="funeral"]   { color: rgba(155,155,148,0.88) !important; }
+    html.dark body[data-theme="dinner"]    { color: rgba(235,180,105,0.92) !important; }
+    html.dark body[data-theme="workplace"] { color: rgba(92,135,195,0.85)  !important; }
+    /* Section backgrounds: stay transparent so theme gradient shows */
+    html.dark body[data-theme] .hero,
+    html.dark body[data-theme] .section-alt,
+    html.dark body[data-theme] .preview-section,
+    html.dark body[data-theme] .sim-section,
+    html.dark body[data-theme] .community-section,
+    html.dark body[data-theme] .cta,
+    html.dark body[data-theme] .footer { background: transparent !important; }
+    /* Headings — theme color over dark mode light (#f0ece6) */
+    html.dark body[data-theme="wedding"] h1,
+    html.dark body[data-theme="wedding"] h2,
+    html.dark body[data-theme="wedding"] h3 { color: #5a0a30 !important; }
+    html.dark body[data-theme="funeral"] h1,
+    html.dark body[data-theme="funeral"] h2,
+    html.dark body[data-theme="funeral"] h3 { color: #c8c8c0 !important; }
+    html.dark body[data-theme="dinner"]  h1,
+    html.dark body[data-theme="dinner"]  h2,
+    html.dark body[data-theme="dinner"]  h3 { color: #f0c880 !important; }
+    html.dark body[data-theme="workplace"] h1,
+    html.dark body[data-theme="workplace"] h2,
+    html.dark body[data-theme="workplace"] h3 { color: #88b0d4 !important; }
+    /* p/li — theme color over dark mode */
+    html.dark body[data-theme="wedding"]   p, html.dark body[data-theme="wedding"]   li { color: rgba(100,20,60,0.72)   !important; }
+    html.dark body[data-theme="funeral"]   p, html.dark body[data-theme="funeral"]   li { color: rgba(195,192,185,0.94) !important; }
+    html.dark body[data-theme="dinner"]    p, html.dark body[data-theme="dinner"]    li { color: rgba(235,180,105,0.90) !important; }
+    html.dark body[data-theme="workplace"] p, html.dark body[data-theme="workplace"] li { color: rgba(95,135,195,0.78)  !important; }
+    /* Cards — theme backgrounds over dm-card */
+    html.dark body[data-theme="wedding"]   .s-card, html.dark body[data-theme="wedding"]   .sim-card, html.dark body[data-theme="wedding"]   .testimonial-card { background: rgba(52,5,22,0.88)  !important; color: rgba(255,215,230,0.92) !important; border-color: rgba(160,40,85,0.30) !important; }
+    html.dark body[data-theme="funeral"]   .s-card, html.dark body[data-theme="funeral"]   .sim-card, html.dark body[data-theme="funeral"]   .testimonial-card { background: rgba(18,18,16,0.88) !important; color: #c0c0b8 !important; }
+    html.dark body[data-theme="dinner"]    .s-card, html.dark body[data-theme="dinner"]    .sim-card, html.dark body[data-theme="dinner"]    .testimonial-card { background: rgba(48,20,6,0.85)  !important; color: #e2b06a !important; }
+    html.dark body[data-theme="workplace"] .s-card, html.dark body[data-theme="workplace"] .sim-card, html.dark body[data-theme="workplace"] .testimonial-card { background: rgba(4,8,22,0.92)   !important; color: #c8dcf0 !important; }
+
+    /* ══ 다크+테마: 박스 내부 텍스트 전면 수정 (specificity 0,4,2~3 > 0,3,2) ══ */
+
+    /* ─ 결혼식 dark: 카드가 진한 로즈 → 내부 텍스트 연한 로즈/흰색 ─ */
+    html.dark body[data-theme="wedding"] .s-card p,
+    html.dark body[data-theme="wedding"] .sim-card p,
+    html.dark body[data-theme="wedding"] .testimonial-card p { color: rgba(255,210,230,0.90) !important; }
+    html.dark body[data-theme="wedding"] .sim-option         { background: rgba(72,8,32,0.85) !important; border-color: rgba(180,50,100,0.28) !important; color: rgba(240,185,210,0.88) !important; }
+    html.dark body[data-theme="wedding"] .sim-option.selected{ background: rgba(160,25,70,0.40) !important; border-color: rgba(200,60,120,0.60) !important; color: rgba(255,230,242,0.95) !important; }
+    html.dark body[data-theme="wedding"] .opt-marker         { background: rgba(52,5,22,0.90) !important; border-color: rgba(180,50,100,0.35) !important; color: rgba(220,150,185,0.80) !important; }
+    html.dark body[data-theme="wedding"] .iphone-screen p,
+    html.dark body[data-theme="wedding"] .iphone-screen .app-sit-hint,
+    html.dark body[data-theme="wedding"] .device-screen p,
+    html.dark body[data-theme="wedding"] .phone-chip          { color: rgba(255,255,255,0.84) !important; }
+
+    /* ─ 장례식 dark: p/li 가시성 향상 + 폰 화면 밝은 회색 ─ */
+    html.dark body[data-theme="funeral"]   p,
+    html.dark body[data-theme="funeral"]   li { color: rgba(195,192,185,0.94) !important; }
+    html.dark body[data-theme="funeral"] .s-card p,
+    html.dark body[data-theme="funeral"] .sim-card p,
+    html.dark body[data-theme="funeral"] .testimonial-card p  { color: rgba(200,198,192,0.92) !important; }
+    html.dark body[data-theme="funeral"] .sim-option          { background: rgba(22,22,20,0.88) !important; border-color: rgba(100,100,95,0.28) !important; color: rgba(190,188,182,0.88) !important; }
+    html.dark body[data-theme="funeral"] .sim-option.selected { background: rgba(75,75,70,0.32) !important; border-color: rgba(120,120,115,0.58) !important; color: rgba(215,212,205,0.96) !important; }
+    html.dark body[data-theme="funeral"] .opt-marker          { background: rgba(18,18,16,0.92) !important; border-color: rgba(90,90,85,0.35) !important; color: rgba(180,178,172,0.80) !important; }
+    html.dark body[data-theme="funeral"] .iphone-screen p,
+    html.dark body[data-theme="funeral"] .iphone-screen .app-sit-hint,
+    html.dark body[data-theme="funeral"] .device-screen p,
+    html.dark body[data-theme="funeral"] .phone-chip           { color: rgba(200,198,192,0.92) !important; }
+
+    /* ─ 회식 dark: 박스 내부 앰버/크림, 폰 화면 따뜻한 크림 ─ */
+    html.dark body[data-theme="dinner"] .s-card p,
+    html.dark body[data-theme="dinner"] .sim-card p,
+    html.dark body[data-theme="dinner"] .testimonial-card p   { color: rgba(248,220,165,0.90) !important; }
+    html.dark body[data-theme="dinner"] .sim-option           { background: rgba(35,12,3,0.88) !important; border-color: rgba(175,65,16,0.28) !important; color: rgba(240,190,115,0.88) !important; }
+    html.dark body[data-theme="dinner"] .sim-option.selected  { background: rgba(160,55,12,0.35) !important; border-color: rgba(195,80,22,0.62) !important; color: rgba(255,230,160,0.96) !important; }
+    html.dark body[data-theme="dinner"] .opt-marker           { background: rgba(35,12,3,0.92) !important; border-color: rgba(175,65,16,0.36) !important; color: rgba(210,145,65,0.80) !important; }
+    html.dark body[data-theme="dinner"] .iphone-screen p,
+    html.dark body[data-theme="dinner"] .iphone-screen .app-sit-hint,
+    html.dark body[data-theme="dinner"] .device-screen p,
+    html.dark body[data-theme="dinner"] .phone-chip            { color: rgba(253,248,238,0.90) !important; }
+
+    /* ─ 직장 dark: 박스/폰 텍스트 흰색 + 아이폰 배경 네이비 ─ */
+    html.dark body[data-theme="workplace"] .iphone-screen { background: #0d1527 !important; }
+    html.dark body[data-theme="workplace"] .iphone-bar    { background: #080f1e !important; }
+    html.dark body[data-theme="workplace"] .s-card p,
+    html.dark body[data-theme="workplace"] .sim-card p,
+    html.dark body[data-theme="workplace"] .testimonial-card p { color: rgba(200,222,255,0.90) !important; }
+    html.dark body[data-theme="workplace"] .sim-option          { background: rgba(5,10,28,0.90) !important; border-color: rgba(40,80,160,0.32) !important; color: rgba(160,195,240,0.88) !important; }
+    html.dark body[data-theme="workplace"] .sim-option.selected { background: rgba(28,60,130,0.38) !important; border-color: rgba(55,105,195,0.65) !important; color: rgba(215,235,255,0.96) !important; }
+    html.dark body[data-theme="workplace"] .opt-marker          { background: rgba(5,10,28,0.92) !important; border-color: rgba(40,80,160,0.38) !important; color: rgba(130,170,220,0.80) !important; }
+    html.dark body[data-theme="workplace"] .iphone-screen p,
+    html.dark body[data-theme="workplace"] .iphone-screen .app-sit-hint,
+    html.dark body[data-theme="workplace"] .device-screen p,
+    html.dark body[data-theme="workplace"] .phone-chip          { color: rgba(255,255,255,0.88) !important; }
+
+    /* 직장 라이트모드: 반투명 라이트 네이비 카드 (라이트가 더 밝아 보이도록) */
+    body[data-theme="workplace"] .s-card          { background: rgba(15,40,90,0.30) !important; border-color: rgba(55,100,185,0.38) !important; color: rgba(200,225,255,0.92) !important; }
+    body[data-theme="workplace"] .sim-card         { background: rgba(15,40,90,0.26) !important; border-color: rgba(38,78,155,0.34) !important; }
+    body[data-theme="workplace"] .testimonial-card { background: rgba(15,40,90,0.26) !important; border-color: rgba(38,78,155,0.30) !important; }
+
+    /* ══ Theme indicator: 가시성 강화 ══ */
+    .th-dot { background: rgba(255,255,255,0.32) !important; }
+    .th-dot:hover { background: rgba(255,255,255,0.58) !important; }
+    .th-dot.active { background: rgba(255,255,255,0.92) !important; box-shadow: 0 0 10px rgba(255,255,255,0.42) !important; }
+    .th-arrow { border-color: rgba(255,255,255,0.32) !important; color: rgba(255,255,255,0.80) !important; }
+    .th-label { color: rgba(255,255,255,0.58) !important; font-size: 9px !important; letter-spacing: 0.18em !important; }
+    /* 결혼식: 밝은 배경에서 dot/arrow 핑크로 */
+    body[data-theme="wedding"] .th-dot         { background: rgba(190,40,110,0.36) !important; }
+    body[data-theme="wedding"] .th-dot:hover   { background: rgba(190,40,110,0.62) !important; }
+    body[data-theme="wedding"] .th-dot.active  { background: rgba(200,40,120,0.88) !important; box-shadow: 0 0 8px rgba(200,40,120,0.42) !important; }
+    body[data-theme="wedding"] .th-arrow       { background: rgba(200,40,120,0.12) !important; border-color: rgba(200,40,120,0.40) !important; color: rgba(170,30,100,0.88) !important; }
+    body[data-theme="wedding"] .th-label       { color: rgba(160,30,90,0.62) !important; }
 
     /* ══ Swipe hold progress ring ══ */
     #swipe-hold-ring {
@@ -930,11 +1107,16 @@
 
 <!-- ── 테마 인디케이터 ── -->
 <div id="theme-indicator">
-  <div class="th-dots">
-    <div class="th-dot active" data-idx="0"></div>
-    <div class="th-dot" data-idx="1"></div>
-    <div class="th-dot" data-idx="2"></div>
-    <div class="th-dot" data-idx="3"></div>
+  <div class="th-nav-row">
+    <button class="th-arrow" id="th-prev">&#8592;</button>
+    <div class="th-dots">
+      <div class="th-dot active" data-idx="0"></div>
+      <div class="th-dot" data-idx="1"></div>
+      <div class="th-dot" data-idx="2"></div>
+      <div class="th-dot" data-idx="3"></div>
+      <div class="th-dot" data-idx="4"></div>
+    </div>
+    <button class="th-arrow" id="th-next">&#8594;</button>
   </div>
   <span class="th-label" id="th-lbl">결혼식</span>
 </div>
@@ -1458,7 +1640,7 @@
 </div>
 
 <!-- ── 쉿 제스처 토스트 ── -->
-<div id="shush-toast">🤫 다크모드 전환 중…</div>
+<div id="shush-toast"></div>
 
 <!-- ── 히든 웹캠 ── -->
 <video id="hand-webcam" autoplay playsinline muted></video>
@@ -1495,7 +1677,7 @@
   const CFG = {
     fadeIn:       0.06,
     fadeOut:      0.038,
-    idleN:        22,
+    idleN:        45,
     scrollZone:   0.22,
     scrollSpd:    14,
   };
@@ -1511,6 +1693,7 @@
   let _darkMode = false;
   let _shushTimer = null;
   let _shushToastEl = null;
+  let _shushToastTimer = null;
   let _lastHandUpdate = 0;
   /* 랜드마크 EWA 스무딩 (드로잉용) */
   let _smoothLM = null;
@@ -1552,6 +1735,49 @@
     effects.push({type:'ring', x, y, r:5, spd:2.1, life:0.72, decay:0.016, delay:0.13});
   }
 
+  /* 테마 진입 burst — 1초 팡 퍼짐 */
+  function emitThemeBurst() {
+    if (_tIdx < 0 || !_THEMES[_tIdx]) return;
+    var t = _THEMES[_tIdx];
+    if (t.id === 'default') return;
+    var p = t.part;
+    var cx = canvas.width / 2, cy = canvas.height / 2;
+    /* 장례식: 조용한 연기/향 퍼짐 */
+    if (t.id === 'funeral') {
+      for (var _bi = 0; _bi < 3; _bi++) {
+        effects.push({type:'ring', x:cx, y:cy, r:4, spd:1.0+_bi*0.6, life:0.38, decay:0.005, h:50, delay:_bi*0.28});
+      }
+      for (var _bj = 0; _bj < 22; _bj++) {
+        var a = Math.random()*Math.PI*2, s = Math.random()*1.6+0.3;
+        effects.push({
+          type:'dot', x:cx+((Math.random()-0.5)*24), y:cy+((Math.random()-0.5)*24),
+          vx:Math.cos(a)*s*0.45, vy:Math.sin(a)*s*0.45-0.7,
+          life:0.50, decay:0.0028+Math.random()*0.003,
+          size:Math.random()*3.5+1.5,
+          h:45+(Math.random()-0.5)*12,
+          shape:'circle'
+        });
+      }
+      return;
+    }
+    /* 나머지 테마: 팡 폭발 */
+    for (var _bi = 0; _bi < 5; _bi++) {
+      effects.push({type:'ring', x:cx, y:cy, r:6, spd:5+_bi*2.2, life:1, decay:0.013, h:p.h, delay:_bi*0.06});
+    }
+    var burstN = 32;
+    for (var _bj = 0; _bj < burstN; _bj++) {
+      var a = Math.random()*Math.PI*2, s = Math.random()*7+2.5;
+      effects.push({
+        type:'dot', x:cx, y:cy,
+        vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+        life:1, decay:0.007+Math.random()*0.005,
+        size:Math.random()*5+2,
+        h:p.h+(Math.random()-0.5)*35,
+        shape: p.shape || 'circle'
+      });
+    }
+  }
+
   function buildIdlePts() {
     idlePts = Array.from({length: CFG.idleN}, () => ({
       x:  Math.random()*canvas.width,
@@ -1574,17 +1800,117 @@
   }
 
 
+  function drawHeart(ctx, cx, cy, r) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + r * 0.92);
+    /* 1.1r 폭 컨트롤 포인트 → 납작함 제거, -1.05r까지 올려서 높이 확보 */
+    ctx.bezierCurveTo(cx - r*1.1, cy + r*0.22, cx - r*1.1, cy - r*1.05, cx, cy - r*0.52);
+    ctx.bezierCurveTo(cx + r*1.1, cy - r*1.05, cx + r*1.1, cy + r*0.22, cx, cy + r*0.92);
+    ctx.fill();
+  }
+
+  function drawStar(ctx, cx, cy, r) {
+    var outer = r, inner = r * 0.38, spikes = 4;
+    var rot = -Math.PI / 2, step = Math.PI / spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+    for (var _s = 0; _s < spikes; _s++) {
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * inner, cy + Math.sin(rot) * inner);
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+    }
+    ctx.closePath(); ctx.fill();
+  }
+
+  /* 맥주 버블: 원 + 작은 하이라이트 */
+  function drawBeer(ctx, cx, cy, r) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+    ctx.save();
+    ctx.globalAlpha *= 0.45;
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath(); ctx.arc(cx - r*0.30, cy - r*0.30, r*0.30, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  /* 종이 서류: 직사각형 + 접힌 모서리 */
+  function drawPaper(ctx, cx, cy, r) {
+    var w = r*1.3, h = r*1.7, fold = r*0.38;
+    ctx.beginPath();
+    ctx.moveTo(cx - w/2, cy - h/2);
+    ctx.lineTo(cx + w/2 - fold, cy - h/2);
+    ctx.lineTo(cx + w/2, cy - h/2 + fold);
+    ctx.lineTo(cx + w/2, cy + h/2);
+    ctx.lineTo(cx - w/2, cy + h/2);
+    ctx.closePath(); ctx.fill();
+    ctx.save();
+    ctx.globalAlpha *= 0.35;
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath();
+    ctx.moveTo(cx + w/2 - fold, cy - h/2);
+    ctx.lineTo(cx + w/2, cy - h/2 + fold);
+    ctx.lineTo(cx + w/2 - fold, cy - h/2 + fold);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  /* 국화꽃: 8개 꽃잎(베지어 타원) + 중심 */
+  function drawFlower(ctx, cx, cy, r) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    var petals = 8, pLen = r * 1.1, pW = r * 0.36;
+    var step = Math.PI * 2 / petals;
+    for (var _f = 0; _f < petals; _f++) {
+      var angle = step * _f;
+      var cos = Math.cos(angle), sin = Math.sin(angle);
+      /* 타원 중심: 꽃 중심에서 pLen/2 방향 */
+      var ex = cos * pLen * 0.5, ey = sin * pLen * 0.5;
+      ctx.save();
+      ctx.translate(ex, ey);
+      ctx.rotate(angle + Math.PI / 2);
+      ctx.beginPath();
+      ctx.moveTo(0, -pLen * 0.5);
+      ctx.bezierCurveTo( pW * 0.5, -pLen * 0.28, pW * 0.5, pLen * 0.28, 0, pLen * 0.5);
+      ctx.bezierCurveTo(-pW * 0.5,  pLen * 0.28,-pW * 0.5,-pLen * 0.28, 0,-pLen * 0.5);
+      ctx.fill();
+      ctx.restore();
+    }
+    /* 중심 원 */
+    ctx.save();
+    ctx.globalAlpha *= 1.4;
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.30, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.restore();
+  }
+
   function drawIdle() {
     const fo = 1 - vis;
     if (fo < 0.02) return;
     ctx.save();
     idlePts.forEach(p => {
+      /* 흔들림 (결혼식 하트, 회식 불씨) */
+      if (p.sway) {
+        p.phase += 0.022;
+        p.x += Math.sin(p.phase) * p.sway;
+      }
       p.x += p.vx; p.y += p.vy;
-      if (p.y < -4) { p.y = canvas.height + 4; p.x = Math.random()*canvas.width; }
+      /* 방향별 화면 재진입 */
+      if (p.dir === 1) {
+        /* 아래로 떨어짐 (장례식 재) */
+        if (p.y > canvas.height + 6) { p.y = -6; p.x = Math.random()*canvas.width; }
+      } else {
+        /* 위로 올라감 (기본) */
+        if (p.y < -6) { p.y = canvas.height + 6; p.x = Math.random()*canvas.width; }
+      }
       if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
       ctx.globalAlpha = p.a * fo;
       ctx.fillStyle   = `hsl(${p.h},${p.s||68}%,${p.l||62}%)`;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI*2); ctx.fill();
+      if      (p.shape === 'heart')  { drawHeart(ctx,  p.x, p.y, p.sz); }
+      else if (p.shape === 'star')   { drawStar(ctx,   p.x, p.y, p.sz); }
+      else if (p.shape === 'beer')   { drawBeer(ctx,   p.x, p.y, p.sz); }
+      else if (p.shape === 'paper')  { drawPaper(ctx,  p.x, p.y, p.sz); }
+      else if (p.shape === 'flower') { drawFlower(ctx, p.x, p.y, p.sz); }
+      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI*2); ctx.fill(); }
     });
     ctx.restore();
   }
@@ -1698,7 +2024,9 @@
       if (e.type === 'ring') {
         e.r += e.spd; e.spd *= 0.968; e.life -= e.decay;
         const a = Math.max(0, e.life);
-        ctx.globalAlpha = a * 0.55; ctx.strokeStyle = rpl(1); ctx.lineWidth = 1.5;
+        ctx.globalAlpha = a * 0.55;
+        ctx.strokeStyle = e.h != null ? `hsl(${e.h},72%,66%)` : rpl(1);
+        ctx.lineWidth = 1.8;
         ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.stroke();
       } else {
         if (e.pull) { e.vx += (e.tx-e.x)*0.062; e.vy += (e.ty-e.y)*0.062; e.vx *= 0.82; e.vy *= 0.82; }
@@ -1706,7 +2034,11 @@
         e.x += e.vx; e.y += e.vy; e.life -= e.decay;
         const a = Math.max(0, e.life);
         ctx.globalAlpha = a * 0.82; ctx.fillStyle = dotC(e.h);
-        ctx.beginPath(); ctx.arc(e.x, e.y, e.size*(0.3+0.7*a), 0, Math.PI*2); ctx.fill();
+        const sz = e.size * (0.3 + 0.7 * a);
+        if (e.shape === 'heart')       drawHeart(ctx, e.x, e.y, sz);
+        else if (e.shape === 'flower') drawFlower(ctx, e.x, e.y, sz);
+        else if (e.shape === 'paper')  drawPaper(ctx, e.x, e.y, sz);
+        else { ctx.beginPath(); ctx.arc(e.x, e.y, sz, 0, Math.PI*2); ctx.fill(); }
       }
     });
     ctx.restore();
@@ -1854,7 +2186,7 @@
 
   function detectLoop() {
     var _busy = false;
-    var DET_MS = 66;
+    var DET_MS = 50;
     (async function loop() {
       if (!cameraActive) return;
       if (!_busy && video.readyState >= 2) {
@@ -1870,7 +2202,7 @@
 
   function resetCamBtn() {
     var b = document.getElementById('gg-cam-btn');
-    if (b) { b.disabled = false; b.textContent = '📷 다시 시도'; b.style.display = ''; }
+    if (b) { b.disabled = false; b.textContent = _tInteract ? '✕ 인터랙션 종료' : '✦ 인터랙션 시작'; b.style.display = ''; }
   }
 
   function stopCamera() {
@@ -1897,11 +2229,7 @@
 
   async function startCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus('error', 'HTTPS 필요 (' + location.protocol + ')');
-      showErrorBanner('카메라 접근 불가 (' + location.protocol + '//' + ')',
-        '브라우저 보안 정책으로 <code>' + location.protocol + '//</code> 에서는 카메라를 사용할 수 없습니다.<br>' +
-        '로컬 서버 실행 후 <code>http://localhost:PORT</code>로 접속하거나,<br>' +
-        '모바일은 <strong>HTTPS 호스팅</strong>(GitHub Pages, Netlify 등)이 필요합니다.');
+      setStatus('warn', '카메라 없이 진행 중');
       cameraStarted = false; resetCamBtn(); return;
     }
     var stream;
@@ -1914,28 +2242,17 @@
         audio: false
       });
     } catch (err) {
-      var msg, bannerMsg;
+      var msg;
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        msg = '권한 거부됨 — 브라우저 설정에서 허용';
-        bannerMsg = '카메라 권한이 거부되었습니다.<br>' +
-          '브라우저 주소창 왼쪽 🔒/📷 아이콘 → <strong>카메라 허용</strong>으로 변경 후 새로고침하세요.<br>' +
-          '모바일(iOS Safari): 설정 → Safari → 카메라 → 허용';
+        msg = '카메라 권한 거부됨';
       } else if (err.name === 'NotFoundError') {
-        msg = '카메라를 찾을 수 없음';
-        bannerMsg = '이 기기에서 카메라를 감지하지 못했습니다.<br>카메라가 연결되어 있는지 확인하세요.';
+        msg = '카메라 없음 — 스와이프로 이용';
       } else if (err.name === 'NotReadableError') {
-        msg = '카메라가 다른 앱에서 사용 중';
-        bannerMsg = '카메라가 다른 앱(화상회의 등)에서 사용 중입니다.<br>해당 앱을 종료한 후 다시 시도하세요.';
-      } else if (err.name === 'OverconstrainedError') {
-        msg = '카메라 설정 오류';
-        bannerMsg = '요청한 카메라 설정을 지원하지 않습니다.<br>다른 브라우저를 사용해 보세요.';
+        msg = '카메라 사용 중 — 스와이프로 이용';
       } else {
-        msg = '카메라 오류: ' + err.name;
-        bannerMsg = '카메라 연결 중 오류가 발생했습니다: <code>' + err.name + '</code><br>' +
-          '페이지를 새로고침하거나 다른 브라우저를 시도해 보세요.';
+        msg = '카메라 오류 — 스와이프로 이용';
       }
-      setStatus('error', msg);
-      showErrorBanner('카메라를 열 수 없습니다', bannerMsg);
+      setStatus('warn', msg);
       cameraStarted = false; resetCamBtn(); return;
     }
     video.srcObject = stream;
@@ -1978,23 +2295,30 @@
     if (isExt(16,13)) return false; /* 약지 펴있으면 탈락 */
     if (isExt(20,17)) return false; /* 소지 펴있으면 탈락 */
     var tx = lm[8].x, ty = lm[8].y;
-    return tx > 0.20 && tx < 0.80 && ty > 0.05 && ty < 0.65;
+    return tx > 0.20 && tx < 0.80 && ty > 0.05 && ty < 0.75;
   }
 
   function triggerDarkMode() {
     document.documentElement.classList.add('theme-transitioning');
-    _darkMode = !_darkMode;
-    document.documentElement.classList.toggle('dark', _darkMode);
-    setTimeout(function() { document.documentElement.classList.remove('theme-transitioning'); }, 650);
+    var _nextDark = !_darkMode;
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        _darkMode = _nextDark;
+        document.documentElement.classList.toggle('dark', _darkMode);
+        setTimeout(function() { document.documentElement.classList.remove('theme-transitioning'); }, 900);
+      });
+    });
+    var _nd = _nextDark;
     var dmBtn = document.getElementById('darkmode-btn');
     var dmIcon = document.getElementById('dm-icon');
-    if (dmBtn) dmBtn.classList.toggle('dm-on', _darkMode);
-    if (dmIcon) dmIcon.textContent = _darkMode ? '◑' : '◐';
+    if (dmBtn) dmBtn.classList.toggle('dm-on', _nd);
+    if (dmIcon) dmIcon.textContent = _nd ? '◑' : '◐';
     if (!_shushToastEl) _shushToastEl = document.getElementById('shush-toast');
     if (_shushToastEl) {
-      _shushToastEl.textContent = _darkMode ? '🌙 다크모드 ON' : '☀️ 라이트모드 ON';
+      _shushToastEl.textContent = _nd ? '🌙 다크모드 ON' : '☀️ 라이트모드 ON';
+      clearTimeout(_shushToastTimer);
       _shushToastEl.classList.add('vis');
-      setTimeout(function() { _shushToastEl.classList.remove('vis'); }, 1800);
+      _shushToastTimer = setTimeout(function() { _shushToastEl.classList.remove('vis'); }, 1800);
     }
   }
 
@@ -2098,8 +2422,8 @@
         locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/' + f; }
       });
       handsInst.setOptions({
-        maxNumHands: 1, modelComplexity: 0,
-        minDetectionConfidence: 0.55, minTrackingConfidence: 0.45,
+        maxNumHands: 1, modelComplexity: 1,
+        minDetectionConfidence: 0.62, minTrackingConfidence: 0.50,
       });
       handsInst.onResults(onHandResults);
       if (typeof handsInst.initialize === 'function') await handsInst.initialize();
@@ -2142,22 +2466,33 @@
      테마 시스템 + 인터랙션 모드
   ══════════════════════════════════════════════════════════ */
   var _THEMES = [
+    { id:'default',   name:'기본',   icon:'✦',
+      grad:['#fdfaf8','#f5f0ea','#fdfaf8'],
+      tint:'rgba(0,0,0,0)', vign:0,
+      part:{h:30,s:50,l:70,a:0,spd:0,n:0} },
     { id:'wedding',   name:'결혼식', icon:'💍',
-      grad:['#fdf5ec','#f0d4a8','#e8c290'],
-      tint:'rgba(255,210,150,0.10)', vign:0.22,
-      part:{h:34,s:52,l:74,a:0.26,spd:0.36,n:16} },
+      grad:['#fff0f5','#ffd0e8','#ffb0d0'],
+      tint:'rgba(230,80,150,0.06)', vign:0,
+      part: {h:340,s:82,l:55,a:0.68,spd:0.28,n:18,shape:'heart',dir:-1,sway:0.45,szMin:3,szMax:8},
+      part2:{h:50, s:88,l:76,a:0.72,spd:0.42,n:9, shape:'star', dir:-1,sway:0.28,szMin:3.5,szMax:8} },
     { id:'funeral',   name:'장례식', icon:'🕯️',
-      grad:['#101626','#161c2e','#1a2038'],
-      tint:'rgba(18,26,58,0.20)', vign:0.58,
-      part:{h:220,s:18,l:48,a:0.13,spd:0.11,n:4} },
+      grad:['#0e0f0c','#121410','#0f1210'],
+      tint:'rgba(70,75,60,0.18)', vign:0.65,
+      /* 흰 국화꽃 + 재 먼지 */
+      part: {h:50,s:8,l:88,a:0.55,spd:0.08,n:12,dir:1,sway:0.18,shape:'flower',szMin:2.5,szMax:6},
+      part2:{h:45,s:5,l:58,a:0.18,spd:0.10,n:8, dir:1,sway:0.10,szMin:1,szMax:3} },
     { id:'dinner',    name:'회식',   icon:'🍻',
       grad:['#281204','#361605','#2c0e06'],
-      tint:'rgba(200,75,18,0.15)', vign:0.46,
-      part:{h:26,s:80,l:60,a:0.36,spd:0.78,n:22} },
+      tint:'rgba(200,75,18,0.18)', vign:0.50,
+      /* 맥주 버블 + 불씨 */
+      part: {h:42,s:85,l:68,a:0.60,spd:0.75,n:20,dir:-1,sway:0.55,shape:'beer',szMin:3,szMax:7},
+      part2:{h:22,s:90,l:65,a:0.50,spd:1.20,n:12,dir:-1,sway:0.70,szMin:1,szMax:3} },
     { id:'workplace', name:'직장',   icon:'🤝',
       grad:['#080f1e','#0d1526','#0b111e'],
       tint:'rgba(38,86,178,0.12)', vign:0.50,
-      part:{h:212,s:44,l:62,a:0.20,spd:0.27,n:8} }
+      /* 종이 서류 + 파란 오브 */
+      part: {h:210,s:45,l:82,a:0.42,spd:0.22,n:14,dir:-1,sway:0.22,shape:'paper',szMin:4,szMax:9},
+      part2:{h:212,s:50,l:65,a:0.22,spd:0.30,n:8, dir:-1,sway:0.18,szMin:1,szMax:2.5} }
   ];
 
   function _h2rgb(h) {
@@ -2175,30 +2510,55 @@
   var _swHoldDir=0, _swHoldStartMs=0, _swHoldProgress=0, _swLastMs=0;
   var _SW_HOLD_THRESH=0.10, _SW_CANCEL_THRESH=0.055, _SW_VRATIO=1.55, _SW_COOL=1200, _SW_ALPHA=0.22, _SW_HOLD_MS=1500;
 
-  function setTheme(idx) {
+  function setTheme(idx, silent) {
     idx = ((idx % _THEMES.length) + _THEMES.length) % _THEMES.length;
     if (idx === _tIdx) return;
     _tIdx = idx;
     var t = _THEMES[_tIdx];
-    /* body 테마 속성 → [data-theme] CSS 활성화 */
-    document.body.dataset.theme = t.id;
+    /* body 테마 속성 — 기본 모드는 속성 제거 */
+    if (t.id === 'default') {
+      document.body.removeAttribute('data-theme');
+      /* 기본 배경: 다크/라이트 모드 자연색 */
+      var _defGrad = _darkMode
+        ? [[13,12,11],[22,20,18],[13,12,11]]
+        : [[253,250,248],[247,241,235],[253,250,248]];
+      _tBg = _defGrad.map(function(c){ return [c[0],c[1],c[2]]; });
+      _tVign = 0;
+    } else {
+      document.body.dataset.theme = t.id;
+    }
     /* Update indicator dots + label */
     document.querySelectorAll('.th-dot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
     var lbl = document.getElementById('th-lbl'); if (lbl) lbl.textContent = t.name;
-    /* Rebuild idle particles */
-    var p = t.part;
-    idlePts.forEach(function(pt, i) {
-      if (i < p.n) {
+    /* Rebuild idle particles (supports part + optional part2 layer) */
+    var _parts = t.part2 ? [t.part, t.part2] : [t.part];
+    idlePts.forEach(function(pt) { pt.a = 0; });
+    var _pOffset = 0;
+    _parts.forEach(function(p) {
+      var _dir = p.dir || -1;
+      for (var i = _pOffset; i < _pOffset + p.n && i < idlePts.length; i++) {
+        var pt = idlePts[i];
         pt.h = p.h+(Math.random()-0.5)*30; pt.s=p.s; pt.l=p.l;
         pt.a = p.a*(0.7+Math.random()*0.6);
         pt.vx = (Math.random()-0.5)*0.28;
-        pt.vy = -(p.spd*(Math.random()*0.5+0.5));
-        pt.sz = Math.random()*1.8+0.4;
-      } else { pt.a = 0; }
+        pt.vy = _dir * (p.spd*(Math.random()*0.5+0.5));
+        pt.sz = p.szMin !== undefined
+          ? p.szMin + Math.random()*(p.szMax - p.szMin)
+          : Math.random()*1.8+0.4;
+        pt.shape = p.shape || 'circle';
+        pt.dir  = _dir;
+        pt.sway = p.sway || 0;
+        pt.phase = Math.random()*Math.PI*2;
+      }
+      _pOffset += p.n;
     });
+    /* 팡 burst 효과 */
+    if (!silent) emitThemeBurst();
     /* Swipe feedback flash */
-    var fb=document.getElementById('swipe-feedback'), nm=document.getElementById('sw-name');
-    if(fb&&nm){ nm.textContent=t.icon+' '+t.name; fb.classList.add('vis'); clearTimeout(fb._ht); fb._ht=setTimeout(function(){fb.classList.remove('vis');},1500); }
+    if (!silent) {
+      var fb=document.getElementById('swipe-feedback'), nm=document.getElementById('sw-name');
+      if(fb&&nm){ nm.textContent=t.icon+' '+t.name; fb.classList.add('vis'); clearTimeout(fb._ht); fb._ht=setTimeout(function(){fb.classList.remove('vis');},1500); }
+    }
   }
 
   function toggleInteractMode() {
@@ -2221,20 +2581,9 @@
       if (guide) guide.classList.add('expanded');
       if (ggBtn) ggBtn.textContent = '✕ 인터랙션 종료';
       if (!cameraStarted) window.__startCamera && window.__startCamera();
-      /* 기본 모드에서 시작: 다크모드 상태 유지, 첫 스와이프 전까지 테마 없음 */
-      _tIdx = -1;
-      /* _tBg를 현재 페이지 배경색으로 초기화 (첫 테마 전환 부드럽게) */
-      if (_darkMode) {
-        _tBg = [[13,12,11],[16,14,12],[13,12,11]];
-      } else {
-        _tBg = [[255,249,244],[252,246,238],[248,242,232]];
-      }
-      _tVign = 0;
-      document.body.removeAttribute('data-theme');
-      document.body.style.background = '';
-      /* 인디케이터 초기화 (기본 상태엔 활성 테마 없음) */
-      document.querySelectorAll('.th-dot').forEach(function(d){ d.classList.remove('active'); });
-      var _lbl0 = document.getElementById('th-lbl'); if (_lbl0) _lbl0.textContent = '← 스와이프 →';
+      /* 기본 모드(index 0)로 시작 */
+      _tIdx = -1;  /* setTheme(0)이 중복 체크 통과하도록 -1 선설정 */
+      setTheme(0, true);  /* 기본 모드: silent (burst/피드백 없음) */
       _swBaseX=null; _swBaseY=null;
       _swHoldDir=0; _swHoldStartMs=0; _swHoldProgress=0;
     } else {
@@ -2289,6 +2638,30 @@
       nb.addEventListener('touchend',   function(e){ if(!_cbt)return; _cbt=false; e.preventDefault(); toggleInteractMode(); }, {passive:false});
       nb.addEventListener('click',      function(){ if(_cbt)return; toggleInteractMode(); });
     }
+
+    /* 테마 dot 클릭 */
+    document.querySelectorAll('.th-dot').forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        if (!_tInteract) return;
+        var idx = parseInt(dot.dataset.idx, 10);
+        if (idx === _tIdx) return;
+        setTheme(idx);
+      });
+    });
+
+    /* 좌우 화살표 버튼 */
+    var thPrev = document.getElementById('th-prev');
+    var thNext = document.getElementById('th-next');
+    if (thPrev) thPrev.addEventListener('click', function() {
+      if (!_tInteract) return;
+      var cur = _tIdx < 0 ? 0 : _tIdx;
+      setTheme(((cur - 1) + _THEMES.length) % _THEMES.length);
+    });
+    if (thNext) thNext.addEventListener('click', function() {
+      if (!_tInteract) return;
+      var cur = _tIdx < 0 ? -1 : _tIdx;
+      setTheme(((cur + 1) + _THEMES.length) % _THEMES.length);
+    });
   })();
 
 }());
