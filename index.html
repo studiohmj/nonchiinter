@@ -1600,19 +1600,19 @@
       </div>
       <div class="gg-divider"></div>
       <div class="gg-item" data-g="swipe-left">
-        <span class="gg-hand">👈</span>
+        <span class="gg-hand">✋</span>
         <div class="gg-info">
-          <div class="gg-name">왼쪽 스와이프</div>
-          <div class="gg-desc">손 이동 → 이전 분위기</div>
+          <div class="gg-name">손 펴기</div>
+          <div class="gg-desc">손 펴서 2초 → 이전 분위기</div>
         </div>
         <span class="gg-indicator"></span>
       </div>
       <div class="gg-divider"></div>
       <div class="gg-item" data-g="swipe-right">
-        <span class="gg-hand">👉</span>
+        <span class="gg-hand">✊</span>
         <div class="gg-info">
-          <div class="gg-name">오른쪽 스와이프</div>
-          <div class="gg-desc">손 이동 → 다음 분위기</div>
+          <div class="gg-name">주먹 쥐기</div>
+          <div class="gg-desc">주먹 쥐고 2초 → 다음 분위기</div>
         </div>
         <span class="gg-indicator"></span>
       </div>
@@ -1667,8 +1667,14 @@
   const ctx    = canvas.getContext('2d');
 
   function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    /* 모바일: 캔버스를 0.6배 해상도로 렌더 후 CSS로 풀사이즈 표시 (GPU 부하 절감) */
+    var scale = _isMobile ? 0.6 : 1;
+    canvas.width  = Math.round(window.innerWidth  * scale);
+    canvas.height = Math.round(window.innerHeight * scale);
+    if (_isMobile) {
+      canvas.style.width  = window.innerWidth  + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+    }
     buildIdlePts();
   }
   window.addEventListener('resize', resize);
@@ -1677,7 +1683,7 @@
   const CFG = {
     fadeIn:       0.06,
     fadeOut:      0.038,
-    idleN:        45,
+    idleN:        _isMobile ? 18 : 45,  /* 모바일: 파티클 수 절반 이하 */
     scrollZone:   0.22,
     scrollSpd:    14,
   };
@@ -1744,10 +1750,12 @@
     var cx = canvas.width / 2, cy = canvas.height / 2;
     /* 장례식: 조용한 연기/향 퍼짐 */
     if (t.id === 'funeral') {
-      for (var _bi = 0; _bi < 3; _bi++) {
+      var _funeralRings = _isMobile ? 1 : 3;
+      for (var _bi = 0; _bi < _funeralRings; _bi++) {
         effects.push({type:'ring', x:cx, y:cy, r:4, spd:1.0+_bi*0.6, life:0.38, decay:0.005, h:50, delay:_bi*0.28});
       }
-      for (var _bj = 0; _bj < 22; _bj++) {
+      var _funeralDots = _isMobile ? 8 : 22;
+      for (var _bj = 0; _bj < _funeralDots; _bj++) {
         var a = Math.random()*Math.PI*2, s = Math.random()*1.6+0.3;
         effects.push({
           type:'dot', x:cx+((Math.random()-0.5)*24), y:cy+((Math.random()-0.5)*24),
@@ -1760,11 +1768,12 @@
       }
       return;
     }
-    /* 나머지 테마: 팡 폭발 */
-    for (var _bi = 0; _bi < 5; _bi++) {
+    /* 나머지 테마: 팡 폭발 — 모바일은 파티클 수 절감 */
+    var ringN  = _isMobile ? 2 : 5;
+    for (var _bi = 0; _bi < ringN; _bi++) {
       effects.push({type:'ring', x:cx, y:cy, r:6, spd:5+_bi*2.2, life:1, decay:0.013, h:p.h, delay:_bi*0.06});
     }
-    var burstN = 32;
+    var burstN = _isMobile ? 12 : 20;
     for (var _bj = 0; _bj < burstN; _bj++) {
       var a = Math.random()*Math.PI*2, s = Math.random()*7+2.5;
       effects.push({
@@ -2001,14 +2010,63 @@
     if (isShushing && _shushProgress > 0) {
       var cx=px(8), cy=py(8);
       var endA = -Math.PI/2 + _shushProgress * Math.PI * 2;
-      /* track ring */
       camSkelCtx.beginPath(); camSkelCtx.arc(cx,cy,10,0,Math.PI*2);
       camSkelCtx.strokeStyle='rgba(255,200,80,0.12)'; camSkelCtx.lineWidth=1.5; camSkelCtx.stroke();
-      /* progress arc */
       camSkelCtx.shadowBlur = 6; camSkelCtx.shadowColor='rgba(255,220,80,0.7)';
       camSkelCtx.beginPath(); camSkelCtx.arc(cx,cy,10,-Math.PI/2,endA);
       camSkelCtx.strokeStyle='rgba(255,220,90,0.95)'; camSkelCtx.lineWidth=1.5; camSkelCtx.stroke();
       camSkelCtx.shadowBlur = 0;
+    }
+
+    /* ── PASS 5: 네비게이션 제스처 진행 링 (손 펴기/주먹) ── */
+    var _navGesDir = _swHoldDir !== 0 ? _swHoldDir : _gDebounceDir;
+    if (_tInteract && _navGesDir !== 0 && !isShushing) {
+      var _isOpenG = _navGesDir < 0;
+      /* 통합 진행률: 디바운스(350ms) + 홀드(2000ms) */
+      var _totalNavMs = _GESTURE_DEBOUNCE_MS + _SW_HOLD_MS;
+      var _navProgress;
+      if (_swHoldDir !== 0 && _swHoldStartMs > 0) {
+        _navProgress = Math.min(1, (_GESTURE_DEBOUNCE_MS + (Date.now() - _swHoldStartMs)) / _totalNavMs);
+      } else {
+        _navProgress = Math.min(1, (Date.now() - _gDebounceMs) / _totalNavMs);
+      }
+
+      /* 팜 센터(lm[9]) 기준 링 — 하늘색(80,200,255) 단일색 */
+      var _pcx = px(9), _pcy = py(9);
+      var _navR = 18;
+      var _navRGB = '80,200,255';
+
+      /* 트랙 링 */
+      camSkelCtx.beginPath(); camSkelCtx.arc(_pcx, _pcy, _navR, 0, Math.PI*2);
+      camSkelCtx.strokeStyle = 'rgba(' + _navRGB + ',0.22)';
+      camSkelCtx.lineWidth = 2.5; camSkelCtx.stroke();
+
+      /* 진행 아크 */
+      if (_navProgress > 0.01) {
+        var _navEndA = -Math.PI/2 + _navProgress * Math.PI * 2;
+        camSkelCtx.shadowBlur = 12;
+        camSkelCtx.shadowColor = 'rgba(' + _navRGB + ',0.90)';
+        camSkelCtx.beginPath(); camSkelCtx.arc(_pcx, _pcy, _navR, -Math.PI/2, _navEndA);
+        camSkelCtx.strokeStyle = 'rgba(' + _navRGB + ',1)';
+        camSkelCtx.lineWidth = 2.5; camSkelCtx.stroke();
+        camSkelCtx.shadowBlur = 0;
+      }
+
+      /* 손 펴기: 4개 손가락 끝에 민트 점 */
+      if (_isOpenG) {
+        [8,12,16,20].forEach(function(ti) {
+          camSkelCtx.beginPath(); camSkelCtx.arc(px(ti), py(ti), 4.5, 0, Math.PI*2);
+          camSkelCtx.fillStyle = 'rgba(80,200,255,' + (0.45 + _navProgress * 0.55) + ')';
+          camSkelCtx.fill();
+        });
+      } else {
+        /* 주먹: 손가락 MCP 4개에 민트 점 */
+        [5,9,13,17].forEach(function(mi) {
+          camSkelCtx.beginPath(); camSkelCtx.arc(px(mi), py(mi), 4.0, 0, Math.PI*2);
+          camSkelCtx.fillStyle = 'rgba(80,200,255,' + (0.45 + _navProgress * 0.55) + ')';
+          camSkelCtx.fill();
+        });
+      }
     }
 
     camSkelCtx.restore();
@@ -2139,7 +2197,7 @@
     if (_tInteract && _shrEl) {
       if (_swHoldDir !== 0) {
         _shrEl.classList.add('vis');
-        if (_shrIcon) _shrIcon.textContent = _swHoldDir > 0 ? '→' : '←';
+        if (_shrIcon) _shrIcon.textContent = _swHoldDir > 0 ? '✊' : '✋';
         if (_shrArc) _shrArc.style.strokeDashoffset = (194.78 * (1 - _swHoldProgress)).toFixed(2);
       } else {
         _shrEl.classList.remove('vis');
@@ -2186,7 +2244,7 @@
 
   function detectLoop() {
     var _busy = false;
-    var DET_MS = 50;
+    var DET_MS = _isMobile ? 100 : 50;  /* 모바일: ~10fps, 데스크탑: ~20fps */
     (async function loop() {
       if (!cameraActive) return;
       if (!_busy && video.readyState >= 2) {
@@ -2287,15 +2345,37 @@
   let handsInst = null;
 
   function isShush(lm) {
-    /* countFingers와 동일한 임계값 사용 — 검지만 편 상태 판별 */
+    /* 검지만 편 상태(나머지 접힘) — 다크모드 토글
+       검지: 낮은 임계값(0.48)으로 잘 잡힘
+       나머지: 높은 임계값(0.68)으로 확실히 접혀야만 탈락 */
+    var M = _handMetrics(lm);
+    function isIdxExt(t, m) { return M.tm(t,m) > M.hs * 0.48 || M.dw(t) > M.dw(m) * 1.40; }
+    function isOthExt(t, m) { return M.tm(t,m) > M.hs * 0.68 || M.dw(t) > M.dw(m) * 1.70; }
+    if (!isIdxExt(8,5))  return false; /* 검지 안 폈으면 탈락 */
+    if (isOthExt(12,9))  return false; /* 중지 확실히 펴있으면 탈락 */
+    if (isOthExt(16,13)) return false; /* 약지 확실히 펴있으면 탈락 */
+    if (isOthExt(20,17)) return false; /* 소지 확실히 펴있으면 탈락 */
+    var tx = lm[8].x, ty = lm[8].y;
+    return tx > 0.10 && tx < 0.90 && ty > 0.02 && ty < 0.82;
+  }
+
+  function isOpenHand(lm) {
+    /* 4개 손가락 모두 편 상태 — 이전 테마(왼쪽) */
+    var M = _handMetrics(lm);
+    /* 임계값 강화: 0.60→0.72 로 올려 턱 괴기 등 오인식 차단 */
+    function isExt(t, m) { return M.tm(t,m) > M.hs * 0.72 || M.dw(t) > M.dw(m) * 1.70; }
+    if (!isExt(8,5) || !isExt(12,9) || !isExt(16,13) || !isExt(20,17)) return false;
+    /* 방향 체크: 손가락 끝 3개 이상이 손바닥(lm[9])보다 위에 있어야 함 */
+    var palmY = lm[9].y, above = 0;
+    [8,12,16,20].forEach(function(i){ if (lm[i].y < palmY - 0.05) above++; });
+    return above >= 3;
+  }
+
+  function isFist(lm) {
+    /* 4개 손가락 모두 접힌 상태 — 다음 테마(오른쪽) */
     var M = _handMetrics(lm);
     function isExt(t, m) { return M.tm(t,m) > M.hs * 0.60 || M.dw(t) > M.dw(m) * 1.55; }
-    if (!isExt(8,5))  return false; /* 검지 안 폈으면 탈락 */
-    if (isExt(12,9))  return false; /* 중지 펴있으면 탈락 */
-    if (isExt(16,13)) return false; /* 약지 펴있으면 탈락 */
-    if (isExt(20,17)) return false; /* 소지 펴있으면 탈락 */
-    var tx = lm[8].x, ty = lm[8].y;
-    return tx > 0.20 && tx < 0.80 && ty > 0.05 && ty < 0.75;
+    return !isExt(8,5) && !isExt(12,9) && !isExt(16,13) && !isExt(20,17);
   }
 
   function triggerDarkMode() {
@@ -2359,8 +2439,11 @@
     _trackState = 'stable';
     drawCamHand();
 
-    /* ── 쉿 제스처 → 다크모드 토글 ── */
-    if (isShush(lm)) {
+    /* ── 네비게이션 제스처 우선 판별 (쉿보다 먼저) ── */
+    var _navDir = isOpenHand(lm) ? -1 : isFist(lm) ? 1 : 0;
+
+    /* ── 쉿 제스처 → 다크모드 토글 (네비게이션 제스처 없을 때만) ── */
+    if (_navDir === 0 && isShush(lm)) {
       _trackState = 'locked';
       if (!_shushTimer) {
         _shushStartMs = Date.now();
@@ -2378,39 +2461,29 @@
       if (_shushTimer) { clearTimeout(_shushTimer); _shushTimer = null; }
     }
 
-    /* ── 방향 유지 1.5초 → 테마 전환 (인터랙션 모드 전용) ── */
+    /* ── 제스처 유지 → 테마 전환 (인터랙션 모드 전용) ── */
     if (_tInteract) {
-      var _sx = 1 - lm[9].x, _sy = lm[9].y;
-      _swSmX += (_sx - _swSmX) * _SW_ALPHA;
-      _swSmY += (_sy - _swSmY) * _SW_ALPHA;
-      if (_swBaseX === null) { _swBaseX = _swSmX; _swBaseY = _swSmY; }
-      var _dx = _swSmX - _swBaseX, _dy = _swSmY - _swBaseY;
-      var _absDx = Math.abs(_dx);
-      var _isHoriz = _absDx > Math.abs(_dy) * _SW_VRATIO;
-      var _dirNow = (_absDx > _SW_HOLD_THRESH && _isHoriz) ? (_dx > 0 ? 1 : -1) : 0;
-
-      if (_dirNow !== 0) {
-        if (_dirNow !== _swHoldDir) {
-          /* 새 방향 시작 */
-          _swHoldDir = _dirNow; _swHoldStartMs = Date.now(); _swHoldProgress = 0;
+      /* 디바운스: 동일 제스처를 _GESTURE_DEBOUNCE_MS 이상 유지해야 홀드 타이머 시작 */
+      if (_navDir !== _gDebounceDir) {
+        _gDebounceDir = _navDir;
+        _gDebounceMs  = Date.now();
+        _swHoldDir = 0; _swHoldStartMs = 0; _swHoldProgress = 0;
+      } else if (_navDir !== 0 && (Date.now() - _gDebounceMs) >= _GESTURE_DEBOUNCE_MS) {
+        if (_swHoldDir !== _navDir) {
+          _swHoldDir = _navDir; _swHoldStartMs = Date.now(); _swHoldProgress = 0;
         } else {
-          /* 같은 방향 유지 — 진행률 계산 */
           _swHoldProgress = Math.min(1, (Date.now() - _swHoldStartMs) / _SW_HOLD_MS);
           if (_swHoldProgress >= 1 && Date.now() - _swLastMs > _SW_COOL) {
-            /* _tIdx === -1(기본)에서 시작: right→0(wedding), left→마지막(workplace) */
             var _nextIdx = _tIdx < 0
               ? (_swHoldDir > 0 ? 0 : _THEMES.length - 1)
               : _tIdx + _swHoldDir;
             setTheme(_nextIdx);
             updateGuide(_swHoldDir > 0 ? 'swipe-right' : 'swipe-left');
             _swLastMs = Date.now();
-            _swBaseX = _swSmX; _swBaseY = _swSmY;
             _swHoldDir = 0; _swHoldStartMs = 0; _swHoldProgress = 0;
+            _gDebounceDir = 0; _gDebounceMs = 0;
           }
         }
-      } else if (_absDx < _SW_CANCEL_THRESH) {
-        /* 손이 중앙 근처로 돌아옴 → 유지 취소 */
-        _swHoldDir = 0; _swHoldStartMs = 0; _swHoldProgress = 0;
       }
     }
   }
@@ -2422,8 +2495,10 @@
         locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/' + f; }
       });
       handsInst.setOptions({
-        maxNumHands: 1, modelComplexity: 1,
-        minDetectionConfidence: 0.62, minTrackingConfidence: 0.50,
+        maxNumHands: 1,
+        modelComplexity: _isMobile ? 0 : 1,       /* 모바일: 경량 모델 */
+        minDetectionConfidence: _isMobile ? 0.65 : 0.62,
+        minTrackingConfidence:  _isMobile ? 0.55 : 0.50,
       });
       handsInst.onResults(onHandResults);
       if (typeof handsInst.initialize === 'function') await handsInst.initialize();
@@ -2508,7 +2583,9 @@
   /* Swipe hold state */
   var _swSmX=0.5, _swSmY=0.5, _swBaseX=null, _swBaseY=null;
   var _swHoldDir=0, _swHoldStartMs=0, _swHoldProgress=0, _swLastMs=0;
-  var _SW_HOLD_THRESH=0.10, _SW_CANCEL_THRESH=0.055, _SW_VRATIO=1.55, _SW_COOL=1200, _SW_ALPHA=0.22, _SW_HOLD_MS=1500;
+  var _SW_HOLD_THRESH=0.10, _SW_CANCEL_THRESH=0.055, _SW_VRATIO=1.55, _SW_COOL=1200, _SW_ALPHA=0.22, _SW_HOLD_MS=2000;
+  /* 제스처 디바운스: 같은 제스처를 이 시간(ms) 이상 유지해야 홀드 타이머 시작 */
+  var _gDebounceDir=0, _gDebounceMs=0, _GESTURE_DEBOUNCE_MS=350;
 
   function setTheme(idx, silent) {
     idx = ((idx % _THEMES.length) + _THEMES.length) % _THEMES.length;
@@ -2552,8 +2629,8 @@
       }
       _pOffset += p.n;
     });
-    /* 팡 burst 효과 */
-    if (!silent) emitThemeBurst();
+    /* 팡 burst 효과 — 다음 프레임으로 지연해 테마 전환 프레임 스파이크 방지 */
+    if (!silent) requestAnimationFrame(emitThemeBurst);
     /* Swipe feedback flash */
     if (!silent) {
       var fb=document.getElementById('swipe-feedback'), nm=document.getElementById('sw-name');
@@ -2586,12 +2663,14 @@
       setTheme(0, true);  /* 기본 모드: silent (burst/피드백 없음) */
       _swBaseX=null; _swBaseY=null;
       _swHoldDir=0; _swHoldStartMs=0; _swHoldProgress=0;
+      _gDebounceDir=0; _gDebounceMs=0;
     } else {
       toggle.forEach(function(el){ if(el) el.classList.remove('active'); });
       if (tind)  tind.style.display = 'none';
       if (btn)   btn.classList.remove('im-on');
       _swBaseX=null; _swBaseY=null;
       _swHoldDir=0; _swHoldStartMs=0; _swHoldProgress=0;
+      _gDebounceDir=0; _gDebounceMs=0;
       /* 유지 링 숨기기 */
       if (_shrEl) _shrEl.classList.remove('vis');
       if (ggBtn) ggBtn.textContent = '✦ 인터랙션 시작';
